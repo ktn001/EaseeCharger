@@ -1,6 +1,3 @@
-div.eqLogicDisplayCard[data-eqLogic_type=EaseeCharger_vehicle] img {
-	min-height: auto !important;
-}
 
 div.eqLogicDisplayCard[data-eqLogic_type=EaseeCharger_account],
 div.eqLogicDisplayCard[data-eqLogic_type=EaseeCharger_charger] {

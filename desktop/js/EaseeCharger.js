@@ -18,7 +18,7 @@
 /*
  * Permet la réorganisation des commandes dans l'équipement et des accounts
  */
-$('#table_cmd_account, #table_cmd_charger, #table_cmd_vehicle').sortable({
+$('#table_cmd_account, #table_cmd_charger').sortable({
 	axis: 'y',
 	cursor: 'move',
 	items: '.cmd',
@@ -26,7 +26,7 @@ $('#table_cmd_account, #table_cmd_charger, #table_cmd_vehicle').sortable({
 	tolerance: 'intersect',
 	forcePlaceholderSize: true
 });
-$('#table_cmd_account, #table_cmd_charger, #table_cmd_vehicle').on('sortupdate',function(event,ui){
+$('#table_cmd_account, #table_cmd_charger, ).on('sortupdate',function(event,ui){
 		modifyWithoutSave = true;
 });
 
@@ -100,56 +100,6 @@ $('.chargerAction[data-action=add').off('click').on('click',function () {
 });
 
 /*
- * Action du bouton d'ajout d'un véhicule
- */
-$('.vehicleAction[data-action=add').off('click').on('click',function () {
-	if ($('#modContainer_vehicleName').length == 0) {
-		$('body').append('<div id="modContainer_vehicleName" title="{{Nouveau Véhicule:}}"/>');
-		jQuery.ajaxSetup({async: false});
-		$('#modContainer_vehicleName').load('index.php?v=d&plugin=EaseeCharger&modal=vehicleName');
-		jQuery.ajaxSetup({async: true});
-		$("#mod_vehicleName").dialog({
-			closeText: '',
-			autoOpen: false,
-			modal: true,
-			height:200,
-			width:400
-		});
-		$('#mod_vehicleName').dialog('option', 'buttons', {
-			"{{Annuler}}": function () {
-				$(this).dialog("close");
-			},
-			"{{Valider}}": function () {
-				let vehicles = mod_vehicleName('result');
-				if ( vehicles[0].name != '') {
-					$(this).dialog("close");
-				 	jeedom.eqLogic.save({
-						type: vehicleType,
-						eqLogics: vehicles,
-						error: function(error) {
-							$('#div_alert').showAlert({message: error.message, level: 'danger'});
-						},
-						success: function(_data) {
-							let vars = getUrlVars();
-							let url = 'index.php?';
-							for (var i in vars) {
-								if (i != 'id' && i != 'saveSuccessFull' && i != 'removeSuccessFull') {
-									url += i + '=' + vars[i].replace('#', '') + '&';
-								}
-							}
-							modifyWithoutSave = false;
-							url += 'id=' + _data.id + '&saveSuccessFull=1';
-							loadPage(url);
-						}
-					})
-				}
-			}
-		})
-	}
-	$('#mod_vehicleName').dialog('open');
-});
-
-/*
  * Action sur modification d'image d'un compte
  */
 $('#selectAccountImg').on('change',function(){
@@ -161,14 +111,6 @@ $('#selectAccountImg').on('change',function(){
  */
 $('#selectChargerImg').on('change',function(){
 	$('#charger_icon_visu').attr('src', $(this).value());
-});
-
-/*
- * Action sur modification du type de véhicule
- */
-$('#selectVehicleImg').on('change',function(){
-	path = '/plugins/EaseeCharger/desktop/img/vehicle/' + $(this).value() + '.png';
-	$('#vehicle_icon_visu').attr('src', path);
 });
 
 /*
@@ -226,7 +168,7 @@ $('.cmdAction[data-action=reconfigure]').on('click',function() {
 	updateCmds ('updateCmds')
 })
 
-$('#table_cmd_charger, #table_cmd_vehicle').delegate('.listEquipementAction', 'click', function(){
+$('#table_cmd_charger').delegate('.listEquipementAction', 'click', function(){
 	var el = $(this)
 	var type = $(this).closest('.cmd').find('.cmdAttr[data-l1key=type]').value()
 	jeedom.cmd.getSelectModal({cmd: {type: type}}, function(result) {
@@ -236,7 +178,7 @@ $('#table_cmd_charger, #table_cmd_vehicle').delegate('.listEquipementAction', 'c
 	})
 })
 
-$('#table_cmd_charger, #table_cmd_vehicle').delegate('.listEquipementInfo', 'click', function(){
+$('#table_cmd_charger').delegate('.listEquipementInfo', 'click', function(){
 	var el = $(this)
 	jeedom.cmd.getSelectModal({cmd: {type: 'info'}},function (result) {
 		var calcul = el.closest('tr').find('.cmdAttr[data-l1key=configuration][data-l2key=' + el.data('input') + ']')
@@ -365,51 +307,6 @@ function addCmdToChargerTable(_cmd) {
 	});
 }
 
-function addCmdToVehicleTable(_cmd) {
-	let  tr = '<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">';
-	tr += '<td class="hidden-xs">';
-	tr += '<span class="cmdAttr" data-l1key="id"></span>';
-	tr += '</td>';
-	tr += '<td>';
-	tr += '  <input class="cmdAttr form-control input-sm" data-l1key="name" placeholder="{{Nom de la commande}}" style="margin-bottom:3px">';
-	tr += '  <input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="margin-top:5px" disabled>';
-	tr += '</td>';
-	tr += '<td>';
-	tr += '  <input class="cmdAttr form-control input-sm" data-l1key="type" style="width:120px; margin-bottom:3px" disabled>';
-	tr += '  <input class="cmdAttr form-control input-sm" data-l1key="subType" style="width:120px; margin-top:5px" disabled>';
-	tr += '</td>';
-	tr += '<td>';
-	tr += '  <div class="input-group" style="margin-bottom:5px">';
-	if (_cmd.type == 'info') {
-		tr += '    <input class="cmdAttr form-control input-sm roundedleft" data-l1key="configuration" data-l2key="calcul" placeholder="Commande liée">';
-		tr += '    <span class="input-group-btn">';
-		tr += '      <a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="calcul">';
-		tr += '        <i class="fas fa-list-alt"></i>';
-		tr += '      </a>';
-		tr += '    </span>';
-	} else {
-		tr += '    <input class="cmdAttr form-control input-sm roundedleft" data-l1key="configuration" data-l2key="linkedCmd" placeholder="Commande a exécuter">';
-		tr += '    <span class="input-group-btn">';
-		tr += '      <a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="linkedCmd">';
-		tr += '        <i class="fas fa-list-alt"></i>';
-		tr += '      </a>';
-		tr += '    </span>';
-	}
-	tr += '  </div>';
-	tr += '</td>';
-	tr += '<td>';
-	if (is_numeric(_cmd.id)) {
-		tr += '<a class="btn btn-default btn-xs cmdAction" data-action="configure"><i class="fas fa-cogs"></i></a> ';
-		tr += '<a class="btn btn-default btn-xs cmdAction" data-action="test"><i class="fas fa-rss"></i> Tester</a>';
-	}
-	tr += '<i class="fas fa-minus-circle pull-right cmdAction cursor" data-action="remove"></i>';
-	tr += '</td>';
-	tr += '</tr>';
-	$('#table_cmd_vehicle tbody').append(tr);
-	tr = $('#table_cmd_vehicle tbody tr').last();
-	tr.setValues(_cmd, '.cmdAttr');
-}
-
 function addCmdToTable(_cmd) {
 	if (!isset(_cmd)) {
 		var _cmd = {configuration: {}};
@@ -420,9 +317,6 @@ function addCmdToTable(_cmd) {
 	if (init(_cmd.eqType) == 'EaseeCharger_charger') {
 		addCmdToChargerTable(_cmd);
 		return;
-	}
-	if (init(_cmd.eqType) == 'EaseeCharger_vehicle') {
-		addCmdToVehicleTable(_cmd);
 	}
 }
 
@@ -531,9 +425,9 @@ function loadSelectChargerImg(defaut) {
 function prePrintEqLogic (id) {
 	let displayCard = $('.eqLogicDisplayCard[data-eqlogic_id=' + id + ']')
 	let type = displayCard.attr('data-eqlogic_type');
-	$('#account_icon_visu, #charger_icon_visu, #vehicle_icon_visu').attr('src','')
-	$('.tab-EaseeCharger_account, .tab-EaseeCharger_vehicle, .tab-EaseeCharger_charger').hide()
-	$('.EaseeCharger_accountAttr, .EaseeCharger_vehicleAttr, .EaseeCharger_chargerAttr').removeClass('eqLogicAttr')
+	$('#account_icon_visu, #charger_icon_visu').attr('src','')
+	$('.tab-EaseeCharger_account, .tab-EaseeCharger_charger').hide()
+	$('.EaseeCharger_accountAttr, .EaseeCharger_chargerAttr').removeClass('eqLogicAttr')
 	if (type =='EaseeCharger_account') {
 		modelId = displayCard.attr('data-eqlogic_modelId');
 		$('.tab-EaseeCharger_account').show()
@@ -586,9 +480,6 @@ function prePrintEqLogic (id) {
 				$('#ChargerSpecificsParams').html(html);
 			}
 		});
-	} else if (type == 'EaseeCharger_vehicle') {
-		$('.tab-EaseeCharger_vehicle').show()
-		$('.EaseeCharger_vehicleAttr').addClass('eqLogicAttr')
 	}
 }
 
@@ -599,8 +490,6 @@ function printEqLogic (configs) {
 		$('.nav-tabs .tab-EaseeCharger_charger a').first().click()
 		loadSelectAccount(configs.configuration.accountId);
 		loadSelectChargerImg(configs.configuration.image);
-	} else if  (configs.eqType_name == 'EaseeCharger_vehicle') {
-		$('.nav-tabs .tab-EaseeCharger_vehicle a').first().click()
 	}
 }
 

@@ -20,7 +20,7 @@
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 require_once __DIR__ . '/../php/EaseeCharger.inc.php';
 
-class model {
+class Xmodel {
 
 	private $modelId;
 	private $label;

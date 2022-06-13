@@ -251,7 +251,7 @@ class EaseeCharger_charger extends EaseeCharger {
 		}
 		log::add("EaseeCharger","info",__("vérification des listeners pour le chargeur ",__FILE__). $this->getHumanName());
 		$logicalIds = array(
-			'connected' => 'EaseeChargerEventHandler',
+			'connected' => 'EvchargerEventHandler',
 		);
 		foreach ($logicalIds as $logicalId => $function) {
 			$listener = listener::byClassAndFunction('EaseeCharger', $function);
@@ -356,14 +356,6 @@ class EaseeCharger_charger extends EaseeCharger {
 		return EaseeCharger::distance($lat,$lgt,$myLat,$myLgt);
 	}
 
-	public function getVehicleId() {
-		$vehicleCmd = $this->getCmd('info','vehicle');
-		if (is_object($vehicleCmd)) {
-			return $vehicleCmd->execCmd();
-		}
-		return 0;
-	}
-
 	public function getModel() {
 		return model::byId($this->getConfiguration('modelId'));
 	}
@@ -374,79 +366,6 @@ class EaseeCharger_charger extends EaseeCharger {
 
 	public function getLongitude() {
 		return $this->getConfiguration("longitude");
-	}
-
-	public function searchConnectedVehicle() {
-		if (! $this->isConnected()) {
-			log::add("EaseeCharger","debug",sprintf(__("Déconnection du chargeur %s",__FILE__), $this->getHumanName()));
-			$vehicleId = $this->getCmd('info','vehicle')->execCmd();
-			$vehicle = EaseeCharger_vehicle::byId($vehicleId);
-			if (is_object($vehicle)) {
-				$vehicle->checkAndUpdateCmd('charger',0);
-			}
-			$this->checkAndUpdateCmd("vehicle",0);
-			$vehicles = EaseeCharger_vehicle::byType("EaseeCharger_vehicle",true);
-			foreach ($vehicles as $vehicle) {
-				$vehicle->refresh();
-			}
-			return;
-		}
-		log::add("EaseeCharger","debug",sprintf(__("Recherche d'un véhicule pour %s",__FILE__),$this->getHumanName()));
-		$connectionTime = $this->getConnectionTime();
-		$maxPlugDelay = config::byKey("maxPlugDelay","EaseeCharger");
-		$maxDistance = config::byKey("maxDistance","EaseeCharger");
-		$latitude = $this->getLatitude();
-		$longitude = $this->getLongitude();
-		$vehicles = EaseeCharger_vehicle::byType("EaseeEaseeEaseeEaseeEaseeCehicle",true);
-		$candidateVehicles = array();
-		foreach ($vehicles as $vehicle) {
-			log::add("EaseeCharger","debug","  " . $vehicle->getHumanName());
-			$isConnected = $vehicle->isConnected();
-			if ($isConnected === false) {
-				log::add("EaseeCharger","debug","    " . sprintf(__("%s n'est pas connecté",__FILE__),$vehicle->getHumanName()));
-				$vehicle->refresh();
-				continue;
-			}
-			if ($isConnected === true) {
-				if (abs($connectionTime - $vehicle->getConnectionTime()) > $maxPlugDelay) {
-					log::add("EaseeCharger","debug","    " . sprintf(__("%s pas de connection récente",__FILE__),$vehicle->getHumanName()));
-					$vehicle->refresh();
-					continue;
-				}
-				$chargerId = $vehicle->getChargerId();
-				if ($chargerId != '' and $chargerId != 0 and $chargerId != $this->getId()){
-					$charger = EaseeCharger_vehicle::byId($chargerId);
-					if (is_object($charger)){
-						$chargerName = $charger->getHumanName();
-					} else {
-						$chargerName = $chargerId;
-					}
-					log::add("EaseeCharger","debug","    " . sprintf(__("Le véhicule %s est connecté au chargeur %s",__FILE__),$vehicle->getHumanName(),$chargerName));
-					$vehicle->refresh();
-					continue;
-				}
-			}
-			if ($latitude != null and $longitude != null) {
-				$distance = $vehicle->distanceTo($latitude, $longitude);
-				if ($distance > $maxDistance) {
-					log::add("EaseeCharger","debug","    " . sprintf(__("%s est à %s mètres de %s",__FILE__),$vehicle->getHumanName(),$distance,$this->getHumanName()));
-					$vehicle->refresh();
-					continue;
-				}
-			}
-			$candidateVehicles[] = $vehicle;
-		}
-		if (count($candidateVehicles) == 0) {
-			log::add("EaseeCharger","debug",__("Pas de chargeur trouvé!",__FILE__));
-		} elseif (count($candidateVehicles) == 1) {
-			$candidateVehicles[0]->checkAndUpdateCmd('charger',$this->getId());
-			$this->checkAndUpdateCmd('vehicle',$candidateVehicles[0]->getId());
-		} else {
-			log::add("EaseeCharger","debug","  " . __("Trop de véhicules possibles:",__FILE__));
-			foreach ($candidateVehicles as $vehicle) {
-				log::add("EaseeCharger","debug","   " . $vehicle->getHumanName());
-			}
-		} 
 	}
 
     /*     * **********************Getteur Setteur*************************** */

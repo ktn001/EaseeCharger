@@ -254,10 +254,7 @@ class EaseeCharger extends eqLogic {
 					if (!is_object($cmd)){
 						throw new Exception (sprintf(__("EaseeChargerEventHandler: Commande %s introuvable!",__FILE__),$event['event_id']));
 					}
-					if ($cmd->getEqlogic()->getEqType_name() == 'EaseeCharger_vehicle') {
-						$vehicle = $cmd->getEqlogic();
-						$vehicle->searchConnectedCharger();
-					} elseif ($cmd->getEqlogic()->getEqType_name() == 'EaseeCharger_charger') {
+					if ($cmd->getEqlogic()->getEqType_name() == 'EaseeCharger_charger') {
 						$charger = $cmd->getEqlogic();
 						$charger->searchConnectedVehicle();
 					}
@@ -296,10 +293,6 @@ class EaseeCharger extends eqLogic {
 
 	public static function getEngine() {
 		return self::byLogicalId('engine','EaseeCharger');
-	}
-
-	public static function vehiclePlugged($options){
-		log::add("EaseeCharger","info","vehiclePlugged: " . print_r($options,true));
 	}
 
 	/*     * ********************* Les utilitaires ************************* */
@@ -398,4 +391,3 @@ class EaseeChargerCmd extends cmd {
 require_once __DIR__  . '/model.class.php';
 require_once __DIR__  . '/EaseeCharger_account.class.php';
 require_once __DIR__  . '/EaseeCharger_charger.class.php';
-require_once __DIR__  . '/EaseeCharger_vehicle.class.php';

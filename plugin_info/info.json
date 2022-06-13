@@ -1,6 +1,6 @@
 {
 	"id" : "EaseeCharger",
-	"name" : "Chargeur VE",
+	"name" : "Chargeur Easee",
 	"description" : {
 		"fr_FR": "Plugin pour les stations de charge de véhicules électriques"
 	},
