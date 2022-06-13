@@ -1,0 +1,16 @@
+div.eqLogicDisplayCard[data-eqLogic_type=EaseeCharger_vehicle] img {
+	min-height: auto !important;
+}
+
+div.eqLogicDisplayCard[data-eqLogic_type=EaseeCharger_account],
+div.eqLogicDisplayCard[data-eqLogic_type=EaseeCharger_charger] {
+	height: 190px !important;
+}
+
+div.eqLogicDisplayCard[data-eqLogic_type=EaseeCharger_account] .labelModelHuman,
+div.eqLogicDisplayCard[data-eqLogic_type=EaseeCharger_charger] .labelModelHuman {
+	position: relative;
+	top: -20px !important;
+	background-color: red;
+}
+

@@ -1,0 +1,6 @@
+*.php~
+.*.swp
+.swp
+*.bck
+*.bck*
+__pycache__

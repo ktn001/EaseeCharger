@@ -1,0 +1,41 @@
+<div class="cmd cmd-widget #history#" data-type="info" data-subtype="numeric" data-template="etat" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#" data-eqLogic_id="#eqLogic_id#">
+  <div class="title #hide_name#">
+    <div  class="cmdName">#name_display#</div>
+</div>
+  <div class="content-sm">
+    <div class="image"></div>
+    <div class="texte" margin-top="5px"></div>
+  </div>
+  <template>
+	  <div>notexte : 1 {{Cache le texte}}</div>
+	  <div>noimage : 1 {{Cache l'image}}</div>
+  </template>
+  <script>
+    jeedom.cmd.update['#id#'] = function(_options){
+      texte = []
+      texte[1] = '#texte_1#'
+      texte[2] = '#texte_2#'
+      texte[3] = '#texte_3#'
+      texte[4] = '#texte_4#'
+      texte[5] = '#texte_5#'
+      texte[6] = '#texte_6#'
+      console.log(_options)
+      console.log('#id#')
+      cmd = $('.cmd[data-cmd_id=#id#]')
+      cmd.attr('title','{{Date de valeur}} : '+_options.valueDate+'<br/>{{Date de collecte}} : '+_options.collectDate)
+      if (_options.display_value > 0 && _options.display_value < 7) {
+	if ('#noimage#' == '1') {
+	  cmd.find('.image').empty()
+	} else {
+	  cmd.find('.image').empty().append('<img src="/plugins/EaseeCharger/desktop/img/vehicle/compact_' + _options.display_value + '.png" width="120px"/>')
+	}
+	if ('#notexte#' == '1') {
+	  cmd.find('.texte').empty()
+	} else {
+	  cmd.find('.texte').empty().append('<b>' + texte[_options.display_value] + '</b>')
+	}
+      }
+    }
+    jeedom.cmd.update['#id#']({display_value:'#state#',valueDate:'#valueDate#',collectDate:'#collectDate#',alertLevel:'#alertLevel#'});
+  </script>
+</div>

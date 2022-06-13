@@ -1,0 +1,23 @@
+{
+	"id" : "EaseeCharger",
+	"name" : "Chargeur VE",
+	"description" : {
+		"fr_FR": "Plugin pour les stations de charge de véhicules électriques"
+	},
+	"utilization" : {
+		"fr_FR": "Seuls les chargeurs <easee> sont actuallement utilisables dans ce plusgin.<BR/>D'autres type de chargeurs pourront être inégrés à l'avenir"
+	},
+	"licence" : "GNU",
+	"author" : "ktn",
+	"require" : "4.2.0",
+	"category" : "energy",
+	"hasDependency" : true,
+	"hasOwnDeamon" : true,
+	"maxDependancyInstallTime" : 10,
+	"changelog" : "https://ktn001.github.io/EaseeCharger/#language#/changelog.html",
+	"documentation" : "https://ktn001.github.io/EaseeCharger/#language#/index.html",
+	"changelog_beta" : "https://ktn001.github.io/EaseeCharger/beta/#language#/changelog.html",
+	"documentation_beta" : "https://ktn001.github.io/EaseeCharger/beta/#language#/index.html",
+	"language" : ["fr_FR"],
+	"compatibility" : ["miniplus","smart","rpi","docker","diy","mobile","v4"]
+}
