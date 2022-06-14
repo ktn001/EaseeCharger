@@ -18,12 +18,6 @@
 
 class EaseeCharger_account extends EaseeCharger {
 
-	protected static $_haveDaemon = false;
-
-	public static function byModel($_modelId){
-		$eqType_name = "EaseeCharger_account_" . $_modelId;
-		return self::byType($eqType_name);
-	}
 
 //	public static function _cron() {
 //		log::add("EaseeCharger","debug","CRON ACCOUNT");
@@ -67,15 +61,17 @@ class EaseeCharger_account extends EaseeCharger {
 //		}
 //	}
 //
-//	public static function _cronHourly() {
-//		foreach (model::all(true) as $model){
-//			$modelId = $model->getId();
-//			$class='EaseeCharger_account_' . $modelId;
-//			if (method_exists($class,'cronHourly')) {
-//				$class::cronHourly();
-//			}
-//		}
-//	}
+	public static function _cronHourly() {
+		log::add("EVcharger","debug","Acount Easee : _cronHourly");
+	}
+	
+	public function decrypt() {
+		$this->setConfiguration('password', utils::decrypt($this->getConfiguration('password')));
+	}
+
+	public function encrypt() {
+		$this->setConfiguration('password', utils::encrypt($this->getConfiguration('password')));
+	}
 
 	/*
 	 * Démarre le thread du démon pour chaque account actif
@@ -84,6 +80,63 @@ class EaseeCharger_account extends EaseeCharger {
 		foreach (EaseeCharger::byType("EaseeCharger_account_%",true) as $account) {
 			$account->startDaemonThread();
 		}
+	}
+
+	private function sendRequest($path, $data = '', $token='' ) {
+		log::add("EVcharger","info",__("Easee: envoi d'une requête au cloud", __FILE__));
+		if (! $token) {
+			$token = $this->getToken();
+		}
+		$header = [
+			'Authorization: Bearer ' . $token,
+			"Accept: application/json",
+			"Content-Type: application/*+json"
+		];
+		if (is_array($data)) {
+			$data = json_encode($data);
+		}
+
+		$curl = curl_init();
+		curl_setopt_array($curl, [
+			CURLOPT_URL => $this->getUrl() . $path,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => $data == "" ? 'GET' : 'POST',
+			CURLOPT_HTTPHEADER => $header,
+			CURLOPT_POSTFIELDS => $data,
+		]);
+		$reponse = curl_exec($curl);
+		$httpCode = curl_getinfo($curl,CURLINFO_HTTP_CODE);
+		$err = curl_error($curl);
+		curl_close($curl);
+		if ($err) {
+			log::add("EVcharger","error", "CURL Error : " . $err);
+			throw new Exception($err);
+		}
+		log::add("EVcharger","debug", "  " . __("Requête: URL: ",__FILE__) . $this->getUrl() . $path);
+		log::add("EVcharger","debug", "  " . "Header: " . print_r($header,true));
+		$data = json_decode($data,true);
+		if (is_array($data) and  array_key_exists('password',$data) and ($data['password'] != '')) {
+			$data['password'] = "**********";
+		}
+		$data = json_encode($data);
+		log::add("EVcharger","debug", "           " . __("data:",__FILE__) . $data);
+		if (substr($httpCode,0,1) != '2') {
+			$txt = $reponse;
+			$msg = json_decode($reponse,true);
+			if (array_key_exists('title',$msg)) {
+				$txt = $msg['title'];
+			}
+			$txt= sprintf(__("Code retour http: %s - %s",__FILE__) , $httpCode, $txt);
+			log::add("EVcharger","warning", $txt);
+			throw new Exception ($txt);
+		}
+		log::add("EVcharger","debug", "  " . __("Code retour http: ",__FILE__) . $httpCode);
+		log::add("EVcharger","info", "Requête envoyée");
+		return json_decode($reponse, true);
 	}
 
 	/*
@@ -227,14 +280,8 @@ class EaseeCharger_account extends EaseeCharger {
 		return $this->getConfiguration('modelId');
 	}
 
-	public function getModel() {
-		return model::byId($this->getModelId());
-	}
 }
 
 class EaseeCharger_accountCmd extends EaseeChargerCmd  {
 
 }
-
-require_once __DIR__ . '/EaseeCharger_account_easee.class.php';
-require_once __DIR__ . '/EaseeCharger_account_virtual.class.php';
