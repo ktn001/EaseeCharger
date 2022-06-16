@@ -18,7 +18,7 @@
 /*
  * Permet la réorganisation des commandes dans l'équipement et des accounts
  */
-$('#table_cmd_account, #table_cmd_charger').sortable({
+$('#table_cmd_charger').sortable({
 	axis: 'y',
 	cursor: 'move',
 	items: '.cmd',
@@ -26,84 +26,107 @@ $('#table_cmd_account, #table_cmd_charger').sortable({
 	tolerance: 'intersect',
 	forcePlaceholderSize: true
 });
-$('#table_cmd_account, #table_cmd_charger, ).on('sortupdate',function(event,ui){
-		modifyWithoutSave = true;
+$('#table_cmd_charger').on('sortupdate',function(event,ui){
+	modifyWithoutSave = true;
 });
 
 /*
  * Saisie des nom et modèle d'un nouveau compte ou chargeur
  */
 function getNameAndModelAndSave (title, eqLogicType) {
-	if ($('#modContainer_nameAndModel').length == 0) {
-		$('body').append('<div id="modContainer_nameAndModel"></div>');
-		jQuery.ajaxSetup({async: false});
-		$('#modContainer_nameAndModel').load('index.php?v=d&plugin=EaseeCharger&modal=nameAndModel');
-		jQuery.ajaxSetup({async: true});
-		$("#modContainer_nameAndModel").dialog({
-			closeText: '',
-			autoOpen: false,
-			modal: true,
-			height:200,
-			width:400
-		});
-	}
-	$('#modContainer_nameAndModel').dialog({title: title});
-	mod_nameAndModel('init');
-	$('#modContainer_nameAndModel').dialog('option', 'buttons', {
-		"{{Annuler}}": function () {
-			$(this).dialog("close");
-		},
-		"{{Valider}}": function () {
-			let results = mod_nameAndModel('result');
-			if ( results[0].name != '') {
-				$(this).dialog("close");
-				if (eqLogicType == 'EaseeCharger_account') {
-					eqLogicType += '_' + results[0].configuration.modelId;
-				}
-			 	jeedom.eqLogic.save({
-					type: eqLogicType,
-					eqLogics: results,
-					error: function(error) {
-						$('#div_alert').showAlert({message: error.message, level: 'danger'});
-					},
-					success: function(_data) {
-						let vars = getUrlVars();
-						let url = 'index.php?';
-						for (var i in vars) {
-							if (i != 'id' && i != 'saveSuccessFull' && i != 'removeSuccessFull') {
-								url += i + '=' + vars[i].replace('#', '') + '&';
-							}
+	bootbox.prompt(title, function(result) {
+		if (result !== null) {
+			jeedom.eqLogic.save({
+				type: eqLogicType,
+				eqLogics: [{
+					name: result
+				}],
+				error: function(error) {
+					$.fn.showAlert({
+						message: error.message,
+						level: 'danger'
+					});
+				},
+				success: function(_data) {
+					let vars = getUrlVars();
+					let url = 'index.php?';
+					for (var i in vars) {
+						if (i != 'id' && i != 'saveSuccessFull' && i != 'removeSuccessFull') {
+							url += i + '=' + vars[i].replace('#', '') + '&';
 						}
-						modifyWithoutSave = false;
-						url += 'id=' + _data.id + '&saveSuccessFull=1';
-						loadPage(url);
 					}
-				})
-			}
+					modifyWithoutSave = false;
+					url += 'id=' + _data.id + '&saveSuccessFull=1';
+					jeedomUtils.loadPage(url);
+				}
+			})
 		}
-	});
-	$('#modContainer_nameAndModel').dialog('open');
+	})
 }
 
 /*
  * Action du bouton d'ajout d'un compte
  */
 $('.accountAction[data-action=add').off('click').on('click',function () {
-	getNameAndModelAndSave ("Nouveau compte", accountType);
+	bootbox.prompt('{{Nom de du compte}}', function(result) {
+		if (result !== null) {
+			$.ajax({
+				type: 'POST',
+				url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
+				data: {
+					action: 'createAccount',
+					name: result
+				},
+				dataType : 'json',
+				global : false,
+				error: function (request, status, error) {
+					handleAjaxError(request, status, error)
+				},
+				success: function (data) {
+					if (data.state != 'ok') {
+						$.fn.showAlert({message: data.result, level:'danger'});
+						return
+					}
+					editAccount(result);
+				}
+			})
+		}
+	})
 });
+
+/*
+ * Edition d'un compte
+ */
+function editAccount(name) {
+	if ($('#modContainer_editAccount').length == 0) {
+		$('body').append('<div id="modContainer_editAccount"></dev');
+		jQuery.ajaxSetup({async: false});
+		$('#modContainer_editAccount').load('index.php?v=d&plugin=EaseeCharger&modal=editAccount');
+		jQuery.ajaxSetup({async: true});
+		$('#modContainer_editAccount').dialog({
+			closeText: '',
+			autoOpen: false,
+			modal: true,
+			height: 200,
+			width: 400
+		});
+	}
+	$('#modContainer_editAccount').dialog({title: '{{Compte}}: ' + name});
+	$('#modContainer_editAccount').dialog('option', 'buttons', {
+		"{{Annuler}}": function() {
+			$(this).dialog("close");
+		},
+		"{{Valider}}": function() {
+		}
+	})
+	$('#modContainer_editAccount').dialog('open');
+}
 
 /*
  * Action du bouton d'ajout d'un chargeur
  */
 $('.chargerAction[data-action=add').off('click').on('click',function () {
 	getNameAndModelAndSave ("Nouveau chargeur", chargerType);
-});
-
-/*
- * Action sur modification d'image d'un compte
- */
-$('#selectAccountImg').on('change',function(){
-	$('#account_icon_visu').attr('src', $(this).value());
 });
 
 /*
@@ -131,7 +154,7 @@ function updateCmds ( action = "") {
 		},
 		success: function (data) {
 			if (data.state != 'ok') {
-				$('#div_alert').showAlert({message: data.result, level: 'danger'});
+				$.fn.showAlert({message: data.result, level: 'danger'});
 				return;
 			}
 			modifyWithoutSave = false
@@ -208,7 +231,7 @@ function addCmdToChargerTable(_cmd) {
 	tr += '  <a class="cmdAction btn btn-default btn-sm" data-l1key="chooseIcon"><i class="fas fa-flag"></i> {{Icône}}</a>';
 	tr += '  <span class="cmdAttr" data-l1key="display" data-l2key="icon" style="margin-left : 10px;"></span>';
 	tr += '  <select class="cmdAttr form-control input-sm" data-l1key="value" style="display : none;margin-top : 5px;" title="{{Commande information liée}}">';
-	tr += '    <option value="">{{Aucune}}</option>';
+	tr += '	<option value="">{{Aucune}}</option>';
 	tr += '  </select>';
 	tr += '</td>';
 	tr += '<td>';
@@ -231,9 +254,9 @@ function addCmdToChargerTable(_cmd) {
 				tr += '<div class="input-group" style="margin-bottom:5px">';
 				tr += '  <input type="text" class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="calcul"></input>'
 				tr += '   <span class="input-group-btn">';
-				tr += '    <a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="calcul">';
-				tr += '      <i class="fas fa-list-alt"></i>';
-				tr += '    </a>';
+				tr += '	<a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="calcul">';
+				tr += '	  <i class="fas fa-list-alt"></i>';
+				tr += '	</a>';
 				tr += '  </span>';
 				tr += '</div>';
 			}
@@ -248,9 +271,9 @@ function addCmdToChargerTable(_cmd) {
 				tr += '<div class="input-group" style="margin-bottom:5px">';
 				tr += '  <input type="text" class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="destId"></input>'
 				tr += '   <span class="input-group-btn">';
-				tr += '    <a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="destId">';
-				tr += '      <i class="fas fa-list-alt"></i>';
-				tr += '    </a>';
+				tr += '	<a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="destId">';
+				tr += '	  <i class="fas fa-list-alt"></i>';
+				tr += '	</a>';
 				tr += '  </span>';
 				tr += '</div>';
 			}
@@ -258,9 +281,9 @@ function addCmdToChargerTable(_cmd) {
 			tr += '<div class="input-group" style="margin-bottom:5px">';
 			tr += '  <input type="text" class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="destId"></input>'
 			tr += '   <span class="input-group-btn">';
-			tr += '    <a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="destId">';
-			tr += '      <i class="fas fa-list-alt"></i>';
-			tr += '    </a>';
+			tr += '	<a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="destId">';
+			tr += '	  <i class="fas fa-list-alt"></i>';
+			tr += '	</a>';
 			tr += '  </span>';
 			tr += '</div>';
 		}
@@ -297,7 +320,7 @@ function addCmdToChargerTable(_cmd) {
 		id:  $('.eqLogicAttr[data-l1key=id]').value(),
 		filter: {type: 'info'},
 		error: function (error) {
-			$('#div_alert').showAlert({message: error.message, level: 'danger'});
+			$.fn.showAlert({message: error.message, level: 'danger'});
 		},
 		success: function (result) {
 			tr.find('.cmdAttr[data-l1key=value]').append(result);
@@ -338,7 +361,7 @@ function loadSelectAccount(defaut) {
 		},
 		success: function (data) {
 			if (data.state != 'ok') {
-				$('#div_alert').showAlert({message: data.result, level: 'danger'});
+				$.fn.showAlert({message: data.result, level: 'danger'});
 				return;
 			}
 			$('#selectAccount').empty();
@@ -350,41 +373,6 @@ function loadSelectAccount(defaut) {
 			$('#selectAccount').append(content).val(defaut).trigger('change');
 		}
 	});
-}
-
-function loadSelectAccountImg(defaut) {
-	$.ajax({
-		type: 'POST',
-		url: 'plugins/EaseeCharger/core/ajax/account.ajax.php',
-		data: {
-			action: 'images',
-			modelId: $('.eqLogicAttr[data-l1key=configuration][data-l2key=modelId]').value(),
-		},
-		dataType : 'json',
-		global:false,
-		error: function (request, status, error) {
-			handleAjaxError(request, status, error);
-		},
-		success: function (data) {
-			if (data.state != 'ok') {
-				$('#div_alert').showAlert({message: data.result, level: 'danger'});
-				return;
-			}
-			$('#selectAccountImg').empty();
-			let images = json_decode(data.result);
-			let options = "";
-			for (image of images) {
-				splitPath = image.split('/').reverse();
-				if (splitPath[1] != 'img') {
-					display = splitPath[1] + '/' + splitPath[0];
-				} else {
-					display = splitPath[0];
-				}
-				options += '<option value="' + image + '">' + display + '</option>';
-			}
-			$('#selectAccountImg').append(options).val(defaut).trigger('change');
-		}
-	})
 }
 
 function loadSelectChargerImg(defaut) {
@@ -402,7 +390,7 @@ function loadSelectChargerImg(defaut) {
 		},
 		success: function (data) {
 			if (data.state != 'ok') {
-				$('#div_alert').showAlert({message: data.result, level: 'danger'});
+				$.fn.showAlert({message: data.result, level: 'danger'});
 				return;
 			}
 			$('#selectChargerImg').empty();
@@ -426,35 +414,9 @@ function prePrintEqLogic (id) {
 	let displayCard = $('.eqLogicDisplayCard[data-eqlogic_id=' + id + ']')
 	let type = displayCard.attr('data-eqlogic_type');
 	$('#account_icon_visu, #charger_icon_visu').attr('src','')
-	$('.tab-EaseeCharger_account, .tab-EaseeCharger_charger').hide()
-	$('.EaseeCharger_accountAttr, .EaseeCharger_chargerAttr').removeClass('eqLogicAttr')
-	if (type =='EaseeCharger_account') {
-		modelId = displayCard.attr('data-eqlogic_modelId');
-		$('.tab-EaseeCharger_account').show()
-		$('.EaseeCharger_accountAttr').addClass('eqLogicAttr')
-		$.ajax({
-			type: 'POST',
-			url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
-			data: {
-				action: 'ParamsHtml',
-				object: 'account',
-				modelId: modelId
-			},
-			dataType: 'json',
-			global: false,
-			error: function(request, status, error) {
-				handleAjaxError(request, status, error);
-			},
-			success: function(data) {
-				if (data.state != 'ok') {
-					$('#div_alert').showAlert({message: data.result, level: 'danger'});
-					return;
-				}
-				let html = data.result;
-				$('#AccountSpecificsParams').html(html);
-			}
-		});
-	} else if (type =='EaseeCharger_charger') {
+	$('.tab-EaseeCharger_xaccount, .tab-EaseeCharger_charger').hide()
+	$('.EaseeCharger_xaccountAttr, .EaseeCharger_chargerAttr').removeClass('eqLogicAttr')
+	if (type =='EaseeCharger_charger') {
 		$('.tab-EaseeCharger_charger').show()
 		$('.EaseeCharger_chargerAttr').addClass('eqLogicAttr')
 		modelId = displayCard.attr('data-eqlogic_modelId');
@@ -473,7 +435,7 @@ function prePrintEqLogic (id) {
 			},
 			success: function(data) {
 				if (data.state != 'ok') {
-					$('#div_alert').showAlert({message: data.result, level: 'danger'});
+					$.fn.showAlert({message: data.result, level: 'danger'});
 					return;
 				}
 				let html = data.result;
@@ -484,24 +446,10 @@ function prePrintEqLogic (id) {
 }
 
 function printEqLogic (configs) {
-	if (configs.eqType_name.startsWith('EaseeCharger_account')) {
-		loadSelectAccountImg(configs.configuration.image);
-	} else if (configs.eqType_name == 'EaseeCharger_charger') {
+	if (configs.eqType_name == 'EaseeCharger_charger') {
 		$('.nav-tabs .tab-EaseeCharger_charger a').first().click()
 		loadSelectAccount(configs.configuration.accountId);
 		loadSelectChargerImg(configs.configuration.image);
 	}
 }
-
-$('#AccountSpecificsParams').delegate('.show-txt','click',function() {
-	$(this).closest('.input-group').find('input[type=password]').attr('type','text');
-	$(this).hide();
-	$(this).closest('.input-group').find('button.hide-pwd').show();
-})
-
-$('#AccountSpecificsParams').delegate('.hide-pwd','click',function() {
-	$(this).closest('.input-group').find('input[type=text]').attr('type','password');
-	$(this).hide();
-	$(this).closest('.input-group').find('button.show-txt').show();
-})
 

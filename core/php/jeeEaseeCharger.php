@@ -6,13 +6,13 @@ try {
 
 	function process_daemon_message($message) {
 		if ($message['info'] == 'started'){
-			EaseeCharger_account::startAllDaemonThread();
+			EaseeCharger_xaccount::startAllDaemonThread();
 		}
 	}
 
 	function process_account_message($message) {
 		if ($message['info'] == 'thread_started'){
-			$account = EaseeCharger_account::byId($message['account_id']);
+			$account = EaseeCharger_xaccount::byId($message['account_id']);
 			if (is_object($account)) {
 				$account->daemonThreadStarted();
 			} else {

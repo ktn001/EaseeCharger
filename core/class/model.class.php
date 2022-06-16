@@ -81,7 +81,7 @@ class Xmodel {
 
 	public static function allUsed() {
 		$used = array();
-		foreach (EaseeCharger_account::byType('EaseeCharger_account_%') as $account) {
+		foreach (EaseeCharger_xaccount::byType('EaseeCharger_xaccount_%') as $account) {
 			$used[$account->getModelId()] = 1;
 		}
 		return array_keys($used);

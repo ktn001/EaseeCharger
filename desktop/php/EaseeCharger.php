@@ -4,7 +4,7 @@ if (!isConnect('admin')) {
 }
 //  Déclaration des variables obligatoires
 $plugin = plugin::byId('EaseeCharger');
-$accounts = EaseeCharger_account::byType('EaseeCharger_account%');
+$accounts = EaseeCharger_xaccount::byType('EaseeCharger_xaccount%');
 $chargers = EaseeCharger_charger::byType('EaseeCharger_charger');
 
 // Déclaration de variables pour javasctipt
@@ -55,13 +55,11 @@ sendVarToJS('chargerType', $plugin->getId() . "_charger");
 	    <?php
             foreach ($accounts as $account) {
 		$opacity = ($account->getIsEnable()) ? '' : 'disableCard';
-		echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $account->getId() . '" data-eqLogic_type="EaseeCharger_account" data-eqLogic_modelId="' . $account->getconfiguration('modelId') . '">';
+		echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $account->getId() . '" data-eqLogic_type="EaseeCharger_xaccount" data-eqLogic_modelId="' . $account->getconfiguration('modelId') . '">';
 		echo '<img src="' . $account->getImage() . '" style="width:unset !important"/>';
 		echo '<br>';
 		echo '<span class="name">';
 		echo $account->getHumanName(true, true);
-		echo '<br>';
-		echo $account->getModel()->getHumanName(true,true);
 		echo '</span>';
 		echo '</div>';
 	    }
@@ -85,7 +83,7 @@ sendVarToJS('chargerType', $plugin->getId() . "_charger");
     <!-- ================================================= -->
     <!-- Pages de configuration des chargeurs et véhicules -->
     <!-- ================================================= -->
-    <div class="col-xs-12 eqLogic EaseeCharger_account EaseeCharger_charger" style="display: none;">
+    <div class="col-xs-12 eqLogic EaseeCharger_xaccount EaseeCharger_charger" style="display: none;">
 
 	<!-- barre de gestion des chargeurs et véhicules -->
 	<!-- =========================================== -->
@@ -104,9 +102,9 @@ sendVarToJS('chargerType', $plugin->getId() . "_charger");
 	<!-- ====================================== -->
 	<ul class="nav nav-tabs" role="tablist">
 	    <li role="presentation"><a href="#" class="eqLogicAction" aria-controls="home" role="tab" data-toggle="tab" data-action="returnToThumbnailDisplay"><i class="fas fa-arrow-circle-left"></i></a></li>
-	    <li role="presentation" class="tab-EaseeCharger_account"><a href="#accounttab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-charging-station"></i><span class="hidden-xs"> {{Compte}}</span></a></li>
+	    <li role="presentation" class="tab-EaseeCharger_xaccount"><a href="#accounttab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-charging-station"></i><span class="hidden-xs"> {{Compte}}</span></a></li>
 	    <li role="presentation" class="tab-EaseeCharger_charger"><a href="#chargertab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-charging-station"></i><span class="hidden-xs"> {{Chargeur}}</span></a></li>
-	    <li role="presentation" class="tab-EaseeCharger_account"><a href="#accountcommandtab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-list"></i><span class="hidden-xs"> {{Commandes}}</span></a></li>
+	    <li role="presentation" class="tab-EaseeCharger_xaccount"><a href="#accountcommandtab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-list"></i><span class="hidden-xs"> {{Commandes}}</span></a></li>
 	    <li role="presentation" class="tab-EaseeCharger_charger"><a href="#chargercommandtab" aria-controls="home" role="tab" data-toggle="tab"><i class="fas fa-list"></i><span class="hidden-xs"> {{Commandes}}</span></a></li>
 	</ul>
 
@@ -126,15 +124,15 @@ sendVarToJS('chargerType', $plugin->getId() . "_charger");
 			    <div class="form-group">
 				<label class="col-sm-3 control-label">{{Nom du compte}}</label>
 				<div class="col-sm-7">
-				    <input type="text" class="EaseeCharger_accountAttr form-control" data-l1key="id" style="display : none;"/>
-				    <input type="text" class="EaseeCharger_accountAttr form-control" data-l1key="configuration" data-l2key="modelId" style="display : none;"/>
-				    <input type="text" class="EaseeCharger_accountAttr form-control" data-l1key="name" placeholder="{{Nom du compte}}"/>
+				    <input type="text" class="EaseeCharger_xaccountAttr form-control" data-l1key="id" style="display : none;"/>
+				    <input type="text" class="EaseeCharger_xaccountAttr form-control" data-l1key="configuration" data-l2key="modelId" style="display : none;"/>
+				    <input type="text" class="EaseeCharger_xaccountAttr form-control" data-l1key="name" placeholder="{{Nom du compte}}"/>
 				</div>
 			    </div>
 			    <div class="form-group">
 				<label class="col-sm-3 control-label" >{{Objet parent}}</label>
 				<div class="col-sm-7">
-				    <select id="sel_object" class="EaseeCharger_accountAttr form-control" data-l1key="object_id">
+				    <select id="sel_object" class="EaseeCharger_xaccountAttr form-control" data-l1key="object_id">
 					<option value="">{{Aucun}}</option>
 					<?php
 					$options = '';
@@ -152,7 +150,7 @@ sendVarToJS('chargerType', $plugin->getId() . "_charger");
 				    <?php
 				    foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
 					echo '<label class="checkbox-inline">';
-					echo '<input type="checkbox" class="EaseeCharger_accountAttr" data-l1key="category" data-l2key="' . $key . '" />' . $value['name'];
+					echo '<input type="checkbox" class="EaseeCharger_xaccountAttr" data-l1key="category" data-l2key="' . $key . '" />' . $value['name'];
 					echo '</label>';
 				    }
 				    ?>
@@ -161,8 +159,8 @@ sendVarToJS('chargerType', $plugin->getId() . "_charger");
 			    <div class="form-group">
 				<label class="col-sm-3 control-label">{{Options}}</label>
 				<div class="col-sm-7">
-				    <label class="checkbox-inline"><input type="checkbox" class="EaseeCharger_accountAttr" data-l1key="isEnable" checked/>{{Activer}}</label>
-				    <label class="checkbox-inline"><input type="checkbox" class="EaseeCharger_accountAttr" data-l1key="isVisible" checked/>{{Visible}}</label>
+				    <label class="checkbox-inline"><input type="checkbox" class="EaseeCharger_xaccountAttr" data-l1key="isEnable" checked/>{{Activer}}</label>
+				    <label class="checkbox-inline"><input type="checkbox" class="EaseeCharger_xaccountAttr" data-l1key="isVisible" checked/>{{Visible}}</label>
 				</div>
 			    </div>
 			    <br>
@@ -179,7 +177,7 @@ sendVarToJS('chargerType', $plugin->getId() . "_charger");
 			    <div class="form-group">
 				<div class="text-center">
 				    <img id="account_icon_visu" style="max-width:160px;"/>
-				    <select id="selectAccountImg" class="EaseeCharger_accountAttr" data-l1key="configuration" data-l2key="image">
+				    <select id="selectAccountImg" class="EaseeCharger_xaccountAttr" data-l1key="configuration" data-l2key="image">
 				    </select>
 				</div>
 			    </div>

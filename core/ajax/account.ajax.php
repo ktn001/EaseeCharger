@@ -39,7 +39,7 @@ try {
 
 	if (init('action') == 'getAccountToSelect') {
 		$result = array();
-		foreach (EaseeCharger_account::byModel(init('modelId')) as $account) {
+		foreach (EaseeCharger_xaccount::byModel(init('modelId')) as $account) {
 			$data = array(
 				'id' => $account->getId(),
 				'value' => $account->getHumanName(),

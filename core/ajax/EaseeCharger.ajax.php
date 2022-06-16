@@ -28,10 +28,6 @@ try {
 
 	log::add("EaseeCharger","debug","  Ajax EaseeCharger: action: " . init('action'));
 
-	if (init('action') == 'modelLabels') {
-		ajax::success(json_encode(model::labels()));
-	}
-
 	if (init('action') == 'images') {
 		$modelId = init('modelId');
 		if ($modelId == '') {
@@ -84,37 +80,17 @@ try {
 		}
 	}
 
-	if (init('action') == 'saveModelConfigs') {
-		$configs = json_decode(init('configs'),true);
-		foreach ($configs as $key => $value) {
-			config::save($key, $value, 'EaseeCharger');
+	if (init('action') == 'createAccount') {
+		try {
+			$name = init('name');
+			log::add("EaseeCharger", "debug", sprintf (__('Création de compte %s',__FILE__),$name));
+			EaseeCharger_account::create($name);
+			ajax::success();
+		} catch (Exception $e){
+			ajax::error(displayException($e), $e->getCode());
 		}
 	}
-
-	if (init('action') == 'models') {
-		$models = array();
-		foreach (model::all(false) as $model) {
-			$modelId = $model->getId();
-			$model = utils::o2a($model);
-			if (file_exists(__DIR__ . "/../../desktop/modal/" . $modelId . "/config.php")){
-				$model['haveModalOptions'] = 1;
-			} else {
-				$model['haveModalOptions'] = 0;
-			}
-			$models[] = $model;
-		}
-		ajax::success($models);
-	}
-
-	if (init('action') == 'saveModels'){
-		$models = json_decode(init('models'),true);
-		foreach ($models as $model) {
-			$dbModel = model::byId($model['modelId']);
-			utils::a2o($dbModel,$model);
-			$dbModel->save();
-		}
-		ajax::success();
-	}
+		
 	throw new Exception(__("Aucune méthode correspondante à : ", __FILE__) . init('action'));
 
 	/*     * *********Catch exeption*************** */

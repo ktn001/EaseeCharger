@@ -36,7 +36,7 @@ class EaseeCharger extends eqLogic {
 	 * Surcharge de la function "byType" pour permettre de chercher les
 	 * eqLogics du classe et des classes héritières.
 	 *
-	 * "byType('EaseeCharger_account_%')" par exemple pour avoir tous les
+	 * "byType('EaseeCharger_xaccount_%')" par exemple pour avoir tous les
 	 * accounts quelque soit le modèle
 	 */
 	public static function byType($_eqType_name, $_onlyEnable = false) {
@@ -313,31 +313,31 @@ class EaseeCharger extends eqLogic {
 	/*     * ************************ Les crons **************************** */
 
 //	public static function cron() {
-//		EaseeCharger_account::_cron();
+//		EaseeCharger_xaccount::_cron();
 //	}
 //
 //	public static function cron5() {
-//		EaseeCharger_account::_cron5();
+//		EaseeCharger_xaccount::_cron5();
 //	}
 //
 //	public static function cron10() {
-//		EaseeCharger_account::_cron10();
+//		EaseeCharger_xaccount::_cron10();
 //	}
 //
 //	public static function cron15() {
-//		EaseeCharger_account::_cron15();
+//		EaseeCharger_xaccount::_cron15();
 //	}
 //
 //	public static function cron30() {
-//		EaseeCharger_account::_cron30();
+//		EaseeCharger_xaccount::_cron30();
 //	}
 //
 //	public static function cronHourly() {
-//		EaseeCharger_account::_cronHourly();
+//		EaseeCharger_xaccount::_cronHourly();
 //	}
 //
 //	public static function cronDaily() {
-//		EaseeCharger_account::_cron15();
+//		EaseeCharger_xaccount::_cron15();
 //	}
 
     //========================================================================
@@ -389,5 +389,6 @@ class EaseeChargerCmd extends cmd {
 }
 
 require_once __DIR__  . '/model.class.php';
+require_once __DIR__  . '/EaseeCharger_xaccount.class.php';
 require_once __DIR__  . '/EaseeCharger_account.class.php';
 require_once __DIR__  . '/EaseeCharger_charger.class.php';
