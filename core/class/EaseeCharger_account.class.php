@@ -22,6 +22,8 @@ class EaseeCharger_account {
 	private $login = '';
 	private $password = '';
 
+	/*     * ********************** Méthodes Static *************************** */
+
 	public static function create($name) {
 		$key = 'account::' . $name;
 		$config = config::byKey($key, 'EaseeCharger');
@@ -49,6 +51,8 @@ class EaseeCharger_account {
 		return $account;
 	}
 
+	/*     * ********************** Méthodes d'instance *************************** */
+
 	public function save() {
 		$value = utils::o2a($this);
 		$value['password'] = utils::encrypt($value['password']);
@@ -58,7 +62,7 @@ class EaseeCharger_account {
 		return $this;
 	}
 
-	/*     * **********************Getteur Setteur*************************** */
+	/*     * ********************** Getteur Setteur *************************** */
 
 	public function setLogin($_login) {
 		$this->login = $_login;
