@@ -17,20 +17,46 @@
 */
 
 if (!isConnect('admin')) {
-    throw new Exception('{{401 - Accès non autorisé}}');
+	throw new Exception('{{401 - Accès non autorisé}}');
 }
 ?>
 
 <div id="editAccount">
-  <form class="form-horizontal">
-    <fieldset>
-      <label class="control-label">{{Model d'account}}:</label>
-      <select class="toto">
-      </select>
-    </fieldset>
-  </form>
+	<form class="form-horizontal">
+		<fieldset>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">{{Login}}:</label>
+				<input type="text" class="config form-control col-sm-7" data-l1key="login"/>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">{{Password}}:</label>
+				<div class="input-group col-sm-7" style="display:flex; padding-right:0px !important; padding-left:0px !important">
+					<input type="password" class="config form-control" data-l1key="password"/>
+					<button class="btn btn-outline-secondary show-txt" type="button"><i class="fas fa-eye"></i></button>
+					<button class="btn btn-outline-secondary hide-txt" type="button" style="display:none"><i class="fas fa-eye-slash"></i></button>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">{{Activer}}:</label>
+				<input type="checkbox" class="config form-control" data-l1key="isEnable"/>
+			</div>
+		</fieldset>
+	</form>
 </div>
 
 <script>
+
+$('#editAccount .show-txt').off().on('click', function() {
+	$(this).closest('.input-group').find('input[type=password]').attr('type','text');
+	$(this).hide();
+	$(this).closest('.input-group').find('button.hide-txt').show();
+})
+
+$('#editAccount .hide-txt').off().on('click', function() {
+	$(this).closest('.input-group').find('input[type=text]').attr('type','password');
+	$(this).hide();
+	$(this).closest('.input-group').find('button.show-txt').show();
+})
+
 
 </script>

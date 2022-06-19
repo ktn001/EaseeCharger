@@ -21,6 +21,7 @@ class EaseeCharger_account {
 	private $name = '';
 	private $login = '';
 	private $password = '';
+	private $isEnable = 0;
 
 	/*     * ********************** Méthodes Static *************************** */
 
@@ -51,6 +52,22 @@ class EaseeCharger_account {
 		return $account;
 	}
 
+	public static function all($_onlyEnable = false) {
+		$configs = config::searchKey('account::%', 'EaseeCharger');
+		$accounts = array();
+		foreach ($configs as $config) {
+			if ($_onlyEnable) {
+				if (!isset($config['value']['isEnable']) || $config['value']['isEnable'] == 0 || $config['value']['isEnable'] == '') {
+					continue;
+				}
+			}
+			$account = new self();
+			utils::a2o($account,$config['value']);
+			$accounts[] = $account;
+		}
+		return $accounts;
+	}
+
 	/*     * ********************** Méthodes d'instance *************************** */
 
 	public function save() {
@@ -63,6 +80,15 @@ class EaseeCharger_account {
 	}
 
 	/*     * ********************** Getteur Setteur *************************** */
+
+	public function setIsEnable($_isEnable) {
+		$this->isEnable = $_isEnable;
+		return $this;
+	}
+
+	public function getIsEnable() {
+		return $this->isEnable;
+	}
 
 	public function setLogin($_login) {
 		$this->login = $_login;

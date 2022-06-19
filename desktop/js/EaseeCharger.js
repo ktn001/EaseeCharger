@@ -117,8 +117,10 @@ function editAccount(name) {
 			$(this).dialog("close");
 		},
 		"{{Valider}}": function() {
+			$(this).dialog("close");
 		}
-	})
+	});
+
 	$('#modContainer_editAccount').dialog('open');
 }
 

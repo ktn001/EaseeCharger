@@ -22,12 +22,8 @@ if (!isConnect()) {
   die();
 }
 include_file('core', 'EaseeCharger', 'class', 'EaseeCharger');
-sendVarToJS('defaultTagColor', config::getDefaultConfiguration('EaseeCharger')['EaseeCharger']['defaultTagColor']);
-sendVarToJS('defaultTagTextColor', config::getDefaultConfiguration('EaseeCharger')['EaseeCharger']['defaultTextTagColor']);
 
 $defaultPort = config::getDefaultConfiguration('EaseeCharger')['EaseeCharger']['daemon::port'];
-$defaultMaxPlugDelay = config::getDefaultConfiguration('EaseeCharger')['EaseeCharger']['maxPlugDelay'];
-$defaultMaxDistance = config::getDefaultConfiguration('EaseeCharger')['EaseeCharger']['maxDistance'];
 ?>
 
 <form class="form-horizontal">
@@ -47,7 +43,7 @@ $defaultMaxDistance = config::getDefaultConfiguration('EaseeCharger')['EaseeChar
 	  {{Debug étendu}}
 	  <sup><i class="fas fa-question-circle" title="{{Niveau debug étendu pour le démon (très verbeux)}}"></i></sup>
 	</label>
-	<input class="configKey form-control" type="checkbox" data-l1key="extendedDebug"/>
+	<input class="configKey form-control" type="checkbox" data-l1key="extendedDebug"/>  ({{Nécessite un redémarrage du démon}})
 
       </div> <!-- partie gauche -->
 

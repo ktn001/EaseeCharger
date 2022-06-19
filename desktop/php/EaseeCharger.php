@@ -4,7 +4,7 @@ if (!isConnect('admin')) {
 }
 //  Déclaration des variables obligatoires
 $plugin = plugin::byId('EaseeCharger');
-$accounts = EaseeCharger_xaccount::byType('EaseeCharger_xaccount%');
+$accounts = EaseeCharger_account::all();
 $chargers = EaseeCharger_charger::byType('EaseeCharger_charger');
 
 // Déclaration de variables pour javasctipt
@@ -40,29 +40,47 @@ sendVarToJS('chargerType', $plugin->getId() . "_charger");
 	    </div>
 	</div> <!-- Boutons de gestion du plugin -->
 
+	<!-- Les comptes -->
+	<!-- =========== -->
+	<legend><i class="fas fa-user"></i> {{Mes comptes}}</legend>
+	<!-- Champ de recherche des comptes -->
+	<div class="input-group">
+	    <input class="form-control roundedLeft" placeholder="{{Rechercher}}" id="in_searchAccount"/>
+	    <div class="input-group-btn">
+		<a id="bt_resetSearch" class="btn roundedRight" style="width:30px"><i class="fas fa-times"></i></a>
+                <a class="btn roundedRight hidden" id="bt_pluginDisplayAsTable" data-coreSupport="1" data-state="0"><i class="fas fa-grip-lines"></i></a>
+	    </div>
+	</div> <!-- Champ de recherche des comptes -->
+	<!-- Liste des comptes -->
+	<div class="eqLogicThumbnailContainer">
+	    <?php
+            foreach ($accounts as $account) {
+		$opacity = ($account->getIsEnable()) ? '' : 'disableCard';
+		echo '<div class="accountDisplayCard cursor '.$opacity.'" data-account_id="' . $account->getName() . '">';
+		echo '<img src="/plugins/EaseeCharger/desktop/img/account.png" style="width:unset !important"/>';
+		echo '<br>';
+		echo '<span class="name">';
+		echo $account->getName();
+		echo '</span>';
+		echo '</div>';
+	    }
+	    ?>
+	</div> <!-- Liste des comptes -->
+
 	<!-- Les chargeurs et véhicules -->
 	<!-- ========================== -->
-	<legend><i class="fas fa-user"></i><i class="fas fa-charging-station"></i><i class="fas fa-car"></i> {{Mes comptes, chargeurs et véhicules}}</legend>
+	<legend><i class="fas fa-user"></i><i class="fas fa-charging-station"></i> {{Mes comptes et chargeurs}}</legend>
 	<!-- Champ de recherche des chargeurs -->
 	<div class="input-group">
 	    <input class="form-control roundedLeft" placeholder="{{Rechercher}}" id="in_searchEqlogic"/>
 	    <div class="input-group-btn">
 		<a id="bt_resetSearch" class="btn roundedRight" style="width:30px"><i class="fas fa-times"></i></a>
+                <a class="btn roundedRight hidden" id="bt_pluginDisplayAsTable" data-coreSupport="1" data-state="0"><i class="fas fa-grip-lines"></i></a>
 	    </div>
 	</div> <!-- Champ de recherche des chargeurs -->
 	<!-- Liste des chargeurs -->
 	<div class="eqLogicThumbnailContainer">
 	    <?php
-            foreach ($accounts as $account) {
-		$opacity = ($account->getIsEnable()) ? '' : 'disableCard';
-		echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $account->getId() . '" data-eqLogic_type="EaseeCharger_xaccount" data-eqLogic_modelId="' . $account->getconfiguration('modelId') . '">';
-		echo '<img src="' . $account->getImage() . '" style="width:unset !important"/>';
-		echo '<br>';
-		echo '<span class="name">';
-		echo $account->getHumanName(true, true);
-		echo '</span>';
-		echo '</div>';
-	    }
 	    foreach ($chargers as $charger) {
 		$opacity = ($charger->getIsEnable()) ? '' : 'disableCard';
 		echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $charger->getId() . '" data-eqLogic_type="EaseeCharger_charger" data-eqLogic_modelId="' . $charger->getconfiguration('modelId') . '">';

@@ -10,7 +10,7 @@
 	"licence" : "GNU",
 	"author" : "ktn",
 	"require" : "4.2.0",
-	"category" : "energy",
+	"category" : "devicecommunication",
 	"hasDependency" : true,
 	"hasOwnDeamon" : true,
 	"maxDependancyInstallTime" : 10,
