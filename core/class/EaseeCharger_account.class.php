@@ -78,6 +78,11 @@ class EaseeCharger_account {
 		return $this;
 	}
 
+	public function remove() {
+		$key = 'account::' . $this->name;
+		return config::remove($key,'EaseeCharger');
+	}
+
 	/*     * ********************** Getteur Setteur *************************** */
 
 	public function setIsEnable($_isEnable) {
@@ -118,52 +123,6 @@ class EaseeCharger_account {
 
 }
 
-//	public static function _cron() {
-//		log::add("EaseeCharger","debug","CRON ACCOUNT");
-//		log::add("EaseeCharger","debug","XXXX " . $class);
-//		foreach (model::all(true) as $model){
-//			$modelId = $model->getId();
-//			$class='EaseeCharger_xaccount_' . $modelId;
-//			if (method_exists($class,'cron')) {
-//				$class::cron();
-//			}
-//		}
-//	}
-//
-//	public static function _cron5() {
-//		foreach (model::all(true) as $model){
-//			$modelId = $model->getId();
-//			$class='EaseeCharger_xaccount_' . $modelId;
-//			if (method_exists($class,'cron5')) {
-//				$class::cron5();
-//			}
-//		}
-//	}
-//
-//	public static function _cron10() {
-//		foreach (model::all(true) as $model){
-//			$modelId = $model->getId();
-//			$class='EaseeCharger_xaccount_' . $modelId;
-//			if (method_exists($class,'cron10')) {
-//				$class::cron10();
-//			}
-//		}
-//	}
-//
-//	public static function _cron15() {
-//		foreach (model::all(true) as $model){
-//			$modelId = $model->getId();
-//			$class='EaseeCharger_xaccount_' . $modelId;
-//			if (method_exists($class,'cron15')) {
-//				$class::cron15();
-//			}
-//		}
-//	}
-//
-//	public static function _cronHourly() {
-//		log::add("EVcharger","debug","Acount Easee : _cronHourly");
-//	}
-//	
 //	/*
 //	 * Démarre le thread du démon pour chaque account actif
 //	 */
@@ -295,14 +254,6 @@ class EaseeCharger_account {
 //		$this->send2Daemon($message);
 //	}
 //
-//	public function getImage() {
-//		$image = $this->getConfiguration('image');
-//		if ($image == '') {
-//			$image = "/plugins/EaseeCharger/desktop/img/account.png";
-//		}
-//		return $image;
-//	}
-//
 //	protected function getMapping() {
 //		$mappingFile = __DIR__ . '/../../core/config/mapping.ini';
 //		if (! file_exists($mappingFile)) {
@@ -365,9 +316,5 @@ class EaseeCharger_account {
 //			return;
 //		}
 //	}
-//
-//}
-//
-//class EaseeCharger_xaccountCmd extends EaseeChargerCmd  {
 //
 //}

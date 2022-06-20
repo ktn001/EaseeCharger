@@ -31,9 +31,25 @@ $('#table_cmd_charger').on('sortupdate',function(event,ui){
 });
 
 /*
+ * Construction d'une accountCard
+ */
+function buildAccountCard(account) {
+	opacity = 'disabledCard';
+	if (account['isEnable'] == 1){
+		opacity = '';
+	}
+	card =  '<div class="accountDisplayCard cursor ' + opacity + '" data-account_id="' + account.name + '">';
+	card += '<img src="/plugins/EaseeCharger/desktop/img/account.png" style="width:unset !important"/>';
+	card += '<br>';
+	card += '<span class="name">' + account['name'] + '</span>';
+	card += '</div>';
+	return card;
+}
+
+/*
  * Chargement de la config d'un account
  */
-function loadAccount (accountName) {
+function loadAccount(accountName) {
 	$.ajax({
 		type: 'POST',
 		url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
@@ -69,7 +85,7 @@ function editAccount(name) {
 			closeText: '',
 			autoOpen: false,
 			modal: true,
-			height: 200,
+			height: 260,
 			width: 400
 		});
 	}
@@ -99,21 +115,15 @@ function editAccount(name) {
 				}
 			},
 			{
-				text: "{{Valider}}",
+				text: "{{Supprimer}}",
+				class: "btn-delete",
 				click: function() {
-					$account = $('#modContainer_editAccount').getValues('.accountAttr')[0];
-					$card = $('.accountDisplayCard[data-account_id=' + $account['name'] + ']'); 
-					if ($account['isEnable'] == 1) {
-						$card.removeClass('disabledCard');
-					} else {
-						$card.addClass('disabledCard');
-					}
 					$.ajax({
 						type: 'POST',
 						url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
 						data: {
-							action : 'saveAccount',
-							account : json_encode($account),
+							action : 'removeAccount',
+							name : name,
 						},
 						dataType: 'json',
 						global: false,
@@ -126,15 +136,64 @@ function editAccount(name) {
 								$.fn.showAlert({message: data.result, level: 'danger'});
 								return;
 							}
+							$card = $('.accountDisplayCard[data-account_id=' + name + ']'); 
+							$card.remove();
 						}
 					});
 					$(this).dialog("close");
 				}
 			},
 			{
-				text: "{{Supprimer}}",
-				style: "background-color:red",
+				text: "{{Valider}}",
 				click: function() {
+					account = $('#modContainer_editAccount').getValues('.accountAttr')[0];
+					$.ajax({
+						type: 'POST',
+						url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
+						data: {
+							action : 'saveAccount',
+							account : json_encode(account),
+						},
+						dataType: 'json',
+						global: false,
+						error: function(request, status, error) {
+							handleAjaxError(request, status, error);
+						},
+
+						success: function(data) {
+							if (data.state != 'ok') {
+								$.fn.showAlert({message: data.result, level: 'danger'});
+								return;
+							}
+							card = $('.accountDisplayCard[data-account_id=' + account['name'] + ']'); 
+							if (card.length == 1) {
+								if (account['isEnable'] == 1) {
+									card.removeClass('disabledCard');
+								} else {
+									card.addClass('disabledCard');
+								}
+							} else {
+								card = buildAccountCard(json_decode(data.result));
+								cards = $('.eqLogicThumbnailContainer[data-type=account] .accountDisplayCard');
+								nbCards = cards.length;
+								if (nbCards == 0) {
+									$('.eqLogicThumbnailContainer[data-type=account]').append(card);
+								} else {
+									for (let i=0; i<nbCards; i++) {
+										n = $(cards[i]).attr('data-account_id');
+										if ( name.toLowerCase() < n.toLowerCase() ) {
+											$(cards[i]).before(card);
+											break;
+										}
+										if (i == (nbCards -1)) {
+											$(cards[i]).after(card);
+										}
+									}
+								}
+							}
+						}
+					});
+					$(this).dialog("close");
 				}
 			}]);
 			$('#modContainer_editAccount').dialog('open');

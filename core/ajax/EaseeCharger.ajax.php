@@ -29,6 +29,17 @@ try {
 	$action = init('action');
 	log::add("EaseeCharger","debug","  Ajax EaseeCharger: action: " . $action);
 
+	if ($action == 'createAccount') {
+		try {
+			$name = init('name');
+			log::add("EaseeCharger", "debug", sprintf (__('Création de compte %s',__FILE__),$name));
+			EaseeCharger_account::create($name);
+			ajax::success();
+		} catch (Exception $e){
+			ajax::error(displayException($e), $e->getCode());
+		}
+	}
+
 	if ($action == 'getAccount') {
 		$name = init('name');
 		if ($name == '') {
@@ -52,8 +63,25 @@ try {
 		utils::a2o($account,$data);
 		log::add("EaseeCharger","debug",print_r($account,true));
 		$account->save();
-		ajax::success();
+		$account = EaseeCharger_account::byName($data['name']);
+		ajax::success(json_encode(utils::o2a($account)));
 	}
+
+	if ($action == 'removeAccount') {
+		$name = init('name');
+		if ($name == '') {
+			throw new Exception(__("Le nom du compte à supprimer n'est pas défini",__FILE__));
+		}
+		$account = EaseeCharger_account::byName($name);
+		if (!is_object($account)){
+			throw new Exception(sprintf(__("Le compte à supprimer (%s) est intouvable",__FILE__),$name));
+		}
+		if ($account->remove()) {
+			ajax::success();
+		}
+		ajax::error(sprintf(__("La suppression du compte %s n'a pas fonctionné correctement",__FILE__),$name));
+	}
+
 	if ($action == 'images') {
 		$modelId = init('modelId');
 		if ($modelId == '') {
@@ -71,7 +99,6 @@ try {
 		$charger = EaseeCharger::byId($id);
 		if (!is_object($charger)){
 			throw new Exception(sprintf(__("Chargeur %s introuvable.",__FILE__),$id));
-			ajax::error();
 		}
 		try {
 			$option = array();
@@ -81,17 +108,6 @@ try {
 				$options["updateOnly"] = true;
 			}
 			$charger->updateCmds($options);
-			ajax::success();
-		} catch (Exception $e){
-			ajax::error(displayException($e), $e->getCode());
-		}
-	}
-
-	if ($action == 'createAccount') {
-		try {
-			$name = init('name');
-			log::add("EaseeCharger", "debug", sprintf (__('Création de compte %s',__FILE__),$name));
-			EaseeCharger_account::create($name);
 			ajax::success();
 		} catch (Exception $e){
 			ajax::error(displayException($e), $e->getCode());
