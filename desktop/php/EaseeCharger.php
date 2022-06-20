@@ -52,17 +52,17 @@ sendVarToJS('chargerType', $plugin->getId() . "_charger");
 	    </div>
 	</div> <!-- Champ de recherche des comptes -->
 	<!-- Liste des comptes -->
-	<div class="eqLogicThumbnailContainer">
+	<div class="eqLogicThumbnailContainer" data-type="account">
 	    <?php
             foreach ($accounts as $account) {
-		$opacity = ($account->getIsEnable()) ? '' : 'disableCard';
+		$opacity = ($account->getIsEnable()) ? '' : 'disabledCard';
 		echo '<div class="accountDisplayCard cursor '.$opacity.'" data-account_id="' . $account->getName() . '">';
 		echo '<img src="/plugins/EaseeCharger/desktop/img/account.png" style="width:unset !important"/>';
 		echo '<br>';
 		echo '<span class="name">';
 		echo $account->getName();
 		echo '</span>';
-		echo '</div>';
+		echo '</div>' . PHP_EOL;
 	    }
 	    ?>
 	</div> <!-- Liste des comptes -->
@@ -82,7 +82,7 @@ sendVarToJS('chargerType', $plugin->getId() . "_charger");
 	<div class="eqLogicThumbnailContainer">
 	    <?php
 	    foreach ($chargers as $charger) {
-		$opacity = ($charger->getIsEnable()) ? '' : 'disableCard';
+		$opacity = ($charger->getIsEnable()) ? '' : 'disabledCard';
 		echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $charger->getId() . '" data-eqLogic_type="EaseeCharger_charger" data-eqLogic_modelId="' . $charger->getconfiguration('modelId') . '">';
 		echo '<img src="' . $charger->getPathImg() . '" style="width:unset !important"/>';
 		echo '<br>';

@@ -26,37 +26,44 @@ try {
 		throw new Exception(__('401 - Accès non autorisé', __FILE__));
 	}
 
-	log::add("EaseeCharger","debug","  Ajax EaseeCharger: action: " . init('action'));
+	$action = init('action');
+	log::add("EaseeCharger","debug","  Ajax EaseeCharger: action: " . $action);
 
-	if (init('action') == 'images') {
+	if ($action == 'getAccount') {
+		$name = init('name');
+		if ($name == '') {
+			throw new Exception(__("Le nom de l'account n'est pas défini",__FILE__));
+		}
+		$account = EaseeCharger_account::byName($name);
+		if (!is_object($account)) {
+			throw new Exception(sprintf(__("Le compte %s est introuvable",__FILE__),$name));
+		}
+		ajax::success(json_encode(utils::o2a($account)));
+	}
+
+	if ($action == 'saveAccount') {
+		$data = init('account');
+		if ($data == '') {
+			throw new Exception(__("Pas de données pour la sauvegarde du compte",__FILE__));
+		}
+		$data = json_decode($data,true);
+		log::add("EaseeCharger","debug",print_r($data,true));
+		$account = EaseeCharger_account::byName($data['name']);
+		utils::a2o($account,$data);
+		log::add("EaseeCharger","debug",print_r($account,true));
+		$account->save();
+		ajax::success();
+	}
+	if ($action == 'images') {
 		$modelId = init('modelId');
 		if ($modelId == '') {
-			throw new Exception(__("2 Le modèle de chargeur n'est pas indiqué",__FILE__));
+			throw new Exception(__("Le modèle de chargeur n'est pas indiqué",__FILE__));
 		}
 		$model = model::byId($modelId);
 		ajax::success(json_encode($model->images('charger')));
 	}
 
-	if (init('action') == 'ParamsHtml') {
-		$model = init('modelId');
-		if ($model == '') {
-			throw new Exception(__("1 Le modèle de chargeur n'est pas indiqué",__FILE__));
-		}
-		$object = init('object');
-		if ($object == '') {
-			throw new Exception(__("L'objet n'est pas indiqué",__FILE__));
-		}
-		$file = realpath (__DIR__.'/../../desktop/php/'.$model.'/' . $object . '_params.inc.php');
-		if (file_exists($file)) {
-			ob_start();
-			require_once $file;
-			$content = translate::exec(ob_get_clean(), $file);
-			ajax::success($content);
-		}
-		ajax::success();
-	}
-
-	if (init('action') == 'createCmds' || init('action') == 'updateCmds')  {
+	if ($action == 'createCmds' || init('action') == 'updateCmds')  {
 		$id = init('id');
 		if ($id == ''){
 			throw new Exception(__("L'Id du chargeur n'est pas indiqué",__FILE__));
@@ -80,7 +87,7 @@ try {
 		}
 	}
 
-	if (init('action') == 'createAccount') {
+	if ($action == 'createAccount') {
 		try {
 			$name = init('name');
 			log::add("EaseeCharger", "debug", sprintf (__('Création de compte %s',__FILE__),$name));

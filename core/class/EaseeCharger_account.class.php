@@ -34,19 +34,18 @@ class EaseeCharger_account {
 		}
 		$account = new self();
 		$account->setName($name);
-		$account->setPassword("toto");
 		$account->save();
 		return $account;
 	}
 
 	public static function byName($name) {
-		$key = 'account::' . $this->name;
+		$key = 'account::' . $name;
 		$value = config::byKey($key, 'EaseeCharger');
 		if ($value == '') {
 			return null;
 		}
 		$value['password'] = utils::decrypt($value['password']);
-		$value = is_json($value,value);
+		$value = is_json($value,$value);
 		$account = new self();
 		utils::a2o($account,$value);
 		return $account;

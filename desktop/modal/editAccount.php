@@ -26,19 +26,20 @@ if (!isConnect('admin')) {
 		<fieldset>
 			<div class="form-group">
 				<label class="col-sm-3 control-label">{{Login}}:</label>
-				<input type="text" class="config form-control col-sm-7" data-l1key="login"/>
+				<input type="text" class="accountAttr form-control col-sm-7" data-l1key="name" style="display:none"/>
+				<input type="text" class="accountAttr form-control col-sm-7" data-l1key="login"/>
 			</div>
 			<div class="form-group">
 				<label class="col-sm-3 control-label">{{Password}}:</label>
 				<div class="input-group col-sm-7" style="display:flex; padding-right:0px !important; padding-left:0px !important">
-					<input type="password" class="config form-control" data-l1key="password"/>
+					<input type="password" class="accountAttr form-control" data-l1key="password"/>
 					<button class="btn btn-outline-secondary show-txt" type="button"><i class="fas fa-eye"></i></button>
 					<button class="btn btn-outline-secondary hide-txt" type="button" style="display:none"><i class="fas fa-eye-slash"></i></button>
 				</div>
 			</div>
 			<div class="form-group">
 				<label class="col-sm-3 control-label">{{Activer}}:</label>
-				<input type="checkbox" class="config form-control" data-l1key="isEnable"/>
+				<input type="checkbox" class="accountAttr form-control" data-l1key="isEnable"/>
 			</div>
 		</fieldset>
 	</form>

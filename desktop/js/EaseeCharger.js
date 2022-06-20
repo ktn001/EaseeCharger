@@ -31,35 +31,113 @@ $('#table_cmd_charger').on('sortupdate',function(event,ui){
 });
 
 /*
- * Saisie des nom et modèle d'un nouveau compte ou chargeur
+ * Chargement de la config d'un account
  */
-function getNameAndModelAndSave (title, eqLogicType) {
-	bootbox.prompt(title, function(result) {
-		if (result !== null) {
-			jeedom.eqLogic.save({
-				type: eqLogicType,
-				eqLogics: [{
-					name: result
-				}],
-				error: function(error) {
-					$.fn.showAlert({
-						message: error.message,
-						level: 'danger'
-					});
-				},
-				success: function(_data) {
-					let vars = getUrlVars();
-					let url = 'index.php?';
-					for (var i in vars) {
-						if (i != 'id' && i != 'saveSuccessFull' && i != 'removeSuccessFull') {
-							url += i + '=' + vars[i].replace('#', '') + '&';
-						}
-					}
-					modifyWithoutSave = false;
-					url += 'id=' + _data.id + '&saveSuccessFull=1';
-					jeedomUtils.loadPage(url);
+function loadAccount (accountName) {
+	$.ajax({
+		type: 'POST',
+		url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
+		data: {
+			action: 'getAccount',
+			name: accountName,
+		},
+		dataType: 'json',
+		global: false,
+		error: function(request, status, error) {
+			handleAjaxError(request, status, error);
+		},
+		success: function(data) {
+			if (data.state != 'ok') {
+				$.fn.showAlert({message: data.result, level: 'danger'});
+				return;
+			}
+			return json_decode(data.result);
+		}
+	})
+}
+
+/*
+ * Edition d'un compte
+ */
+function editAccount(name) {
+	if ($('#modContainer_editAccount').length == 0) {
+		$('body').append('<div id="modContainer_editAccount"></dev');
+		jQuery.ajaxSetup({async: false});
+		$('#modContainer_editAccount').load('index.php?v=d&plugin=EaseeCharger&modal=editAccount');
+		jQuery.ajaxSetup({async: true});
+		$('#modContainer_editAccount').dialog({
+			closeText: '',
+			autoOpen: false,
+			modal: true,
+			height: 200,
+			width: 400
+		});
+	}
+	$.ajax({
+		type: 'POST',
+		url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
+		data: {
+			action: 'getAccount',
+			name: name,
+		},
+		dataType: 'json',
+		global: false,
+		error: function(request, status, error) {
+			handleAjaxError(request, status, error);
+		},
+		success: function(data) {
+			if (data.state != 'ok') {
+				$.fn.showAlert({message: data.result, level: 'danger'});
+				return;
+			}
+			$('#modContainer_editAccount').setValues(json_decode(data.result),'.accountAttr');
+			$('#modContainer_editAccount').dialog({title: '{{Compte}}: ' + name});
+			$('#modContainer_editAccount').dialog('option', 'buttons', [{
+				text: "{{Annuler}}",
+				click: function() {
+					$(this).dialog("close");
 				}
-			})
+			},
+			{
+				text: "{{Valider}}",
+				click: function() {
+					$account = $('#modContainer_editAccount').getValues('.accountAttr')[0];
+					$card = $('.accountDisplayCard[data-account_id=' + $account['name'] + ']'); 
+					if ($account['isEnable'] == 1) {
+						$card.removeClass('disabledCard');
+					} else {
+						$card.addClass('disabledCard');
+					}
+					$.ajax({
+						type: 'POST',
+						url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
+						data: {
+							action : 'saveAccount',
+							account : json_encode($account),
+						},
+						dataType: 'json',
+						global: false,
+						error: function(request, status, error) {
+							handleAjaxError(request, status, error);
+						},
+
+						success: function(data) {
+							if (data.state != 'ok') {
+								$.fn.showAlert({message: data.result, level: 'danger'});
+								return;
+							}
+						}
+					});
+					$(this).dialog("close");
+				}
+			},
+			{
+				text: "{{Supprimer}}",
+				style: "background-color:red",
+				click: function() {
+				}
+			}]);
+			$('#modContainer_editAccount').dialog('open');
 		}
 	})
 }
@@ -95,40 +173,44 @@ $('.accountAction[data-action=add').off('click').on('click',function () {
 });
 
 /*
- * Edition d'un compte
+ * Action sur AccountDisplayCard
  */
-function editAccount(name) {
-	if ($('#modContainer_editAccount').length == 0) {
-		$('body').append('<div id="modContainer_editAccount"></dev');
-		jQuery.ajaxSetup({async: false});
-		$('#modContainer_editAccount').load('index.php?v=d&plugin=EaseeCharger&modal=editAccount');
-		jQuery.ajaxSetup({async: true});
-		$('#modContainer_editAccount').dialog({
-			closeText: '',
-			autoOpen: false,
-			modal: true,
-			height: 200,
-			width: 400
-		});
-	}
-	$('#modContainer_editAccount').dialog({title: '{{Compte}}: ' + name});
-	$('#modContainer_editAccount').dialog('option', 'buttons', {
-		"{{Annuler}}": function() {
-			$(this).dialog("close");
-		},
-		"{{Valider}}": function() {
-			$(this).dialog("close");
-		}
-	});
-
-	$('#modContainer_editAccount').dialog('open');
-}
+$('.eqLogicThumbnailContainer[data-type=account]').delegate('.accountDisplayCard','click',function() {
+	editAccount($(this).data('account_id'));
+})
 
 /*
  * Action du bouton d'ajout d'un chargeur
  */
 $('.chargerAction[data-action=add').off('click').on('click',function () {
-	getNameAndModelAndSave ("Nouveau chargeur", chargerType);
+	bootbox.prompt("Nouveau chargeur", function(result) {
+		if (result !== null) {
+			jeedom.eqLogic.save({
+				type: eqLogicType,
+				eqLogics: [{
+					name: result
+				}],
+				error: function(error) {
+					$.fn.showAlert({
+						message: error.message,
+						level: 'danger'
+					});
+				},
+				success: function(_data) {
+					let vars = getUrlVars();
+					let url = 'index.php?';
+					for (var i in vars) {
+						if (i != 'id' && i != 'saveSuccessFull' && i != 'removeSuccessFull') {
+							url += i + '=' + vars[i].replace('#', '') + '&';
+						}
+					}
+					modifyWithoutSave = false;
+					url += 'id=' + _data.id + '&saveSuccessFull=1';
+					jeedomUtils.loadPage(url);
+				}
+			})
+		}
+	})
 });
 
 /*
