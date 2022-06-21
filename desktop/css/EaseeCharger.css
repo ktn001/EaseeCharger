@@ -1,8 +1,15 @@
 
+/* Couleur du bouton "Supprimer" dans les modals */
 .ui-dialog-buttonset .ui-button.btn-delete {
 	color: var(--sc-lightTxt-color) !important;
 	background-color: var(--al-danger-color) !important;
 }
+
+
+/*
+ * Affichage des Cards pour les accounts
+ * Ces conffiguration reprennent les config pour "eqLogicDisplayCard" du core
+ */
 .accountDisplayCard {
 	border: none !important;
 	background; transparent !important;
