@@ -239,40 +239,6 @@ $('.eqLogicThumbnailContainer[data-type=account]').delegate('.accountDisplayCard
 })
 
 /*
- * Action du bouton d'ajout d'un chargeur
- */
-$('.chargerAction[data-action=add').off('click').on('click',function () {
-	bootbox.prompt("Nouveau chargeur", function(result) {
-		if (result !== null) {
-			jeedom.eqLogic.save({
-				type: eqLogicType,
-				eqLogics: [{
-					name: result
-				}],
-				error: function(error) {
-					$.fn.showAlert({
-						message: error.message,
-						level: 'danger'
-					});
-				},
-				success: function(_data) {
-					let vars = getUrlVars();
-					let url = 'index.php?';
-					for (var i in vars) {
-						if (i != 'id' && i != 'saveSuccessFull' && i != 'removeSuccessFull') {
-							url += i + '=' + vars[i].replace('#', '') + '&';
-						}
-					}
-					modifyWithoutSave = false;
-					url += 'id=' + _data.id + '&saveSuccessFull=1';
-					jeedomUtils.loadPage(url);
-				}
-			})
-		}
-	})
-});
-
-/*
  * Action sur modification d'image d'un chargeur
  */
 $('#selectChargerImg').on('change',function(){

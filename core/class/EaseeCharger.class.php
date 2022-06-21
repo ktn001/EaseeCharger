@@ -345,6 +345,17 @@ class EaseeCharger extends eqLogic {
     //========================================================================
 
 	/*
+	 * Path de l'image du chargeur
+	 */
+	public function getPathImg() {
+		$image = $this->getConfiguration('image');
+		if ($ïmage == '') {
+			$image = "/plugins/EaseeCharger/plugin_info/EaseeCharger_icon.png";
+		}
+		return $image;
+	}
+
+	/*
 	 * Surcharge de getLinkToConfiguration() pour forcer les options "m" et "p"
 	 * à "EaseeCharger" même pour les classes héritiaires.
 	 */
