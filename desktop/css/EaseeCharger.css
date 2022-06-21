@@ -102,6 +102,11 @@ div.eqLogicThumbnailContainer .accountDisplayCard.cursor.displayAsTable:last-chi
 .accountDisplayCard.disabledCard:hover {
 	opacity: 0.8;
 }
+/*
+ * FIN des cards pour les accounts
+ */
+
+
 
 div.eqLogicDisplayCard[data-eqLogic_type=EaseeCharger_charger] {
 	height: 190px !important;
@@ -112,4 +117,3 @@ div.eqLogicDisplayCard[data-eqLogic_type=EaseeCharger_charger] .labelModelHuman 
 	top: -20px !important;
 	background-color: red;
 }
-
