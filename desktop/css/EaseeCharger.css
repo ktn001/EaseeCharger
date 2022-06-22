@@ -88,18 +88,18 @@ div.eqLogicThumbnailContainer .accountDisplayCard.cursor.displayAsTable:last-chi
 	margin-bottom: 13px !important;
 }
 
-.accountDisplayCard:not(.disabledCard) {
+.accountDisplayCard:not(.disableCard) {
 	opacity: 1 !important;
 	transition-property: opacity;
 	transition-duration: 0.6s;
 }
 
-.accountDisplayCard.disabledCard,
-.accountDisplayCard.disabledCard > .name > .label {
+.accountDisplayCard.disableCard,
+.accountDisplayCard.disableCard > .name > .label {
 	opacity: 0.4;
 } 
 
-.accountDisplayCard.disabledCard:hover {
+.accountDisplayCard.disableCard:hover {
 	opacity: 0.8;
 }
 /*

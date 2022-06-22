@@ -53,7 +53,7 @@ sendVarToJS('eqType', $plugin->getId());
 	<div class="eqLogicThumbnailContainer" data-type="account">
 	    <?php
             foreach ($accounts as $account) {
-		$opacity = ($account->getIsEnable()) ? '' : 'disabledCard';
+		$opacity = ($account->getIsEnable()) ? '' : 'disableCard';
 		echo '<div class="accountDisplayCard cursor '.$opacity.'" data-account_id="' . $account->getName() . '">';
 		echo '<img src="/plugins/EaseeCharger/desktop/img/account.png" style="width:unset !important"/>';
 		echo '<br>';
@@ -80,7 +80,7 @@ sendVarToJS('eqType', $plugin->getId());
 	<div class="eqLogicThumbnailContainer">
 	    <?php
 	    foreach ($chargers as $charger) {
-		$opacity = ($charger->getIsEnable()) ? '' : 'disabledCard';
+		$opacity = ($charger->getIsEnable()) ? '' : 'disableCard';
 		echo '<div class="eqLogicDisplayCard cursor '.$opacity.'" data-eqLogic_id="' . $charger->getId() . '">';
 		echo '<img src="' . $charger->getPathImg() . '" style="width:unset !important"/>';
 		echo '<br>';
@@ -205,6 +205,13 @@ sendVarToJS('eqType', $plugin->getId());
 				<label class="col-sm-3 control-label">{{Compte}}</label>
 				<div class="col-sm-7">
 				    <select id="selectAccount" class="eqLogicAttr" data-l1key="configuration" data-l2key="accountId">
+					<option value=''> -- <?php echo(__('Sélectionez un compte',__FILE__)); ?> -- </option>
+					<?php
+					foreach ($accounts as $account) {
+						$name =  $account->getName();
+						echo ("<option value='" . $name . "'>" . $name . "</option>");
+					}
+					?>
 				    </select>
 				</div>
 			    </div>
@@ -218,8 +225,9 @@ sendVarToJS('eqType', $plugin->getId());
 			    <legend><i class="fas fa-info"></i> {{Informations}}</legend>
 			    <div class="form-group">
 				<div class="text-center">
-				    <img id="charger_icon_visu" src="/plugins/Easeecharger/desktop/charger.png" style="max-width:160px;"/>
+				    <img id="charger_icon_visu" src="/plugins/EaseeCharger/desktop/img/charger.png" style="max-width:160px;"/>
 				    <select id="selectChargerImg" class="eqLogicAttr" data-l1key="configuration" data-l2key="image">
+					<option value=''> -- <?php echo(__('Sélectionez une couleur',__FILE__)); ?> -- </option>
 					<option value='/plugins/EaseeCharger/desktop/img/charger_noir.png'><?php echo (__('noir',__FILE__)) ?></option>
 					<option value='/plugins/EaseeCharger/desktop/img/charger_bleu.png'><?php echo (__('bleu',__FILE__)) ?></option>
 					<option value='/plugins/EaseeCharger/desktop/img/charger_blanc.png'><?php echo (__('blanc',__FILE__)) ?></option>
@@ -242,7 +250,7 @@ sendVarToJS('eqType', $plugin->getId());
 		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="reconfigure" style="margin-top:5px;"><i class="fas fa-redo"></i> {{Reconfigurer les commandes}}</a>
 		<br/><br/>
 		<div class="table-responsive">
-		    <table id="table_cmd_charger" class="table table-bordered table-condensed">
+		    <table id="table_cmd" class="table table-bordered table-condensed">
 			<thead>
 			    <tr>
 				<th class="hidden-xs" style="min-width:50px;width:70px"> ID</th>

@@ -32,29 +32,18 @@ class EaseeCharger extends eqLogic {
     //========================== METHODES STATIQUES ==========================
     //========================================================================
 
-	/*
-	 * Surcharge de la function "byType" pour permettre de chercher les
-	 * eqLogics du classe et des classes héritières.
-	 *
-	 * "byType('EaseeCharger_xaccount_%')" par exemple pour avoir tous les
-	 * accounts quelque soit le modèle
-	 */
-	public static function byType($_eqType_name, $_onlyEnable = false) {
-		if (strpos($_eqType_name, '%') === false) {
-			return parent::byType($_eqType_name, $_onlyEnable);
+	public static function byAccount ($accountName, $_onlyEnable = true) {
+		$chargers = EaseeCharger::byTypeAndSearchConfiguration('EaseeCharger','"accountId":"' . $accountName . '"');
+		if ($_onlyEnable) {
+			$tmp = array();
+			foreach ($chargers as $charger) {
+				if ($charger->getIsEnable != 1) {
+					$tmp[] = $charger;
+				}
+			}
+			$chargers = $tmp;
 		}
-		$values = array(
-			'eqType_name' => $_eqType_name,
-		);
-		$sql =  'SELECT DISTINCT eqType_name';
-		$sql .= '   FROM eqLogic';
-		$sql .= '   WHERE eqType_name like :eqType_name';
-		$eqTypes = DB::Prepare($sql, $values, DB::FETCH_TYPE_ALL);
-		$eqLogics = array ();
-		foreach ($eqTypes as $eqType) {
-			 $eqLogics = array_merge($eqLogics,parent::byType($eqType['eqType_name'], $_onlyEnable));
-		}
-		return $eqLogics;
+		return $chargers;
 	}
 
 	/*     * ********************** Gestion du daemon ************************* */
@@ -343,6 +332,21 @@ class EaseeCharger extends eqLogic {
     //========================================================================
     //========================= METHODES D'INSTANCE ==========================
     //========================================================================
+
+	/*
+	 * Vérifications avant enregistrement
+	 */
+	public function preUpdate() {
+		if ($this->getConfiguration('accountId') == '') {
+			throw new Exception (__("Un compte doit être sélectioné",__FILE__));
+		}
+		if ($this->getIsEnable() == 1) {
+			$account = EaseeCharger_account::byName($this->getConfiguration('accountId'));
+			if ($account->getIsEnable() != 1) {
+				throw new Exception (__("Le chargeur ne peut pas être activé si l'account associé ne l'est pas!",__FILE__));
+			}
+		}
+	}
 
 	/*
 	 * Path de l'image du chargeur

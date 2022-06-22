@@ -63,8 +63,10 @@ try {
 		utils::a2o($account,$data);
 		log::add("EaseeCharger","debug",print_r($account,true));
 		$account->save();
-		$account = EaseeCharger_account::byName($data['name']);
-		ajax::success(json_encode(utils::o2a($account)));
+		$return = array();
+		$return['account'] = utils::o2a(EaseeCharger_account::byName($data['name']));
+		$return['modifiedChargers'] = $account->getModifiedChargers();
+		ajax::success(json_encode($return));
 	}
 
 	if ($action == 'removeAccount') {

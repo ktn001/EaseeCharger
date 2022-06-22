@@ -22,6 +22,7 @@ class EaseeCharger_account {
 	private $login = '';
 	private $password = '';
 	private $isEnable = 0;
+	private $_modifiedChargers = array ();
 
 	/*     * ********************** Méthodes Static *************************** */
 
@@ -70,15 +71,35 @@ class EaseeCharger_account {
 	/*     * ********************** Méthodes d'instance *************************** */
 
 	public function save() {
+		$oldAccount = self::byName($this->getName());
+		if (is_object ($oldAccount) and ($oldAccount->getIsEnable() == 1)) {
+			$wasEnable = 1;
+		} else {
+			$wasEnable = 0;
+		}
 		$value = utils::o2a($this);
 		$value['password'] = utils::encrypt($value['password']);
 		$value = json_encode($value);
 		$key = 'account::' . $this->name;
 		config::save($key, $value, 'EaseeCharger');
+		if ($this->getIsEnable != 1 and ($wasEnable == 1)) {
+			$chargers = EaseeCharger::byAccount($this->getName());
+			$chargersIds = array();
+			foreach ($chargers as $charger) {
+				$charger->setIsEnable(0);
+				$charger->save();
+				$chargerIds[] = $charger->getId();
+			}
+			$this->setModifiedChargers($chargerIds);
+		}
 		return $this;
 	}
 
 	public function remove() {
+		$chargers = EaseeCharger::byAccount($this->name, false);
+		if (count($chargers) > 0) {
+			throw new Exception (sprintf(__("Le compte %s est utilisé pour le chargeur %s",__FILE__), $this->name, $chargers[0]->getName()));
+		}
 		$key = 'account::' . $this->name;
 		return config::remove($key,'EaseeCharger');
 	}
@@ -101,6 +122,14 @@ class EaseeCharger_account {
 
 	public function getLogin() {
 		return $this->login;
+	}
+
+	public function setModifiedChargers( $_chargers = array()) {
+		$this->_modifiedChargers = $_chargers;
+	}
+
+	public function getModifiedChargers() {
+		return $this->_modifiedChargers;
 	}
 
 	public function setName($_name) {
