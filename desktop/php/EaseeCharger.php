@@ -218,13 +218,13 @@ sendVarToJS('eqType', $plugin->getId());
 			    <legend><i class="fas fa-info"></i> {{Informations}}</legend>
 			    <div class="form-group">
 				<div class="text-center">
-				    <img id="charger_icon_visu" style="max-width:160px;"/>
+				    <img id="charger_icon_visu" src="/plugins/Easeecharger/desktop/charger.png" style="max-width:160px;"/>
 				    <select id="selectChargerImg" class="eqLogicAttr" data-l1key="configuration" data-l2key="image">
-					<option value='chargeur_noir.png'><?php echo (__('noir',__FILE__)) ?></option>
-					<option value='chargeur_bleu.png'><?php echo (__('bleu',__FILE__)) ?></option>
-					<option value='chargeur_blanc.png'><?php echo (__('blanc',__FILE__)) ?></option>
-					<option value='chargeur_gris.png'><?php echo (__('gris',__FILE__)) ?></option>
-					<option value='chargeur_rouge.png'><?php echo (__('rouge',__FILE__)) ?></option>
+					<option value='/plugins/EaseeCharger/desktop/img/charger_noir.png'><?php echo (__('noir',__FILE__)) ?></option>
+					<option value='/plugins/EaseeCharger/desktop/img/charger_bleu.png'><?php echo (__('bleu',__FILE__)) ?></option>
+					<option value='/plugins/EaseeCharger/desktop/img/charger_blanc.png'><?php echo (__('blanc',__FILE__)) ?></option>
+					<option value='/plugins/EaseeCharger/desktop/img/charger_gris.png'><?php echo (__('gris',__FILE__)) ?></option>
+					<option value='/plugins/EaseeCharger/desktop/img/charger_rouge.png'><?php echo (__('rouge',__FILE__)) ?></option>
 				    </select>
 				</div>
 			    </div>

@@ -349,7 +349,7 @@ class EaseeCharger extends eqLogic {
 	 */
 	public function getPathImg() {
 		$image = $this->getConfiguration('image');
-		if ($ïmage == '') {
+		if ($image == '') {
 			$image = "/plugins/EaseeCharger/plugin_info/EaseeCharger_icon.png";
 		}
 		return $image;
