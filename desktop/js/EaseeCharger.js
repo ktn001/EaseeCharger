@@ -462,38 +462,6 @@ function addCmdToTable(_cmd) {
 	});
 }
 
-/*
- * Chargement de la liste des choix des accounts
- */
-function loadSelectAccount(defaut) {
-	$.ajax({
-		type: 'POST',
-		url: 'plugins/EaseeCharger/core/ajax/account.ajax.php',
-		data: {
-			action: 'getAccountToSelect',
-			modelId: $('.eqLogicAttr[data-l1key=configuration][data-l2key=modelId]').value(),
-		},
-		dataType : 'json',
-		global:false,
-		error: function (request, status, error) {
-			handleAjaxError(request, status, error);
-		},
-		success: function (data) {
-			if (data.state != 'ok') {
-				$.fn.showAlert({message: data.result, level: 'danger'});
-				return;
-			}
-			$('#selectAccount').empty();
-			datas = json_decode(data.result);
-			content = "";
-			for (let data of datas) {
-				content += '<option value="' + data.id + '">' + data.value + '</option>';
-			}
-			$('#selectAccount').append(content).val(defaut).trigger('change');
-		}
-	});
-}
-
 function prePrintEqLogic (id) {
 	let displayCard = $('.eqLogicDisplayCard[data-eqlogic_id=' + id + ']')
 	let type = displayCard.attr('data-eqlogic_type');
