@@ -179,28 +179,28 @@ sendVarToJS('eqType', $plugin->getId());
 			    <br>
 
 			    <legend><i class="fas fa-cogs"></i> {{Paramètres}}</legend>
+
+			    <!-- Coordonnées GPS -->
 			    <div class='form-group'>
 				<label class="col-sm-3 control-label">{{Coordonnées GPS}}</label>
 				<div class="col-sm-7">
 				   <i class="far fa-comment"></i>
 				   <i>{{Pour obtenir les coordonnées GPS, vous pouvez utiliser ce <a href="https://www.torop.net/coordonnees-gps.php" target="_blank">site.</a>}}</i>
 				</div>
-			    </div>
-			    <div class="col-sm-3"></div>
-			    <div class="col-sm-7">
-				<div class='form-group' style="margin-right:-24px">
+			    	<div class="col-sm-3"></div>
+			    	<div class="col-sm-7" style="padding: 0 !important">
 				    <label class="col-sm-3">{{Latitude}}:</label>
 			   	    <div class="col-sm-9">
 					<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="latitude" placeholder="{{Latitude}}"/>
 				    </div>
-				</div>
-				<div class='form-group' style="margin-right:-24px">
 				    <label class="col-sm-3">{{Longitude}}:</label>
 				    <div class="col-sm-9">
 					<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="longitude" placeholder="{{Longitude}}"/>
 				    </div>
 				</div>
 			    </div>
+
+			    <!-- Compte -->
 			    <div class='form-group'>
 				<label class="col-sm-3 control-label">{{Compte}}</label>
 				<div class="col-sm-7">
@@ -215,7 +215,13 @@ sendVarToJS('eqType', $plugin->getId());
 				    </select>
 				</div>
 			    </div>
-			    <div id="ChargerSpecificsParams">
+
+			    <!-- Numéro de série -->
+			    <div class='form-group'>
+				<label class="col-sm-3 control-label">{{N° de série}}</label>
+				<div class="col-sm-7">
+				    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="serial"/>
+				</div>
 			    </div>
 			</div> <!-- Partie gauche de l'onglet "Equipements" -->
 

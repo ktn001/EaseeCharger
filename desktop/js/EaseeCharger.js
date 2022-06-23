@@ -463,37 +463,6 @@ function addCmdToTable(_cmd) {
 }
 
 function prePrintEqLogic (id) {
-	let displayCard = $('.eqLogicDisplayCard[data-eqlogic_id=' + id + ']')
-	let type = displayCard.attr('data-eqlogic_type');
 	$('#account_icon_visu, #charger_icon_visu').attr('src','')
-	$('.tab-EaseeCharger_xaccount, .tab-EaseeCharger_charger').hide()
-	$('.EaseeCharger_xaccountAttr, .EaseeCharger_chargerAttr').removeClass('eqLogicAttr')
-	if (type =='EaseeCharger_charger') {
-		$('.tab-EaseeCharger_charger').show()
-		$('.EaseeCharger_chargerAttr').addClass('eqLogicAttr')
-		modelId = displayCard.attr('data-eqlogic_modelId');
-		$.ajax({
-			type: 'POST',
-			url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
-			data: {
-				action: 'ParamsHtml',
-				object: 'charger',
-				modelId: modelId
-			},
-			dataType: 'json',
-			global: false,
-			error: function(request, status, error) {
-				handleAjaxError(request, status, error);
-			},
-			success: function(data) {
-				if (data.state != 'ok') {
-					$.fn.showAlert({message: data.result, level: 'danger'});
-					return;
-				}
-				let html = data.result;
-				$('#ChargerSpecificsParams').html(html);
-			}
-		});
-	}
 }
 
