@@ -46,13 +46,13 @@ sendVarToJS('eqType', $plugin->getId());
 	    <input class="form-control roundedLeft" placeholder="{{Rechercher}}" id="in_searchAccount"/>
 	    <div class="input-group-btn">
 		<a id="bt_resetSearch" class="btn roundedRight" style="width:30px"><i class="fas fa-times"></i></a>
-                <a class="btn roundedRight hidden" id="bt_pluginDisplayAsTable" data-coreSupport="1" data-state="0"><i class="fas fa-grip-lines"></i></a>
+		<a class="btn roundedRight hidden" id="bt_pluginDisplayAsTable" data-coreSupport="1" data-state="0"><i class="fas fa-grip-lines"></i></a>
 	    </div>
 	</div> <!-- Champ de recherche des comptes -->
 	<!-- Liste des comptes -->
 	<div class="eqLogicThumbnailContainer" data-type="account">
 	    <?php
-            foreach ($accounts as $account) {
+	    foreach ($accounts as $account) {
 		$opacity = ($account->getIsEnable()) ? '' : 'disableCard';
 		echo '<div class="accountDisplayCard cursor '.$opacity.'" data-account_id="' . $account->getName() . '">';
 		echo '<img src="/plugins/EaseeCharger/desktop/img/account.png" style="width:unset !important"/>';
@@ -67,13 +67,13 @@ sendVarToJS('eqType', $plugin->getId());
 
 	<!-- Les chargeurs -->
 	<!-- ============= -->
-	<legend><i class="fas fa-user"></i><i class="fas fa-charging-station"></i> {{Mes chargeurs}}</legend>
+	<legend><i class="fas fa-charging-station"></i> {{Mes chargeurs}}</legend>
 	<!-- Champ de recherche des chargeurs -->
 	<div class="input-group">
 	    <input class="form-control roundedLeft" placeholder="{{Rechercher}}" id="in_searchEqlogic"/>
 	    <div class="input-group-btn">
 		<a id="bt_resetSearch" class="btn roundedRight" style="width:30px"><i class="fas fa-times"></i></a>
-                <a class="btn roundedRight hidden" id="bt_pluginDisplayAsTable" data-coreSupport="1" data-state="0"><i class="fas fa-grip-lines"></i></a>
+		<a class="btn roundedRight hidden" id="bt_pluginDisplayAsTable" data-coreSupport="1" data-state="0"><i class="fas fa-grip-lines"></i></a>
 	    </div>
 	</div> <!-- Champ de recherche des chargeurs -->
 	<!-- Liste des chargeurs -->
@@ -87,6 +87,7 @@ sendVarToJS('eqType', $plugin->getId());
 		echo '<span class="name">';
 		echo $charger->getHumanName(true, true);
 		echo '</span>';
+		echo '<span class="displayTableRight hiddenAsCard hidden">Account: ' . $charger->getConfiguration('accountId') . '</span>';
 		echo '</div>';
 	    }
 	    ?>
@@ -187,10 +188,10 @@ sendVarToJS('eqType', $plugin->getId());
 				   <i class="far fa-comment"></i>
 				   <i>{{Pour obtenir les coordonnées GPS, vous pouvez utiliser ce <a href="https://www.torop.net/coordonnees-gps.php" target="_blank">site.</a>}}</i>
 				</div>
-			    	<div class="col-sm-3"></div>
-			    	<div class="col-sm-7" style="padding: 0 !important">
+				<div class="col-sm-3"></div>
+				<div class="col-sm-7" style="padding: 0 !important">
 				    <label class="col-sm-3">{{Latitude}}:</label>
-			   	    <div class="col-sm-9">
+				    <div class="col-sm-9">
 					<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="latitude" placeholder="{{Latitude}}"/>
 				    </div>
 				    <label class="col-sm-3">{{Longitude}}:</label>

@@ -167,14 +167,18 @@ function editAccount(name) {
 							}
 							data = json_decode(data.result);
 							console.log(data);
+
+							// Traitement de la Card			
 							card = $('.accountDisplayCard[data-account_id=' + data['account']['name'] + ']'); 
 							if (card.length == 1) {
+								// La card existe, on la met à jour
 								if (data['account']['isEnable'] == 1) {
 									card.removeClass('disableCard');
 								} else {
 									card.addClass('disableCard');
 								}
 							} else {
+								// Création d'une nouvelle Card
 								card = buildAccountCard(data['account']);
 								cards = $('.eqLogicThumbnailContainer[data-type=account] .accountDisplayCard');
 								nbCards = cards.length;
@@ -192,23 +196,31 @@ function editAccount(name) {
 										}
 									}
 								}
-								options = $('#selectAccount option');
-								nbOptions = options.length;
-								option = "<option value='" + account['name'] + "'>" + account['name'] + "</option>";
-								if (nbOptions == 0) {
-									$('#selectAccount').append(option)
-								} else {
-									for (let i=0; i<nbOptions; i++) {
-										n = $(options[i]).attr('value');
-										if ( name.toLowerCase() < n.toLowerCase() ) {
-											$(options[i]).before(option);
-											break;
-										}
-										if (i == (nbOptions -1)) {
-											$(options[i]).after(option);
-										}
+							}
+
+							// Traitement du sélecteur de compte pour les chargeurs
+							options = $('#selectAccount option');
+							nbOptions = options.length;
+							option = "<option value='" + account['name'] + "'>" + account['name'] + "</option>";
+							if (nbOptions == 0) {
+								$('#selectAccount').append(option)
+							} else {
+								for (let i=0; i<nbOptions; i++) {
+									n = $(options[i]).attr('value');
+									if ( name.toLowerCase() < n.toLowerCase() ) {
+										$(options[i]).before(option);
+										break;
+									}
+									if (i == (nbOptions -1)) {
+										$(options[i]).after(option);
 									}
 								}
+							}
+
+							// Traitement de chargeur désactivés avec le compte
+							chargerIds = data['modifiedChargers'];
+							for (chargerId of chargerIds) {
+								$('.eqLogicDisplayCard[data-eqLogic_id=' + chargerId + ']').addClass('disableCard');
 							}
 						}
 					});
