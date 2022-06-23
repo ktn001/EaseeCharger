@@ -279,8 +279,8 @@ sendVarToJS('eqType', $plugin->getId());
     </div> <!-- Pages de configuration des chargeurs et véhicules -->
 </div><!-- /.row row-overflow -->
 
+<!-- Inclusion du fichier javascript du core - NE PAS MODIFIER NI SUPPRIMER -->
+<?php include_file('core', 'plugin.template', 'js');?>
 <!-- Inclusion du fichier javascript du plugin (dossier, nom_du_fichier, extension_du_fichier, id_du_plugin) -->
 <?php include_file('desktop', 'EaseeCharger', 'js', 'EaseeCharger');?>
 <?php include_file('desktop', 'EaseeCharger', 'css', 'EaseeCharger');?>
-<!-- Inclusion du fichier javascript du core - NE PAS MODIFIER NI SUPPRIMER -->
-<?php include_file('core', 'plugin.template', 'js');?>

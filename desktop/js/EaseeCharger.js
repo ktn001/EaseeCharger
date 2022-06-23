@@ -478,3 +478,18 @@ function prePrintEqLogic (id) {
 	$('#account_icon_visu, #charger_icon_visu').attr('src','')
 }
 
+//displayAsTable
+if (getCookie('jeedom_displayAsTable') == 'true' || jeedom.theme.theme_displayAsTable == 1) {
+	$('.accountDisplayCard').addClass('displayAsTable')
+	$('.accountDisplayCard .hiddenAsCard').removeClass('hidden')
+}
+//core event:
+$('#bt_pluginDisplayAsTable[data-coreSupport="1"]').on('click', function() {
+	if ($(this).data('state') == "1") {
+		$('.accountDisplayCard').addClass('displayAsTable')
+		$('.accountDisplayCard .hiddenAsCard').removeClass('hidden')
+	} else {
+		$('.accountDisplayCard').removeClass('displayAsTable')
+		$('.accountDisplayCard .hiddenAsCard').addClass('hidden')
+	}
+})
