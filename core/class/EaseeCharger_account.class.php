@@ -47,9 +47,17 @@ class EaseeCharger_account {
 		if ($value == '') {
 			return null;
 		}
-		$value['password'] = utils::decrypt($value['password']);
-		$value['token'] = utils::decrypt($value['token']);
 		$value = is_json($value,$value);
+		if (array_key_exists('password',$value)) {
+			$value['password'] = utils::decrypt($value['password']);
+		} else {
+			$value['password'] = '';
+		}
+		if (array_key_exists('zoken',$value)) {
+			$value['token'] = utils::decrypt($value['token']);
+		} else {
+			$value['token'] = '';
+		}
 		$account = new self();
 		utils::a2o($account,$value);
 		return $account;
@@ -73,7 +81,13 @@ class EaseeCharger_account {
 
 	/*     * ********************** Méthodes d'instance *************************** */
 
+	/*
+	 * Enregistrement du compte
+	 */
 	public function save() {
+		if (!$this->checkLogin()) {
+			throw new Exception(__("Login ou password incorrect",__FILE__));
+		}
 		$oldAccount = self::byName($this->getName());
 		if (is_object ($oldAccount) and ($oldAccount->getIsEnable() == 1)) {
 			$wasEnable = 1;
@@ -99,6 +113,9 @@ class EaseeCharger_account {
 		return $this;
 	}
 
+	/*
+	 * Suppression du compte
+	 */
 	public function remove() {
 		$chargers = EaseeCharger::byAccount($this->name, false);
 		if (count($chargers) > 0) {
@@ -108,11 +125,35 @@ class EaseeCharger_account {
 		return config::remove($key,'EaseeCharger');
 	}
 
+	/*
+	 * Test login et password
+	 */
+	public function checkLogin($login = '', $password = '') {
+		if (!$login) {
+			$login = $this->getLogin();
+		}
+		if (!$password) {
+			$password = $this->getPassword();
+		}
+		$data = array(
+			'userName' => $login,
+			'password' => $password
+		);
+		try {
+			$result = $this->sendRequest('accounts/login', $data);
+		} catch (EaseeCloudException $e) {
+			return false;
+		}
+		return true;
+	}
+
+	/*
+	 * Envoi d'une requête API au cloud Easee
+	 */
 	private function sendRequest($path, $data = '', $token='' ) {
-		log::add("EVcharger","info",__("Easee: envoi d'une requête au cloud", __FILE__));
+		log::add("EaseeCharger","info",__("Easee: envoi d'une requête au cloud", __FILE__));
 
 		$header = [
-			'Authorization: Bearer ' . $token,
 			"Accept: application/json",
 			"Content-Type: application/*+json"
 		];
@@ -120,24 +161,34 @@ class EaseeCharger_account {
 		if (! $token) {
 			$token = $this->getToken();
 		}
-		if (! $token) {
+		if ($token) {
 			$header[] = 'Authorization: Bearer ' . $token;
+		} else {
+			/*
+			 * TODO
+			 * Traitement si pas de login et password dans data
+			 */
 		}
+
+		log::add("EaseeCharger","debug", "  " . __("Requête: URL: ",__FILE__) . $this->_site . $path);
+		log::add("EaseeCharger","debug", "         URL: " . $this->_site . $path);
+		log::add("EaseeCharger","debug", "      Header: " . print_r($header,true));
+		$data2log = $data;
+		if (config::byKey('unsecurelog','EaseeCharger') != 1) {
+			if (is_array($data2log)) {
+				if ( array_key_exists('password',$data2log) and ($data2log['password'] != '')) {
+					$data2log['password'] = "**********";
+				}
+				if ( array_key_exists('token',$data2log) and ($data2log['token'] != '')) {
+					$data2log['token'] = "**********";
+				}
+			}
+		}
+		log::add("EaseeCharger","debug", "        data: " . print_r($data2log,true));
 
 		if (is_array($data)) {
 			$data = json_encode($data);
 		}
-
-		log::add("EVcharger","debug", "  " . __("Requête: URL: ",__FILE__) . $this->_site . $path);
-		log::add("EVcharger","debug", "       URL: " . $this->_site . $path);
-		log::add("EVcharger","debug", "    Header: " . print_r($header,true));
-		$data2log = $data;
-		if (is_array($data2log) and  array_key_exists('password',$data2log) and ($data2log['password'] != '')) {
-			$data2log['password'] = "**********";
-		}
-		log::add("EVcharger","debug", "      data: " . $data2log);
-
-		$data = json_encode($data);
 
 		$curl = curl_init();
 		if ($curl === false) {
@@ -155,13 +206,13 @@ class EaseeCharger_account {
 			CURLOPT_POSTFIELDS => $data,
 		]);
 
-		$reponse = curl_exec($curl);
+		$response = curl_exec($curl);
 		if ($response === false) {
 			curl_close($curl);
-			throw new Exception (__"Erreur lors de la requête CURL",__FILE__));
+			throw new Exception (__("Erreur lors de la requête CURL",__FILE__));
 		}
 
-		if (curl_errno($curl) {
+		if (curl_errno($curl)) {
 			curl_close($curl);
 			throw new Exception (sprintf(__("Erreur CURL %d: %s",__FILE__),curl_errno($surl),curl_error($curl)));
 		}
@@ -169,22 +220,25 @@ class EaseeCharger_account {
 		$httpCode = curl_getinfo($curl,CURLINFO_HTTP_CODE);
 		curl_close($curl);
 		if (substr($httpCode,0,1) != '2') {
-			$txt = $reponse;
-			$msg = json_decode($reponse,true);
+			$txt = $response;
+			$msg = json_decode($response,true);
 			if (array_key_exists('title',$msg)) {
 				$txt = $msg['title'];
 			}
 			$txt= sprintf(__("Code retour http: %s - %s",__FILE__) , $httpCode, $txt);
-			log::add("EVcharger","warning", $txt);
-			throw new Exception ($txt);
+			log::add("EaseeCharger","warning", $txt);
+			throw new EaseeCloudException ($txt);
 		}
-		log::add("EVcharger","debug", "  " . __("Code retour http: ",__FILE__) . $httpCode);
-		log::add("EVcharger","info", "Requête envoyée");
-		return json_decode($reponse, true);
+		log::add("EaseeCharger","debug", "  " . __("Code retour http: ",__FILE__) . $httpCode);
+		log::add("EaseeCharger","info", "Requête envoyée");
+		return json_decode($response, true);
 	}
 
 	/*     * ********************** Getteur Setteur *************************** */
 
+	/*
+	 * isEnable
+	 */
 	public function setIsEnable($_isEnable) {
 		$this->isEnable = $_isEnable;
 		return $this;
@@ -194,6 +248,9 @@ class EaseeCharger_account {
 		return $this->isEnable;
 	}
 
+	/*
+	 * login
+	 */
 	public function setLogin($_login) {
 		$this->login = $_login;
 		return $this;
@@ -203,6 +260,9 @@ class EaseeCharger_account {
 		return $this->login;
 	}
 
+	/*
+	 * _modifiedCharger
+	 */
 	public function setModifiedChargers( $_chargers = array()) {
 		$this->_modifiedChargers = $_chargers;
 	}
@@ -211,6 +271,9 @@ class EaseeCharger_account {
 		return $this->_modifiedChargers;
 	}
 
+	/*
+	 * name
+	 */
 	public function setName($_name) {
 		$this->name = $_name;
 		return $this;
@@ -220,6 +283,9 @@ class EaseeCharger_account {
 		return $this->name;
 	}
 
+	/*
+	 * password
+	 */
 	public function setPassword($_password) {
 		$this->password = $_password;
 		return $this;
@@ -229,13 +295,34 @@ class EaseeCharger_account {
 		return $this->password;
 	}
 
+	/*
+	 * token
+	 */
 	public function setToken($_token) {
-		$this->_token = $token;
+		$this->_token = $_token;
 		return $this;
 	}
 
-	public function getToken($_token) {
+	public function getToken() {
 		return $this->token;
+	}
+}
+
+class EaseeCloudException extends Exception {
+	private $response = "";
+
+	public function __construct($response, $code = 0, Throwable $previous = null) {
+		if (!is_array($response)) {
+			$message = $response;
+		} else {
+			$this->response = $response;
+			$message = $response['title'];
+		}
+		parent::__construct($message, $code, $previous);
+	}
+
+	public function getResponse() {
+		return $this->response;
 	}
 }
 

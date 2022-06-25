@@ -207,7 +207,7 @@ sendVarToJS('eqType', $plugin->getId());
 				<label class="col-sm-3 control-label">{{Compte}}</label>
 				<div class="col-sm-7">
 				    <select id="selectAccount" class="eqLogicAttr" data-l1key="configuration" data-l2key="accountId">
-					<option value=''> -- <?php echo(__('Sélectionez un compte',__FILE__)); ?> -- </option>
+					<option value=''> -- <?= __('Sélectionez un compte',__FILE__); ?> -- </option>
 					<?php
 					foreach ($accounts as $account) {
 						$name =  $account->getName();
@@ -235,12 +235,12 @@ sendVarToJS('eqType', $plugin->getId());
 				<div class="text-center">
 				    <img id="charger_icon_visu" src="/plugins/EaseeCharger/desktop/img/charger.png" style="max-width:160px;"/>
 				    <select id="selectChargerImg" class="eqLogicAttr" data-l1key="configuration" data-l2key="image">
-					<option value=''> -- <?php echo(__('Sélectionez une couleur',__FILE__)); ?> -- </option>
-					<option value='/plugins/EaseeCharger/desktop/img/charger_noir.png'><?php echo (__('noir',__FILE__)) ?></option>
-					<option value='/plugins/EaseeCharger/desktop/img/charger_bleu.png'><?php echo (__('bleu',__FILE__)) ?></option>
-					<option value='/plugins/EaseeCharger/desktop/img/charger_blanc.png'><?php echo (__('blanc',__FILE__)) ?></option>
-					<option value='/plugins/EaseeCharger/desktop/img/charger_gris.png'><?php echo (__('gris',__FILE__)) ?></option>
-					<option value='/plugins/EaseeCharger/desktop/img/charger_rouge.png'><?php echo (__('rouge',__FILE__)) ?></option>
+					<option value=''> -- <?= __('Sélectionez une couleur',__FILE__); ?> -- </option>
+					<option value='/plugins/EaseeCharger/desktop/img/charger_noir.png'><?= __('noir',__FILE__) ?></option>
+					<option value='/plugins/EaseeCharger/desktop/img/charger_bleu.png'><?= __('bleu',__FILE__) ?></option>
+					<option value='/plugins/EaseeCharger/desktop/img/charger_blanc.png'><?= __('blanc',__FILE__) ?></option>
+					<option value='/plugins/EaseeCharger/desktop/img/charger_gris.png'><?= __('gris',__FILE__) ?></option>
+					<option value='/plugins/EaseeCharger/desktop/img/charger_rouge.png'><?= __('rouge',__FILE__) ?></option>
 				    </select>
 				</div>
 			    </div>
