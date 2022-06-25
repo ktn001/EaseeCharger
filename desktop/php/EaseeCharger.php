@@ -60,6 +60,7 @@ sendVarToJS('eqType', $plugin->getId());
 		echo '<span class="name">';
 		echo $account->getName();
 		echo '</span>';
+		echo '<span class="displayTableRight hiddenAsCard hidden">' . __('Login',__FILE__) . ': <strong class="accountLogin">' . $account->getLogin() . '</strong></span>';
 		echo '</div>' . PHP_EOL;
 	    }
 	    ?>
@@ -87,7 +88,7 @@ sendVarToJS('eqType', $plugin->getId());
 		echo '<span class="name">';
 		echo $charger->getHumanName(true, true);
 		echo '</span>';
-		echo '<span class="displayTableRight hiddenAsCard hidden">Account: ' . $charger->getConfiguration('accountId') . '</span>';
+		echo '<span class="displayTableRight hiddenAsCard hidden">' . __('Compte',__FILE__) . ': <strong>' . $charger->getConfiguration('accountId') . '</strong></span>';
 		echo '</div>';
 	    }
 	    ?>

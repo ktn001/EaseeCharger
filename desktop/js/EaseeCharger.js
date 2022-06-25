@@ -26,6 +26,7 @@ $('#table_cmd').sortable({
 	tolerance: 'intersect',
 	forcePlaceholderSize: true
 });
+
 $('#table_cmd').on('sortupdate',function(event,ui){
 	modifyWithoutSave = true;
 });
@@ -34,14 +35,21 @@ $('#table_cmd').on('sortupdate',function(event,ui){
  * Construction d'une accountCard
  */
 function buildAccountCard(account) {
-	opacity = 'disableCard';
+	displayAsTable = '';
+	hiddenAsCard = 'hidden';
+	if (getCookie('jeedom_displayAsTable') == 'true' || jeedom.theme.theme_displayAsTable == 1) {
+		displayAsTable = 'displayAsTable';
+		hiddenAsCard = '';
+	}
+	opacity = 'disableCard ';
 	if (account['isEnable'] == 1){
 		opacity = '';
 	}
-	card =  '<div class="accountDisplayCard cursor ' + opacity + '" data-account_id="' + account.name + '">';
+	card =  '<div class="accountDisplayCard cursor ' + opacity + displayAsTable + '" data-account_id="' + account.name + '">';
 	card += '<img src="/plugins/EaseeCharger/desktop/img/account.png" style="width:unset !important"/>';
 	card += '<br>';
 	card += '<span class="name">' + account['name'] + '</span>';
+	card += '<span class="displayTableRight hiddenAsCard ' + hiddenAsCard + '">{{Login}}: <strong class="accountLogin">' + account['login'] + '</strong></span>';
 	card += '</div>';
 	return card;
 }
@@ -177,6 +185,7 @@ function editAccount(name) {
 								} else {
 									card.addClass('disableCard');
 								}
+								card.find('.accountLogin').html(data['account']['login']);
 							} else {
 								// Création d'une nouvelle Card
 								card = buildAccountCard(data['account']);

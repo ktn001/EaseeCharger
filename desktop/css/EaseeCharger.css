@@ -17,6 +17,15 @@
 	text-align: center;
 }
 
+div.accountDisplayCard span.name > span.label {
+	cursor: pointer !important;
+}
+
+.accountDisplayCard div.cursor {
+	margin-bottom: 5px !important;
+	padding: 5px !important;
+}
+
 div.eqLogicThumbnailContainer .accountDisplayCard {
 	height: 138px !important;
 }
@@ -34,6 +43,14 @@ div.accountDisplayCard .name {
 	font-size: 12px !important;
 	position: relative;
 	top: 3px !important;
+}
+
+div.accountDisplayCard > span.name strong {
+	position: relative;
+	top: 3px !important;
+	display: block;
+	height: 28px !important;
+	overflow: hidden;
 }
 
 div.accountDisplayCard img {

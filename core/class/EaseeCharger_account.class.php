@@ -22,6 +22,8 @@ class EaseeCharger_account {
 	private $login = '';
 	private $password = '';
 	private $isEnable = 0;
+	private $token = '';
+	private $_site = 'https://api.easee.cloud/api/';
 	private $_modifiedChargers = array ();
 
 	/*     * ********************** Méthodes Static *************************** */
@@ -46,6 +48,7 @@ class EaseeCharger_account {
 			return null;
 		}
 		$value['password'] = utils::decrypt($value['password']);
+		$value['token'] = utils::decrypt($value['token']);
 		$value = is_json($value,$value);
 		$account = new self();
 		utils::a2o($account,$value);
@@ -79,6 +82,7 @@ class EaseeCharger_account {
 		}
 		$value = utils::o2a($this);
 		$value['password'] = utils::encrypt($value['password']);
+		$value['token'] = utils::encrypt($value['token']);
 		$value = json_encode($value);
 		$key = 'account::' . $this->name;
 		config::save($key, $value, 'EaseeCharger');
@@ -102,6 +106,81 @@ class EaseeCharger_account {
 		}
 		$key = 'account::' . $this->name;
 		return config::remove($key,'EaseeCharger');
+	}
+
+	private function sendRequest($path, $data = '', $token='' ) {
+		log::add("EVcharger","info",__("Easee: envoi d'une requête au cloud", __FILE__));
+
+		$header = [
+			'Authorization: Bearer ' . $token,
+			"Accept: application/json",
+			"Content-Type: application/*+json"
+		];
+
+		if (! $token) {
+			$token = $this->getToken();
+		}
+		if (! $token) {
+			$header[] = 'Authorization: Bearer ' . $token;
+		}
+
+		if (is_array($data)) {
+			$data = json_encode($data);
+		}
+
+		log::add("EVcharger","debug", "  " . __("Requête: URL: ",__FILE__) . $this->_site . $path);
+		log::add("EVcharger","debug", "       URL: " . $this->_site . $path);
+		log::add("EVcharger","debug", "    Header: " . print_r($header,true));
+		$data2log = $data;
+		if (is_array($data2log) and  array_key_exists('password',$data2log) and ($data2log['password'] != '')) {
+			$data2log['password'] = "**********";
+		}
+		log::add("EVcharger","debug", "      data: " . $data2log);
+
+		$data = json_encode($data);
+
+		$curl = curl_init();
+		if ($curl === false) {
+			throw new Exception (__("Erreur lors l'initialisation de CURL",__FILE__));
+		}
+		curl_setopt_array($curl, [
+			CURLOPT_URL => $this->_site . $path,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_ENCODING => "",
+			CURLOPT_MAXREDIRS => 10,
+			CURLOPT_TIMEOUT => 30,
+			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			CURLOPT_CUSTOMREQUEST => $data == "" ? 'GET' : 'POST',
+			CURLOPT_HTTPHEADER => $header,
+			CURLOPT_POSTFIELDS => $data,
+		]);
+
+		$reponse = curl_exec($curl);
+		if ($response === false) {
+			curl_close($curl);
+			throw new Exception (__"Erreur lors de la requête CURL",__FILE__));
+		}
+
+		if (curl_errno($curl) {
+			curl_close($curl);
+			throw new Exception (sprintf(__("Erreur CURL %d: %s",__FILE__),curl_errno($surl),curl_error($curl)));
+		}
+
+		$httpCode = curl_getinfo($curl,CURLINFO_HTTP_CODE);
+		curl_close($curl);
+		if (substr($httpCode,0,1) != '2') {
+			$txt = $reponse;
+			$msg = json_decode($reponse,true);
+			if (array_key_exists('title',$msg)) {
+				$txt = $msg['title'];
+			}
+			$txt= sprintf(__("Code retour http: %s - %s",__FILE__) , $httpCode, $txt);
+			log::add("EVcharger","warning", $txt);
+			throw new Exception ($txt);
+		}
+		log::add("EVcharger","debug", "  " . __("Code retour http: ",__FILE__) . $httpCode);
+		log::add("EVcharger","info", "Requête envoyée");
+		return json_decode($reponse, true);
 	}
 
 	/*     * ********************** Getteur Setteur *************************** */
@@ -150,6 +229,14 @@ class EaseeCharger_account {
 		return $this->password;
 	}
 
+	public function setToken($_token) {
+		$this->_token = $token;
+		return $this;
+	}
+
+	public function getToken($_token) {
+		return $this->token;
+	}
 }
 
 //	/*
@@ -161,62 +248,6 @@ class EaseeCharger_account {
 //		}
 //	}
 //
-//	private function sendRequest($path, $data = '', $token='' ) {
-//		log::add("EVcharger","info",__("Easee: envoi d'une requête au cloud", __FILE__));
-//		if (! $token) {
-//			$token = $this->getToken();
-//		}
-//		$header = [
-//			'Authorization: Bearer ' . $token,
-//			"Accept: application/json",
-//			"Content-Type: application/*+json"
-//		];
-//		if (is_array($data)) {
-//			$data = json_encode($data);
-//		}
-//
-//		$curl = curl_init();
-//		curl_setopt_array($curl, [
-//			CURLOPT_URL => $this->getUrl() . $path,
-//			CURLOPT_RETURNTRANSFER => true,
-//			CURLOPT_ENCODING => "",
-//			CURLOPT_MAXREDIRS => 10,
-//			CURLOPT_TIMEOUT => 30,
-//			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-//			CURLOPT_CUSTOMREQUEST => $data == "" ? 'GET' : 'POST',
-//			CURLOPT_HTTPHEADER => $header,
-//			CURLOPT_POSTFIELDS => $data,
-//		]);
-//		$reponse = curl_exec($curl);
-//		$httpCode = curl_getinfo($curl,CURLINFO_HTTP_CODE);
-//		$err = curl_error($curl);
-//		curl_close($curl);
-//		if ($err) {
-//			log::add("EVcharger","error", "CURL Error : " . $err);
-//			throw new Exception($err);
-//		}
-//		log::add("EVcharger","debug", "  " . __("Requête: URL: ",__FILE__) . $this->getUrl() . $path);
-//		log::add("EVcharger","debug", "  " . "Header: " . print_r($header,true));
-//		$data = json_decode($data,true);
-//		if (is_array($data) and  array_key_exists('password',$data) and ($data['password'] != '')) {
-//			$data['password'] = "**********";
-//		}
-//		$data = json_encode($data);
-//		log::add("EVcharger","debug", "           " . __("data:",__FILE__) . $data);
-//		if (substr($httpCode,0,1) != '2') {
-//			$txt = $reponse;
-//			$msg = json_decode($reponse,true);
-//			if (array_key_exists('title',$msg)) {
-//				$txt = $msg['title'];
-//			}
-//			$txt= sprintf(__("Code retour http: %s - %s",__FILE__) , $httpCode, $txt);
-//			log::add("EVcharger","warning", $txt);
-//			throw new Exception ($txt);
-//		}
-//		log::add("EVcharger","debug", "  " . __("Code retour http: ",__FILE__) . $httpCode);
-//		log::add("EVcharger","info", "Requête envoyée");
-//		return json_decode($reponse, true);
-//	}
 //
 //	/*
 //	 * Envoi d'un message au daemon
