@@ -330,7 +330,7 @@ class EaseeCloudException extends Exception {
 //	 * Démarre le thread du démon pour chaque account actif
 //	 */
 //	public static function startAllDaemonThread(){
-//		foreach (EaseeCharger::byType("EaseeCharger_xaccount_%",true) as $account) {
+//		foreach (EaseeCharger::byType("EaseeCharger_account_%",true) as $account) {
 //			$account->startDaemonThread();
 //		}
 //	}

@@ -112,7 +112,7 @@ def start_account(accountModel, accountName):
     jeedom_com.send_change_immediate({
         'object' : 'account',
         'info' : 'thread_started',
-        'account_id' : accountName
+        'account_name' : accountName
     })
 
     return

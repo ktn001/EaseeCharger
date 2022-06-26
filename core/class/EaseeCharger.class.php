@@ -215,31 +215,31 @@ class EaseeCharger extends eqLogic {
 	/*     * ************************ Les crons **************************** */
 
 //	public static function cron() {
-//		EaseeCharger_xaccount::_cron();
+//		EaseeCharger_account::_cron();
 //	}
 //
 //	public static function cron5() {
-//		EaseeCharger_xaccount::_cron5();
+//		EaseeCharger_account::_cron5();
 //	}
 //
 //	public static function cron10() {
-//		EaseeCharger_xaccount::_cron10();
+//		EaseeCharger_account::_cron10();
 //	}
 //
 //	public static function cron15() {
-//		EaseeCharger_xaccount::_cron15();
+//		EaseeCharger_account::_cron15();
 //	}
 //
 //	public static function cron30() {
-//		EaseeCharger_xaccount::_cron30();
+//		EaseeCharger_account::_cron30();
 //	}
 //
 //	public static function cronHourly() {
-//		EaseeCharger_xaccount::_cronHourly();
+//		EaseeCharger_account::_cronHourly();
 //	}
 //
 //	public static function cronDaily() {
-//		EaseeCharger_xaccount::_cron15();
+//		EaseeCharger_account::_cron15();
 //	}
 
     //========================================================================
@@ -328,6 +328,5 @@ class EaseeChargerCmd extends cmd {
 }
 
 require_once __DIR__  . '/model.class.php';
-require_once __DIR__  . '/EaseeCharger_xaccount.class.php';
 require_once __DIR__  . '/EaseeCharger_account.class.php';
 require_once __DIR__  . '/EaseeCharger_charger.class.php';

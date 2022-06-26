@@ -199,8 +199,8 @@ class EaseeCharger_charger extends EaseeCharger {
 		}
 		$AccountName = $this->getAccountName();
 		if ($AccountName != '') {
-			$account = EaseeCharger_xaccount::byId($AccountName);
-			if (! is_a($account, "EaseeCharger_xaccount")) {
+			$account = EaseeCharger_account::byName($AccountName);
+			if (! is_a($account, "EaseeCharger_account")) {
 				throw new Exception (sprintf(__("L'account %s est introuvable!",__FILE__), $AccountName));
 			}
 		}
@@ -275,7 +275,7 @@ class EaseeCharger_charger extends EaseeCharger {
 	}
 
 	public function getAccount() {
-		return EaseeCharger_xaccount::byId($this->getAccountName());
+		return EaseeCharger_account::byName($this->getAccountName());
 	}
 
 	public function getIdentifiant() {
@@ -304,7 +304,7 @@ class EaseeCharger_charger extends EaseeCharger {
 			'identifiant' => $this->getIdentifiant()
 		);
 		if ($this->getAccountName()) {
-			EaseeCharger_xaccount::byId($this->getAccountName())->send2Daemon($message);
+			EaseeCharger_account::byName($this->getAccountName())->send2Daemon($message);
 		}
 	}
 

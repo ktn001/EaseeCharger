@@ -6,17 +6,17 @@ try {
 
 	function process_daemon_message($message) {
 		if ($message['info'] == 'started'){
-			EaseeCharger_xaccount::startAllDaemonThread();
+			EaseeCharger_account::startAllDaemonThread();
 		}
 	}
 
 	function process_account_message($message) {
 		if ($message['info'] == 'thread_started'){
-			$account = EaseeCharger_xaccount::byId($message['account_id']);
+			$account = EaseeCharger_account::byName($message['account_name']);
 			if (is_object($account)) {
 				$account->daemonThreadStarted();
 			} else {
-				log::add("EaseeCharger","error",sprintf(__("L'account %s est introuvable",__FILE__),$message['account_id']));
+				log::add("EaseeCharger","error",sprintf(__("L'account %s est introuvable",__FILE__),$message['account_name']));
 			}
 		}
 	}

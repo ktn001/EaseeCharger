@@ -45,7 +45,7 @@ function buildAccountCard(account) {
 	if (account['isEnable'] == 1){
 		opacity = '';
 	}
-	card =  '<div class="accountDisplayCard cursor ' + opacity + displayAsTable + '" data-account_id="' + account.name + '">';
+	card =  '<div class="accountDisplayCard cursor ' + opacity + displayAsTable + '" data-account_name="' + account.name + '">';
 	card += '<img src="/plugins/EaseeCharger/desktop/img/account.png" style="width:unset !important"/>';
 	card += '<br>';
 	card += '<span class="name">' + account['name'] + '</span>';
@@ -144,7 +144,7 @@ function editAccount(name) {
 								$.fn.showAlert({message: data.result, level: 'danger'});
 								return;
 							}
-							$('.accountDisplayCard[data-account_id=' + name + ']').remove();
+							$('.accountDisplayCard[data-account_name=' + name + ']').remove();
 							$('#selectAccount option[value=' + name + ']').remove();
 						}
 					});
@@ -177,7 +177,7 @@ function editAccount(name) {
 							console.log(data);
 
 							// Traitement de la Card			
-							card = $('.accountDisplayCard[data-account_id=' + data['account']['name'] + ']'); 
+							card = $('.accountDisplayCard[data-account_name=' + data['account']['name'] + ']'); 
 							if (card.length == 1) {
 								// La card existe, on la met à jour
 								if (data['account']['isEnable'] == 1) {
@@ -195,7 +195,7 @@ function editAccount(name) {
 									$('.eqLogicThumbnailContainer[data-type=account]').append(card);
 								} else {
 									for (let i=0; i<nbCards; i++) {
-										n = $(cards[i]).attr('data-account_id');
+										n = $(cards[i]).attr('data-account_name');
 										if ( name.toLowerCase() < n.toLowerCase() ) {
 											$(cards[i]).before(card);
 											break;
@@ -275,7 +275,7 @@ $('.accountAction[data-action=add').off('click').on('click',function () {
  * Action sur AccountDisplayCard
  */
 $('.eqLogicThumbnailContainer[data-type=account]').delegate('.accountDisplayCard','click',function() {
-	editAccount($(this).data('account_id'));
+	editAccount($(this).data('account_name'));
 })
 
 /*

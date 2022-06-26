@@ -54,7 +54,7 @@ sendVarToJS('eqType', $plugin->getId());
 	    <?php
 	    foreach ($accounts as $account) {
 		$opacity = ($account->getIsEnable()) ? '' : 'disableCard';
-		echo '<div class="accountDisplayCard cursor '.$opacity.'" data-account_id="' . $account->getName() . '">';
+		echo '<div class="accountDisplayCard cursor '.$opacity.'" data-account_name="' . $account->getName() . '">';
 		echo '<img src="/plugins/EaseeCharger/desktop/img/account.png" style="width:unset !important"/>';
 		echo '<br>';
 		echo '<span class="name">';
