@@ -327,6 +327,5 @@ class EaseeChargerCmd extends cmd {
 	}
 }
 
-require_once __DIR__  . '/model.class.php';
 require_once __DIR__  . '/EaseeCharger_account.class.php';
 require_once __DIR__  . '/EaseeCharger_charger.class.php';

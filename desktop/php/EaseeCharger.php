@@ -140,7 +140,6 @@ sendVarToJS('eqType', $plugin->getId());
 				<label class="col-sm-3 control-label">{{Nom du chargeur}}</label>
 				<div class="col-sm-7">
 				    <input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;"/>
-				    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="modelId" style="display : none;"/>
 				    <input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom du chargeur}}"/>
 				</div>
 			    </div>

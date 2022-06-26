@@ -35,156 +35,156 @@ class EaseeCharger_charger extends EaseeCharger {
 		}
 		$ids = array();
 		log::add("EaseeCharger","debug",sprintf(__("%s: (re)création des commandes",__FILE__),$this->getHumanName()));
-		$model = $this->getModel();
-		foreach ($model->commands() as $logicalId => $config) {
-			$cmd = $this->getCmd(null,$logicalId);
-			if (!is_object($cmd)){
-				if ($updateOnly) {
-					continue;
-				}
-				log::add("EaseeCharger","debug","  " . sprintf(__("Création de la commande %s",__FILE__), $logicalId));
-				$cmd = new EaseeCharger_chargerCMD();
-				$cmd->setEqLogic_id($this->getId());
-				$cmd->setLogicalId($logicalId);
-				if ($createOnly and array_key_exists('order',$config)) {
-					foreach (cmd::byEqLogicId($this->getId()) as $otherCmd) {
-						if ($otherCmd->getOrder() >= $config['order']) {
-							$otherCmd->setOrder($otherCmd->getOrder()+1);
-							$otherCmd->save();
-						}
-					}
-					if ($cmd->getOrder() != $config['order']){
-						log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'order'",__FILE__), $logicalId));
-						$cmd->setOrder($config['order']);
-					}
-				}
-			} elseif ($createOnly) {
-				continue;
-			}
-
-			if ($cmd->getConfiguration('destination') != $config['destination']) {
-				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'destination'",__FILE__), $logicalId));
-				$cmd->setConfiguration('destination',$config['destination']);
-			}
-			if (array_key_exists('display::graphStep', $config)) {
-				if ($cmd->getDisplay('graphStep') != $config['display::graphStep']) {
-					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'display::graphStep'",__FILE__), $logicalId));
-					$cmd->setDisplay('graphStep', $config['display::graphStep']);
-				}
-			}
-			if (array_key_exists('displayName', $config)) {
-				if ($cmd->getDisplay('showNameOndashboard') !=  $config['displayName']){
-					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'display::NameOndashboard'",__FILE__), $logicalId));
-					$cmd->setDisplay('showNameOndashboard', $config['displayName']);
-				}
-				if ($cmd->getDisplay('showNameOnmobile') !=  $config['displayName']){
-					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'display::NameOnmobile'",__FILE__), $logicalId));
-					$cmd->setDisplay('showNameOndashboard', $config['displayName']);
-				}
-			}
-			if ($cmd->getName() != $config['name']){
-				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'name'",__FILE__), $logicalId));
-				$cmd->setName($config['name']);
-			}
-			if ($cmd->getOrder() != $config['order']){
-				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'order'",__FILE__), $logicalId));
-				$cmd->setOrder($config['order']);
-			}
-			if ($cmd->getConfiguration('required') != $config['required']) {
-				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'required'",__FILE__), $logicalId));
-				$cmd->setConfiguration('required',$config['required']);
-			}
-			if (array_key_exists('rounding', $config)) {
-				if ($cmd->getConfiguration('historizeRound') != $config['rounding']) {
-					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'roundig'",__FILE__), $logicalId));
-					$cmd->setConfiguration('historizeRound', $config['rounding']);
-				}
-			}
-			if ($cmd->getConfiguration('source') != $config['source']) {
-				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'source'",__FILE__), $logicalId));
-				$cmd->setConfiguration('source',$config['source']);
-			}
-			if ($cmd->getSubType() != $config['subType']) {
-				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'subType'",__FILE__), $logicalId));
-				$cmd->setSubType($config['subType']);
-			}
-			if (array_key_exists('template', $config)) {
-				if ($cmd->getTemplate('dashboard') != $config['template']) {
-					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'template::dashboard'",__FILE__), $logicalId));
-					$cmd->setTemplate('dashboard',$config['template']);
-				}
-				if ($cmd->getTemplate('mobile') != $config['template']) {
-					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'template::mobile'",__FILE__), $logicalId));
-					$cmd->setTemplate('mobile',$config['template']);
-				}
-			}
-			if ($cmd->getType() != $config['type']) {
-				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'type'",__FILE__), $logicalId));
-				$cmd->setType($config['type']);
-			}
-			if (array_key_exists('unite', $config)) {
-				if ($cmd->getUnite() != $config['unite']) {
-					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'unite'",__FILE__), $logicalId));
-					$cmd->setUnite($config['unite']);
-				}
-			}
-			if (array_key_exists('visible', $config)) {
-				if ($cmd->getIsVisible() != $config['visible']) {
-					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'visible'",__FILE__), $logicalId));
-					$cmd->setIsVisible($config['visible']);
-				}
-			}
-
-			if ($cmd->getType() == 'action' and $cmd->getConfiguration('destination') == 'cmd'){
-				$cmd->setConfiguration('destId','-');
-			}
-			$cmd->save();
-		}
-		foreach ($model->commands() as $logicalId => $config) {
-			$cmd = $this->getCmd(null,$logicalId);
-			$needSave = false;
-			if (array_key_exists('calcul',$config)){
-				$calcul = $config['calcul'];
-				if (!is_object($cmd)){
-					log::add("EaseeCharger","error",(sprintf(__("Commande avec logicalIs=%s introuvable",__FILE__),$logicalId)));
-					continue;
-				}
-				preg_match_all('/#(.+?)#/',$calcul,$matches);
-				foreach ($matches[1] as $logicalId) {
-					$id = $this->getCmd(null, $logicalId)->getId();
-					$calcul = str_replace('#' . $logicalId . '#', '#' . $id . '#', $calcul);
-				}
-				if ($cmd->getConfiguration('calcul') !=  $calcul) {
-					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'calcul'",__FILE__), $logicalId));
-					$cmd->setConfiguration('calcul', $calcul);
-					$needSave = true;
-				}
-			}
-			if (array_key_exists('value',$config)){
-				if (!is_object($cmd)){
-					log::add("EaseeCharger","error",(sprintf(__("Commande avec logicalId = %s introuvable",__FILE__),$logicalId)));
-					continue;
-				}
-				$cmdValue = $this->getCmd(null, $config['value']);
-				if (! $cmdValue) {
-					log::add("EaseeCharger","error",sprintf(__("La commande '%s' pour la valeur de '%s' est introuvable",__FILE__),$config['value'],$cmd->getLogicalId()));
-				} else {
-					if ($cmd->getType() == 'info') {
-						$value = '#' . $cmdValue->getId() . '#';
-					} else {
-						$value = $cmdValue->getId();
-					}
-					if ($cmd->getValue() != $value) {
-						log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'value' (%s)",__FILE__), $logicalId,$value));
-						$cmd->setValue($value);
-						$needSave = true;
-					}
-				}
-			}
-			if ($needSave) {
-				$cmd->save();
-			}
-		}
+//		$model = $this->getModel();
+//		foreach ($model->commands() as $logicalId => $config) {
+//			$cmd = $this->getCmd(null,$logicalId);
+//			if (!is_object($cmd)){
+//				if ($updateOnly) {
+//					continue;
+//				}
+//				log::add("EaseeCharger","debug","  " . sprintf(__("Création de la commande %s",__FILE__), $logicalId));
+//				$cmd = new EaseeCharger_chargerCMD();
+//				$cmd->setEqLogic_id($this->getId());
+//				$cmd->setLogicalId($logicalId);
+//				if ($createOnly and array_key_exists('order',$config)) {
+//					foreach (cmd::byEqLogicId($this->getId()) as $otherCmd) {
+//						if ($otherCmd->getOrder() >= $config['order']) {
+//							$otherCmd->setOrder($otherCmd->getOrder()+1);
+//							$otherCmd->save();
+//						}
+//					}
+//					if ($cmd->getOrder() != $config['order']){
+//						log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'order'",__FILE__), $logicalId));
+//						$cmd->setOrder($config['order']);
+//					}
+//				}
+//			} elseif ($createOnly) {
+//				continue;
+//			}
+//
+//			if ($cmd->getConfiguration('destination') != $config['destination']) {
+//				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'destination'",__FILE__), $logicalId));
+//				$cmd->setConfiguration('destination',$config['destination']);
+//			}
+//			if (array_key_exists('display::graphStep', $config)) {
+//				if ($cmd->getDisplay('graphStep') != $config['display::graphStep']) {
+//					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'display::graphStep'",__FILE__), $logicalId));
+//					$cmd->setDisplay('graphStep', $config['display::graphStep']);
+//				}
+//			}
+//			if (array_key_exists('displayName', $config)) {
+//				if ($cmd->getDisplay('showNameOndashboard') !=  $config['displayName']){
+//					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'display::NameOndashboard'",__FILE__), $logicalId));
+//					$cmd->setDisplay('showNameOndashboard', $config['displayName']);
+//				}
+//				if ($cmd->getDisplay('showNameOnmobile') !=  $config['displayName']){
+//					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'display::NameOnmobile'",__FILE__), $logicalId));
+//					$cmd->setDisplay('showNameOndashboard', $config['displayName']);
+//				}
+//			}
+//			if ($cmd->getName() != $config['name']){
+//				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'name'",__FILE__), $logicalId));
+//				$cmd->setName($config['name']);
+//			}
+//			if ($cmd->getOrder() != $config['order']){
+//				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'order'",__FILE__), $logicalId));
+//				$cmd->setOrder($config['order']);
+//			}
+//			if ($cmd->getConfiguration('required') != $config['required']) {
+//				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'required'",__FILE__), $logicalId));
+//				$cmd->setConfiguration('required',$config['required']);
+//			}
+//			if (array_key_exists('rounding', $config)) {
+//				if ($cmd->getConfiguration('historizeRound') != $config['rounding']) {
+//					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'roundig'",__FILE__), $logicalId));
+//					$cmd->setConfiguration('historizeRound', $config['rounding']);
+//				}
+//			}
+//			if ($cmd->getConfiguration('source') != $config['source']) {
+//				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'source'",__FILE__), $logicalId));
+//				$cmd->setConfiguration('source',$config['source']);
+//			}
+//			if ($cmd->getSubType() != $config['subType']) {
+//				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'subType'",__FILE__), $logicalId));
+//				$cmd->setSubType($config['subType']);
+//			}
+//			if (array_key_exists('template', $config)) {
+//				if ($cmd->getTemplate('dashboard') != $config['template']) {
+//					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'template::dashboard'",__FILE__), $logicalId));
+//					$cmd->setTemplate('dashboard',$config['template']);
+//				}
+//				if ($cmd->getTemplate('mobile') != $config['template']) {
+//					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'template::mobile'",__FILE__), $logicalId));
+//					$cmd->setTemplate('mobile',$config['template']);
+//				}
+//			}
+//			if ($cmd->getType() != $config['type']) {
+//				log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'type'",__FILE__), $logicalId));
+//				$cmd->setType($config['type']);
+//			}
+//			if (array_key_exists('unite', $config)) {
+//				if ($cmd->getUnite() != $config['unite']) {
+//					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'unite'",__FILE__), $logicalId));
+//					$cmd->setUnite($config['unite']);
+//				}
+//			}
+//			if (array_key_exists('visible', $config)) {
+//				if ($cmd->getIsVisible() != $config['visible']) {
+//					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'visible'",__FILE__), $logicalId));
+//					$cmd->setIsVisible($config['visible']);
+//				}
+//			}
+//
+//			if ($cmd->getType() == 'action' and $cmd->getConfiguration('destination') == 'cmd'){
+//				$cmd->setConfiguration('destId','-');
+//			}
+//			$cmd->save();
+//		}
+//		foreach ($model->commands() as $logicalId => $config) {
+//			$cmd = $this->getCmd(null,$logicalId);
+//			$needSave = false;
+//			if (array_key_exists('calcul',$config)){
+//				$calcul = $config['calcul'];
+//				if (!is_object($cmd)){
+//					log::add("EaseeCharger","error",(sprintf(__("Commande avec logicalIs=%s introuvable",__FILE__),$logicalId)));
+//					continue;
+//				}
+//				preg_match_all('/#(.+?)#/',$calcul,$matches);
+//				foreach ($matches[1] as $logicalId) {
+//					$id = $this->getCmd(null, $logicalId)->getId();
+//					$calcul = str_replace('#' . $logicalId . '#', '#' . $id . '#', $calcul);
+//				}
+//				if ($cmd->getConfiguration('calcul') !=  $calcul) {
+//					log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'calcul'",__FILE__), $logicalId));
+//					$cmd->setConfiguration('calcul', $calcul);
+//					$needSave = true;
+//				}
+//			}
+//			if (array_key_exists('value',$config)){
+//				if (!is_object($cmd)){
+//					log::add("EaseeCharger","error",(sprintf(__("Commande avec logicalId = %s introuvable",__FILE__),$logicalId)));
+//					continue;
+//				}
+//				$cmdValue = $this->getCmd(null, $config['value']);
+//				if (! $cmdValue) {
+//					log::add("EaseeCharger","error",sprintf(__("La commande '%s' pour la valeur de '%s' est introuvable",__FILE__),$config['value'],$cmd->getLogicalId()));
+//				} else {
+//					if ($cmd->getType() == 'info') {
+//						$value = '#' . $cmdValue->getId() . '#';
+//					} else {
+//						$value = $cmdValue->getId();
+//					}
+//					if ($cmd->getValue() != $value) {
+//						log::add("EaseeCharger","debug","  " . sprintf(__("%s: Mise à jour de 'value' (%s)",__FILE__), $logicalId,$value));
+//						$cmd->setValue($value);
+//						$needSave = true;
+//					}
+//				}
+//			}
+//			if ($needSave) {
+//				$cmd->save();
+//			}
+//		}
 	}
 
     // Fonction exécutée automatiquement avant la sauvegarde de l'équipement
@@ -279,9 +279,7 @@ class EaseeCharger_charger extends EaseeCharger {
 	}
 
 	public function getIdentifiant() {
-		$modelId = $this->getConfiguration('modelId');
-		$configName = model::getIdentifiantCharger($modelId);
-		return $this->getConfiguration($configName);
+		return $this->getConfiguration('serial');
 	}
 
 	public function startDaemonThread() {
@@ -332,10 +330,6 @@ class EaseeCharger_charger extends EaseeCharger {
 		$myLat = $this->getConfiguration('latitude');
 		$myLgt = $this->getConfiguration('longitude');
 		return EaseeCharger::distance($lat,$lgt,$myLat,$myLgt);
-	}
-
-	public function getModel() {
-		return model::byId($this->getConfiguration('modelId'));
 	}
 
 	public function getLatitude() {

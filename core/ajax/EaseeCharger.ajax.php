@@ -84,15 +84,6 @@ try {
 		ajax::error(sprintf(__("La suppression du compte %s n'a pas fonctionné correctement",__FILE__),$name));
 	}
 
-	if ($action == 'images') {
-		$modelId = init('modelId');
-		if ($modelId == '') {
-			throw new Exception(__("Le modèle de chargeur n'est pas indiqué",__FILE__));
-		}
-		$model = model::byId($modelId);
-		ajax::success(json_encode($model->images('charger')));
-	}
-
 	if ($action == 'createCmds' || init('action') == 'updateCmds')  {
 		$id = init('id');
 		if ($id == ''){
