@@ -88,7 +88,7 @@ sendVarToJS('eqType', $plugin->getId());
 		echo '<span class="name">';
 		echo $charger->getHumanName(true, true);
 		echo '</span>';
-		echo '<span class="displayTableRight hiddenAsCard hidden">' . __('Compte',__FILE__) . ': <strong>' . $charger->getConfiguration('accountId') . '</strong></span>';
+		echo '<span class="displayTableRight hiddenAsCard hidden">' . __('Compte',__FILE__) . ': <strong>' . $charger->getAccountName() . '</strong></span>';
 		echo '</div>';
 	    }
 	    ?>
@@ -206,7 +206,7 @@ sendVarToJS('eqType', $plugin->getId());
 			    <div class='form-group'>
 				<label class="col-sm-3 control-label">{{Compte}}</label>
 				<div class="col-sm-7">
-				    <select id="selectAccount" class="eqLogicAttr" data-l1key="configuration" data-l2key="accountId">
+				    <select id="selectAccount" class="eqLogicAttr" data-l1key="configuration" data-l2key="accountName">
 					<option value=''> -- <?= __('Sélectionez un compte',__FILE__); ?> -- </option>
 					<?php
 					foreach ($accounts as $account) {

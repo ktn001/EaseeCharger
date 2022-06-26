@@ -90,29 +90,29 @@ def options():
     logging.info('Socket host : '+str(_socketHost))
     logging.info('PID file : '+str(_pidfile))
 
-def start_account(accountModel, accountId):
+def start_account(accountModel, accountName):
     global accounts
-    logging.info(f'starting account thread: id={accountId} modèle: {accountModel}')
+    logging.info(f'starting account thread: id={accountName} modèle: {accountModel}')
 
-    if accountId in accounts:
-        logging.info(f"Thread for account {accountId} is already running!")
+    if accountName in accounts:
+        logging.info(f"Thread for account {accountName} is already running!")
         return
 
     queue = Queue()
-    account = eval("account." + accountModel)(accountId, accountModel, queue, jeedom_com)
-    accounts[accountId] = {
+    account = eval("account." + accountModel)(accountName, accountModel, queue, jeedom_com)
+    accounts[accountName] = {
             'modelId' : accountModel,
             'queue' : queue,
             'account' : account,
             'thread' : account.run()
             }
-    logging.debug(f"Thread for account {accountId} started")
+    logging.debug(f"Thread for account {accountName} started")
 
     # On informe Jeedon du démarrage
     jeedom_com.send_change_immediate({
         'object' : 'account',
         'info' : 'thread_started',
-        'account_id' : accountId
+        'account_id' : accountName
     })
 
     return
@@ -147,33 +147,33 @@ def read_socket():
         if not 'id' in payload:
             logging.error(f"Message for accountModel ({accountModel}) but with no 'id'")
             return
-        accountId = payload['id']
+        accountName = payload['id']
 
         # Y-a-t-il un message?
         if not 'message' in payload:
-            logging.error(f"Message for accountModel ({accountModel}) and id ({accountId}) but with no 'message'")
+            logging.error(f"Message for accountModel ({accountModel}) and id ({accountName}) but with no 'message'")
             return
         message = json.loads(payload['message'])
 
         # Lancement du thread de l'account si le message le demande
         if 'cmd' in message and message['cmd'] == 'start_account':
-            start_account(accountModel, accountId);
+            start_account(accountModel, accountName);
 
         # Envoi du message dans la queue de traitement de l'account
-        if accountId in accounts:
-            accounts[accountId]['queue'].put(json.dumps(message))
+        if accountName in accounts:
+            accounts[accountName]['queue'].put(json.dumps(message))
             # Le message sera repris dans le thread de l'account
 
         # Si la commande était l'arrêt de l'account...
         if 'cmd' in message and message['cmd'] == 'stop':
             # on retire l'account de la liste
-            if 'accountId' in accounts:
-                del accounts[accountId]
+            if 'accountName' in accounts:
+                del accounts[accountName]
 
 def showThreads(level = 'debug'):
     eval ('logging.' + level)("Threads en cours:")
-    for accountId in accounts:
-        accounts[accountId]['account'].test(level)
+    for accountName in accounts:
+        accounts[accountName]['account'].test(level)
 
 # ----------- procédures d'arrêt -------------------------------------------
 
@@ -187,13 +187,13 @@ def handler(signum=None, frame=None):
 def shutdown():
     logging.debug("Shutdown...")
     msgStop = json.dumps({'cmd' : 'stop'})
-    for accountId in accounts:
-        queue = accounts[accountId]['queue']
+    for accountName in accounts:
+        queue = accounts[accountName]['queue']
         queue.put(msgStop)
     for i in range(10):
-        for accountId, account in list(accounts.items()):
+        for accountName, account in list(accounts.items()):
             if not account['thread'].is_alive():
-                del accounts[accountId]
+                del accounts[accountName]
         if len(accounts) == 0:
             break
         time.sleep(1)

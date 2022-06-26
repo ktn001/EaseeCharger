@@ -182,7 +182,7 @@ class EaseeCharger_xaccount extends EaseeCharger {
 	 */
 	public function daemonThreadStarted() {
 		log::add("EaseeCharger","info","Account " . $this->getHumanName() . ": " . __("Le thread est démarré",__FILE__));
-		foreach (EaseeCharger_charger::byAccountId($this->getId()) as $charger) {
+		foreach (EaseeCharger_charger::byAccount($this->getId()) as $charger) {
 			$charger->startDaemonThread();
 		}
 	}
@@ -191,7 +191,7 @@ class EaseeCharger_xaccount extends EaseeCharger {
 	 * Arrêt du thread dédié au compte
 	 */
 	public function stopDaemonThread() {
-		foreach (EaseeCharger_charger::byAccountId($this->getId()) as $charger){
+		foreach (EaseeCharger_charger::byAccount($this->getId()) as $charger){
 			if ($charger->getIsEnable()) {
 				$message = array(
 					'cmd' => 'stop',

@@ -37,7 +37,7 @@ try {
 		if (!array_key_exists('logicalId',$message)) {
 			log::add('EaseeCharger','error',"[jeeEaseeCharger] " . __("Message du demon de modèle <cmd> mais sans <logicalId>!",__FILE__));
 		}
-		foreach (EaseeCharger_charger::byModelAndIdentifiant($message['modelId'],$message['charger']) as $charger){
+		foreach (EaseeCharger_charger::bySerial($message['charger']) as $charger){
 			$charger->checkAndUpdateCmd($message['logicalId'],$message['value']);
 		}
 	}

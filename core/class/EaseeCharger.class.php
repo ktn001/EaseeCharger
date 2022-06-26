@@ -25,27 +25,21 @@ class EaseeCharger extends eqLogic {
     //============================== ATTRIBUTS ===============================
     //========================================================================
 
-	public static $_fdQueue = null;
-	public static $_fdRun = null;
 
     //========================================================================
     //========================== METHODES STATIQUES ==========================
     //========================================================================
 
-	public static function byAccount ($accountName, $_onlyEnable = true) {
-		$chargers = EaseeCharger::byTypeAndSearchConfiguration('EaseeCharger','"accountId":"' . $accountName . '"');
-		if ($_onlyEnable) {
-			$tmp = array();
-			foreach ($chargers as $charger) {
-				if ($charger->getIsEnable != 1) {
-					$tmp[] = $charger;
-				}
-			}
-			$chargers = $tmp;
-		}
-		return $chargers;
+	/*     * ******************** recherche de chargers *********************** */
+
+	public static function byAccount($accountName) {
+		return self::byTypeAndSearchConfiguration(__CLASS__,'"accountName":"'.$accountName.'"');
 	}
 
+	public static function bySerial($serial) {
+		return self::byTypeAndSearchConfiguration(__CLASS__,'"serial":"'.$serial.'"');
+	}
+		
 	/*     * ********************** Gestion du daemon ************************* */
 
 	/*
@@ -177,87 +171,6 @@ class EaseeCharger extends eqLogic {
 		return $return;
 	}
 
-	/*     * ************************ events ********************************* */
-
-	public static function getFileDescriptorQueueLock() {
-		if (self::$_fdQueue == null) {
-			self::$_fdQueue = fopen(jeedom::getTmpFolder() . '/EaseeCharger_queue_lock', 'w');
-			@chmod(jeedom::getTmpFolder() . '/EaseeCharger_queue_lock', 0777);
-		}
-		return self::$_fdQueue;
-	}
-
-	public static function getFileDescriptorRunLock() {
-		if (self::$_fdRun == null) {
-			self::$_fdRun = fopen(jeedom::getTmpFolder() . '/EaseeCharger_run_lock', 'w');
-			@chmod(jeedom::getTmpFolder() . '/EaseeCharger_run_lock', 0777);
-		}
-		return self::$_fdRun;
-	}
-
-	private static function nextEvent() {
-		$fdQueue = self::getFileDescriptorQueueLock();
-		if (flock($fdQueue, LOCK_EX)) {
-			$cache = cache::byKey('EaseeCharger_queue');
-			$values = json_decode($cache->getValue('[]'),true);
-			$value = array_shift($values);
-			$cache->setValue(json_encode($values));
-			$cache->save();
-			flock($fdQueue, LOCK_UN);
-
-		} else {
-			log::add("EaseeCharger","error",__("Erreur lors de l'obtention du lock pour le cache des events",__FILE__));
-			$value = null;
-		}
-		return $value;
-	}
-
-	public static function EaseeChargerEventHandler($_options) {
-		$fdQueue = self::getFileDescriptorQueueLock();
-		$_options = is_json($_options,$_options);
-		if (! is_array($_options)) {
-			log::add("EaseeCharger","error",__("Récection d'un event ne pouvant pas être traité",__FILE__));
-			return;
-		}
-		$_options['_time'] = time();
-		if (flock($fdQueue, LOCK_EX)) {
-
-			/** Enregistrement du nouvel event **/
-			$cache = cache::byKey('EaseeCharger_queue');
-			$value = json_decode($cache->getValue('[]'),true);
-			$value[] = is_json($_options,$_options);
-			$cache->setValue(json_encode($value));
-			$cache->save();
-
-			/** Check si un autre handler est en cours d'exécution **/
-			$fdRun = self::getFileDescriptorRunLock();
-			if (flock($fdRun, LOCK_EX | LOCK_NB)) {
-				flock($fdQueue, LOCK_UN);
-				while ($event = self::nextEvent()){
-					log::add("EaseeCharger","debug","Listener event: " . print_r($event,true));
-					$delaiMax = 60;
-					if (time() - $event['_time'] > $delaiMax) {
-						log::add("EaseeCharger","error",sprintf(__("Event de plus de %d secondes! Il ne sera pas traité",__FILE__),$delaiMax));
-					}
-					$cmd = cmd::byId($event['event_id']);
-					if (!is_object($cmd)){
-						throw new Exception (sprintf(__("EaseeChargerEventHandler: Commande %s introuvable!",__FILE__),$event['event_id']));
-					}
-					if ($cmd->getEqlogic()->getEqType_name() == 'EaseeCharger_charger') {
-						$charger = $cmd->getEqlogic();
-						$charger->searchConnectedVehicle();
-					}
-				}
-			} else {
-				flock($fdQueue, LOCK_UN);
-			}
-		} else {
-			log::add("EaseeCharger","error",__("Erreur lors de l'obtention du lock",__FILE__));
-		}
-	}
-
-
-
 	/*     * ************************ engine ********************************* */
 
 	/* L'équipement "engine est créé lors de la promière activation du plugin et
@@ -337,11 +250,11 @@ class EaseeCharger extends eqLogic {
 	 * Vérifications avant enregistrement
 	 */
 	public function preUpdate() {
-		if ($this->getConfiguration('accountId') == '') {
+		if ($this->getAccountName() == '') {
 			throw new Exception (__("Un compte doit être sélectioné",__FILE__));
 		}
 		if ($this->getIsEnable() == 1) {
-			$account = EaseeCharger_account::byName($this->getConfiguration('accountId'));
+			$account = EaseeCharger_account::byName($this->getConfiguration('accountName'));
 			if ($account->getIsEnable() != 1) {
 				throw new Exception (__("Le chargeur ne peut pas être activé si l'account associé ne l'est pas!",__FILE__));
 			}
@@ -391,8 +304,19 @@ class EaseeCharger extends eqLogic {
 		}
 	}
 
-}
+    //========================================================================
+    //=========================== GETTEUR SETTTEUR ===========================
+    //========================================================================
 
+	public function getAccountName() {
+		return $this->getConfiguration('accountName');
+	}
+
+	public function setAccountName($_accountName) {
+		$this->setConfiguration('accountName',$_accountName);
+	}
+
+}
 class EaseeChargerCmd extends cmd {
 	public function getValueTime() {
 		return DateTime::createFromFormat("Y-m-d H:i:s", $this->getValueDate())->getTimeStamp();

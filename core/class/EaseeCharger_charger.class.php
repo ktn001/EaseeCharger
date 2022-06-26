@@ -21,23 +21,6 @@ class EaseeCharger_charger extends EaseeCharger {
 
     /*     * *********************** Methode static *************************** */
 
-	public static function byAccountId($accountId) {
-		return self::byTypeAndSearchConfiguration(__CLASS__,'"accountId":"'.$accountId.'"');
-	}
-
-	public static function byModelAndIdentifiant($modelId, $identifiant) {
-		$identKey = model::getIdentifiantCharger($modelId);
-		$searchConf = sprintf('"%s":"%s"',$identKey,$identifiant);
-		$chargers = array();
-		foreach (self::byTypeAndSearchConfiguration(__CLASS__,$searchConf) as $charger){
-			if ($charger->getConfiguration('modelId') == $modelId){
-				$chargers[] = $charger;
-			}
-		}
-		return $chargers;
-
-	}
-
     /*     * *********************Méthodes d'instance************************* */
 
     // Création/mise à jour des commande prédéfinies
@@ -207,26 +190,21 @@ class EaseeCharger_charger extends EaseeCharger {
     // Fonction exécutée automatiquement avant la sauvegarde de l'équipement
 	public function preSave() {
 		if ($this->getIsEnable()) {
-			if ($this->getAccountId() == '') {
+			if ($this->getAccountName() == '') {
 				throw new Exception (__("Le compte n'est pas défini",__FILE__));
 			}
 			if ($this->getConfiguration('latitude') == '' or $this->getConfiguration('longitude') == '') {
 				throw new Exception (__('Les coordonnées GPS ne sont pas définies!',__FILE__));
 			}
 		}
-		$accountId = $this->getAccountId();
-		if ($accountId != '') {
-			$account = EaseeCharger_xaccount::byId($accountId);
+		$AccountName = $this->getAccountName();
+		if ($AccountName != '') {
+			$account = EaseeCharger_xaccount::byId($AccountName);
 			if (! is_a($account, "EaseeCharger_xaccount")) {
-				throw new Exception (sprintf(__("L'account %s est introuvable!",__FILE__), $accountId));
+				throw new Exception (sprintf(__("L'account %s est introuvable!",__FILE__), $AccountName));
 			}
 		}
 
-	}
-
-    // Fonction exécutée automatiquement avant la création de l'équipement
-	public function preInsert() {
-		$this->setConfiguration('image',$this->getModel()->images('charger')[0]);
 	}
 
     // Fonction exécutée automatiquement après la création de l'équipement
@@ -277,7 +255,7 @@ class EaseeCharger_charger extends EaseeCharger {
 
     // Fonction exécutée automatiquement après la sauvegarde de l'eqLogid ET des commandes si sauvegarde lancée via un AJAX
 	public function postAjax() {
-		if ($this->getAccountId() == '') {
+		if ($this->getAccountName() == '') {
 			return;
 		}
 		$cmd_refresh = $this->getCmd(null,'refresh');
@@ -297,7 +275,7 @@ class EaseeCharger_charger extends EaseeCharger {
 	}
 
 	public function getAccount() {
-		return EaseeCharger_xaccount::byId($this->getAccountId());
+		return EaseeCharger_xaccount::byId($this->getAccountName());
 	}
 
 	public function getIdentifiant() {
@@ -325,8 +303,8 @@ class EaseeCharger_charger extends EaseeCharger {
 			'chargerId' => $this->id,
 			'identifiant' => $this->getIdentifiant()
 		);
-		if ($this->getAccountId()) {
-			EaseeCharger_xaccount::byId($this->getAccountId())->send2Daemon($message);
+		if ($this->getAccountName()) {
+			EaseeCharger_xaccount::byId($this->getAccountName())->send2Daemon($message);
 		}
 	}
 
@@ -369,15 +347,6 @@ class EaseeCharger_charger extends EaseeCharger {
 	}
 
     /*     * **********************Getteur Setteur*************************** */
-
-	public function getAccountId() {
-		return $this->getConfiguration('accountId');
-	}
-
-	public function setAccountId($_accountId§) {
-		$this->setConfiguration('accountId',$_accountId);
-		return $this;
-	}
 
 	public function getImage() {
 		$image = $this->getConfiguration('image');
