@@ -171,32 +171,6 @@ class EaseeCharger extends eqLogic {
 		return $return;
 	}
 
-	/*     * ************************ engine ********************************* */
-
-	/* L'équipement "engine est créé lors de la promière activation du plugin et
-	 * supprimé lors de la désinstallation du plugin. C'est le "moteur" du plugin.
-	 */
-	public static function createEngine() {
-		$engine = self::getEngine();
-		if (is_object($engine)) {
-			return;
-		}
-		try {
-			$engine = new self();
-			$engine->setEqType_name("EaseeCharger");
-			$engine->setName('engine');
-			$engine->setLogicalId('engine');
-			$engine->setIsEnable(1);
-			$engine->save();
-		} catch (Exception $e) {
-			log::add("EaseeCharger","error","CreateEngine: " . $e->getMessage());
-		}
-	}
-
-	public static function getEngine() {
-		return self::byLogicalId('engine','EaseeCharger');
-	}
-
 	/*     * ********************* Les utilitaires ************************* */
 
 	public static function distance($lat1, $lng1, $lat2, $lng2 ) {
@@ -254,11 +228,18 @@ class EaseeCharger extends eqLogic {
 			throw new Exception (__("Un compte doit être sélectioné",__FILE__));
 		}
 		if ($this->getIsEnable() == 1) {
-			$account = EaseeCharger_account::byName($this->getConfiguration('accountName'));
-			if ($account->getIsEnable() != 1) {
+			$account = $this->getAccount();
+			if (is_object($account) and $account->getIsEnable() != 1) {
 				throw new Exception (__("Le chargeur ne peut pas être activé si l'account associé ne l'est pas!",__FILE__));
 			}
 		}
+	}
+
+	/*
+	 * Ajout des cmds après création du chargeur
+	 */
+	public function postInsert() {
+		$this->createCmds();
 	}
 
 	/*
@@ -272,36 +253,134 @@ class EaseeCharger extends eqLogic {
 		return $image;
 	}
 
-	/*
-	 * Surcharge de getLinkToConfiguration() pour forcer les options "m" et "p"
-	 * à "EaseeCharger" même pour les classes héritiaires.
-	 */
-	public function getLinkToConfiguration() {
-		if (isset($_SESSION['user']) && is_object($_SESSION['user']) && !isConnect('admin')) {
-			return '#';
-		}
-		return 'index.php?v=d&p=EaseeCharger&m=EaseeCharger&id=' . $this->getId();
-	}
+	public function createCmds() {
+		$cfgFile = realpath (__DIR__ . '/../config/cmd.config.ini');
+		log::add("EaseeCharger","debug",sprintf(__("Lecture du fichier %s ...",__FILE__),$cfgFile));
+		$cmdConfigs = parse_ini_file($cfgFile,true,INI_SCANNER_RAW);
+		foreach ($cmdConfigs as $logicalId => $config) {
+			$cmd = cmd::byEqLogicIdAndLogicalId($this->getId(),$logicalId);
+			if (is_object($cmd)) {
+				log::add("EaseeCharger","debug",sprintf(__("%s existe déjà",__FILE__),$logicalId));
+				continue;
+			}
+			log::add("EaseeCharger","info",sprintf(__("Création de la commande %s...",__FILE__),$logicalId));
 
-	/*
-	 * La suppression de l'équipement "engine" se fait uniquement lors de
-	 * la désinstallation du plugin. On en profite pour supprimer les équipement
-	 * de classes héritières car le core Jeedom ne le fait pas.
-	 */
-	public function preRemove() {
-		if ($this->getLogicalId() != 'engine') {
-			return true;
+			$cmd = new EaseeChargerCMD();
+
+			// displayName
+			// -----------
+			if (array_key_exists('displayName',$config)) {
+				$cmd->setDisplay('showNameOndashboard',$config['displayName']);
+			}
+
+			// display::graphStep
+			// ------------------
+			if (array_key_exists('display::graphStep',$config)) {
+				$cmd->setDisplay('graphStep',$config['display::graphStep']);
+			}
+
+			// eqLogic_id
+			// ----------
+			$cmd->setEqLogic_id($this->getId());
+
+			// logicalId
+			// ---------
+			$cmd->setLogicalId($logicalId);
+
+			// name
+			// ----
+			if (array_key_exists('name',$config)) {
+				$cmd->setName($config['name']);
+			} else {
+				$cmd->setName($logicalId);
+			}
+
+			// order
+			// -----
+			if (array_key_exists('order',$config)) {
+				$cmd->setOrder($config['order']);
+			}
+
+			// rounding
+			// --------
+			if (array_key_exists('rounding',$config)) {
+				$cmd->setConfiguration('historizeRound',$config['rounding']);
+			}
+
+			// subType
+			// -------
+			if (array_key_exists('subType',$config)) {
+				$cmd->setSubType($config['subType']);
+			} else {
+				log::add("EaseeCharger","error",sprintf(__("Le subType de la commande %s n'est pas défini",__FILE__),$logicalId));
+			}
+
+			// template
+			// --------
+			if (array_key_exists('template',$config)) {
+				$cmd->setTemplate('dashboard',$config['template']);
+				$cmd->setTemplate('mobile',$config['template']);
+			}
+
+			// type
+			// ----
+			if (array_key_exists('type',$config)) {
+				$cmd->setType($config['type']);
+			} else {
+				log::add("EaseeCharger","error",sprintf(__("Le type de la commande %s n'est pas défini",__FILE__),$logicalId));
+			}
+
+			// unite
+			// -----
+			if (array_key_exists('unite',$config)) {
+				$cmd->setUnite($config['unite']);
+			}
+
+			// visible
+			// -------
+			if (array_key_exists('visible',$config)) {
+				$cmd->setIsVisible($config['visible']);
+			}
+
+			$cmd->save();
 		}
-		$eqLogics = EaseeCharger::byType("EaseeCharger_%");
-		if (is_array($eqLogics)) {
-			foreach ($eqLogics as $eqLogic) {
-				try {
-					$eqLogic->remove();
-				} catch (Exception $e) {
-				} catch (Error $e) {
+		foreach ($cmdConfigs as $logicalId => $config) {
+			$cmd = $this->getCmd(null,$logicalId);
+			$needSave = false;
+
+			if (array_key_exists('calcul',$config)) {
+				$calcul = $config['calcul'];
+				preg_match_all('/#(.*?)#/',$calcul,$matches);
+				foreach ($matches[1] as $cible) {
+					$cmdCible = $this->getCmd(null, $cible);
+					if (is_object($cmdCible)) {
+						$calcul = str_replace('#' . $cible . '#','#' . $cmdCible->getId() . '#', $calcul);
+					}
 				}
+				$cmd->setConfiguration('calcul', $calcul);
+				$needSave = true;
+			}
+
+			if (array_key_exists('value',$config)) {
+				$cmdValue = $this->getCmd(null, $config['value']);
+				if (is_object($cmdValue)) {
+					if ($cmd->getType() == 'info') {
+						$value = '#' . $cmdValue->getId() . '#';
+					} else {
+						$value = $cmdValue->getId();
+					}
+					$cmd->setValue($value);
+				}
+				$needSave = true;
+			}
+			if ($needSave) {
+				$cmd->save();
 			}
 		}
+	}
+
+	public function getAccount() {
+		return EaseeCharger_account::byName($this->getaccountName());
 	}
 
     //========================================================================

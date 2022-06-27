@@ -266,22 +266,6 @@ class EaseeCharger_charger extends EaseeCharger {
 		return;
 	}
 
-	public function getPathImg() {
-		$image = $this->getConfiguration('image');
-		if ($image == '') {
-			$image = "/plugins/EaseeCharger/plugin_info/EaseeCharger_icon.png";
-		}
-		return $image;
-	}
-
-	public function getAccount() {
-		return EaseeCharger_account::byName($this->getAccountName());
-	}
-
-	public function getIdentifiant() {
-		return $this->getConfiguration('serial');
-	}
-
 	public function startDaemonThread() {
 		if (! $this->getIsEnable()) {
 			return;
