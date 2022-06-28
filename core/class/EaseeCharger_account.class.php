@@ -87,8 +87,10 @@ class EaseeCharger_account {
 	 * Enregistrement du compte
 	 */
 	public function save() {
-		if (!$this->checkLogin()) {
-			throw new Exception(__("Login ou password incorrect",__FILE__));
+		if ($this->getIsEnable()) {
+			if (!$this->checkLogin()) {
+				throw new Exception(__("Login ou password incorrect",__FILE__));
+			}
 		}
 		$oldAccount = self::byName($this->getName());
 		if (is_object ($oldAccount) and ($oldAccount->getIsEnable() == 1)) {
@@ -239,7 +241,7 @@ class EaseeCharger_account {
 	/*
 	 * Execution d'une commande destinée au Cloud Easee
 	 */
-	public function execute ($cmd) {sprintf(__("| La commande %s n'est pas une commande de type %s",__FILE__),$cmd_charger->getId(), "EaseeCharger_chargerCmd"));
+	public function execute ($cmd) {
 		try {
 			$charger = $cmd->getEqLogic();
 			log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->Name() , $cmd->getLogicalId()));
@@ -318,7 +320,7 @@ class EaseeCharger_account {
 				if (array_key_exists($logicalId, $this->_transforms)) {
 					$value = $this->_transforms[$logicalId][$value];
 				}
-				log::add("EVcharger","debug",sprintf("|   " . LogicalId: %s, value: %s", $logicalId, $value));
+				log::add("EVcharger","debug",sprintf("|   " . "LogicalId: %s, value: %s", $logicalId, $value));
 				$charger->checkAndUpdateCmd($logicalId,$value);
 			}
 		}

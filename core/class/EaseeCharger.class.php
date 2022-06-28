@@ -397,6 +397,7 @@ class EaseeCharger extends eqLogic {
 
 	public function getSerial() {
 		return $this->getConfiguration('serial');
+	}
 }
 	
 class EaseeChargerCmd extends cmd {
