@@ -401,6 +401,20 @@ class EaseeCharger extends eqLogic {
 }
 	
 class EaseeChargerCmd extends cmd {
+	public function execute($_options = array()) {
+		switch ($this->getType()) {
+		case 'info':
+			$calcul = $this->getConfiguration('calcul');
+			if ($calcul != '') {
+				return jeedom::evaluateExpression($calcul);
+			}
+			return $this->execCmd();
+
+		case 'action':
+			$this->getEqLogic()->getAccount()->execute($this);
+		}
+	}
+
 	public function getValueTime() {
 		return DateTime::createFromFormat("Y-m-d H:i:s", $this->getValueDate())->getTimeStamp();
 	}
