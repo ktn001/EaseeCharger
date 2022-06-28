@@ -23,6 +23,8 @@ class EaseeCharger_account {
 	private $password = '';
 	private $isEnable = 0;
 	private $token = '';
+	private $_mapping = null;
+	private $_transforms = null;
 	private $_site = 'https://api.easee.cloud/api/';
 	private $_modifiedChargers = array ();
 
@@ -234,6 +236,94 @@ class EaseeCharger_account {
 		return json_decode($response, true);
 	}
 
+	/*
+	 * Execution d'une commande destinée au Cloud Easee
+	 */
+	public function execute ($cmd) {sprintf(__("| La commande %s n'est pas une commande de type %s",__FILE__),$cmd_charger->getId(), "EaseeCharger_chargerCmd"));
+		try {
+			$charger = $cmd->getEqLogic();
+			log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->Name() , $cmd->getLogicalId()));
+			log::add("EaseeCharger","debug","| " . __("Chargeur",__FILE__) . sprintf(": %s (%s)", $charger->getName(), $charger->getSerial()));
+			if (! is_a($cmd, "EaseeCharger_chargerCmd")){
+				throw new Exception (sprintf(__("└─La commande %s n'est pas une commande de type %s",__FILE__),$cmd->getId(), "EaseeCharger_chargerCmd"));
+			}
+			
+			$method = 'execute_' . $cmd->getLogicalId();
+			if (!method_exists($this, $method)) {
+				throw new Exception (sprintf(__("└─La méthode %s est introuvable",__FILE__),$method));
+			}
+			$this->$method($cmd);
+			log::add("EaseeCharger","debug","└─" . __("OK",__FILE__));
+			return;
+		} catch (Exception $e) {
+			log::add("EaseeCharger","error",$e->getMessage());
+			log::add("EaseeCharger","debug","└─" . __("ERROR",__FILE__));
+			throw $e;
+		}
+	}
+	
+	protected function getMapping() {
+		if (isset($this->_mapping)) {
+			return $this->_mapping;
+		}
+		$mappingFile = __DIR__ . '/../../core/config/mapping.ini';
+		if (! file_exists($mappingFile)) {
+			throw new Exception (sprintf(__("Le fichier %s est introuvable",__FILE__), $mappingFile));
+		}
+		$mapping = parse_ini_file($mappingFile,true);
+		if ($mapping == false) {
+			throw new Exception (sprintf(__('Erreur lors de la lecture de %s',__FILE__),$mappingFile));
+		}
+		$this->_mapping = $mapping['API'];
+		return $this->_mapping;
+	}
+	
+	protected function getTransforms() {
+		if (isset($this->_mapping)) {
+			return $this->_mapping;
+		}
+		$transformsFile = __DIR__ . '/../../core/config/transforms.ini';
+		if (! file_exists($transformsFile)) {
+			throw new Exception (sprintf(__("Le fichier %s est introuvable",__FILE__), $transformsFile));
+		}
+		$transforms = parse_ini_file($transformsFile,true);
+		if ($transforms == false) {
+			throw new Exception (sprintf(__('Erreur lors de la lecture de %s',__FILE__),$transformsFile));
+		}
+		$this->_transforms = $transforms;
+		return $this->_transforms;
+	}
+
+	/*     * ******************** Exécution des commandes ********************* */
+
+	/*
+	 * refresh
+	 */
+	private function execute_refresh($cmd) {
+		$serial = $cmd->getEqLogic()->getSerial();
+		$path = 'chargers/' . $serial . '/state';
+		$response = $this->sendRequest($path);
+		if (!isset($this->_mapping)) { 
+			$this->getMapping();
+		}
+		if (!isset($this->_transforms)) {
+			$this->getTransforms();
+		}
+		foreach ($response as $key => $value) {
+			if (! array_key_exists($key, $this->_mapping)) {
+				log::add('EaseeCharger','debug',"|   " . sprintf(__('Pas de traitemment pour %s',__FILE__),$key));
+				continue;
+			}
+			foreach (explode(',', $this->_mapping[$key]) as $logicalId) {
+				if (array_key_exists($logicalId, $this->_transforms)) {
+					$value = $this->_transforms[$logicalId][$value];
+				}
+				log::add("EVcharger","debug",sprintf("|   " . LogicalId: %s, value: %s", $logicalId, $value));
+				$charger->checkAndUpdateCmd($logicalId,$value);
+			}
+		}
+	}
+			
 	/*     * ********************** Getteur Setteur *************************** */
 
 	/*
@@ -401,18 +491,6 @@ class EaseeCloudException extends Exception {
 //		$this->send2Daemon($message);
 //	}
 //
-//	protected function getMapping() {
-//		$mappingFile = __DIR__ . '/../../core/config/mapping.ini';
-//		if (! file_exists($mappingFile)) {
-//			return false;
-//		}
-//		$mapping = parse_ini_file($mappingFile,true);
-//		if ($mapping == false) {
-//			throw new Exception (sprintf(__('Erreur lors de la lecture de %s',__FILE__),$mappingFile));
-//		}
-//		return $mapping['API'];
-//	}
-//
 //	protected function getTransforms() {
 //		$transformsFile = __DIR__ . '/../../core/config/transforms.ini';
 //		if (! file_exists($transformsFile)) {
@@ -423,45 +501,6 @@ class EaseeCloudException extends Exception {
 //			throw new Exception (sprintf(__('Erreur lors de la lecture de %s',__FILE__),$transformsFile));
 //		}
 //		return $transforms;
-//	}
-//
-//	public function execute ($cmd_charger) {
-//		try {
-//			log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->getHumanName() , $cmd_charger->getLogicalId()));
-//			if (! is_a($cmd_charger, "EaseeCharger_chargerCmd")){
-//				throw new Exception (sprintf(__("| La commande %s n'est pas une commande de type %s",__FILE__),$cmd_charger->getId(), "EaseeCharger_chargerCmd"));
-//			}
-//			if ($cmd_charger->getConfiguration('destination') == 'charger') {
-//				$method = 'execute_' . $cmd_charger->getLogicalId();
-//				if ( ! method_exists($this, $method)){
-//					throw new Exception ("| " . sprintf(__("%s: pas de méthode < %s::%s >",__FILE__),$this->getHumanName(), get_class($this), $method));
-//				}
-//				$this->$method($cmd_charger);
-//				log::add("EaseeCharger","debug","└─" . __("OK",__FILE__));
-//				return;
-//			} else if ($cmd_charger->getConfiguration('destination') == 'cmd') {
-//				log::add("EaseeCharger","debug","| " . __("Transfert vers une CMD",__FILE__));
-//				$cmds = explode('&&', $cmd_charger->getConfiguration('destId'));
-//				if (is_array($cmds)) {
-//					foreach ($cmds as $cmd_id) {
-//						$cmd = cmd::byId(str_replace('#', '', $cmd_id));
-//						if (is_object($cmd)) {
-//							$cmd->execCmd();
-//						}
-//					}
-//					return;
-//				} else {
-//					$cmd = cmd::byId(str_replace('#', '', $cmd_id));
-//					$cmd->execCmd();
-//				}
-//			} else {
-//				throw new Exception (sprintf(__("La destination de la commande %s est inconnue!",__FILE__),$cmd_charger->getLogicalId()));
-//			}
-//		} catch (Exception $e) {
-//			log::add("EaseeCharger","error",$e->getMessage());
-//			log::add("EaseeCharger","debug","└─" . __("ERROR",__FILE__));
-//			return;
-//		}
 //	}
 //
 //}
