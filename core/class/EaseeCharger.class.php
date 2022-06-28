@@ -395,7 +395,10 @@ class EaseeCharger extends eqLogic {
 		$this->setConfiguration('accountName',$_accountName);
 	}
 
+	public function getSerial() {
+		return $this->getConfiguration('serial');
 }
+	
 class EaseeChargerCmd extends cmd {
 	public function getValueTime() {
 		return DateTime::createFromFormat("Y-m-d H:i:s", $this->getValueDate())->getTimeStamp();
