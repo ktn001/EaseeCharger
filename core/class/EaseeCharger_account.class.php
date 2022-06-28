@@ -244,9 +244,9 @@ class EaseeCharger_account {
 	public function execute ($cmd) {
 		try {
 			$charger = $cmd->getEqLogic();
-			log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->Name() , $cmd->getLogicalId()));
+			log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->getName() , $cmd->getLogicalId()));
 			log::add("EaseeCharger","debug","| " . __("Chargeur",__FILE__) . sprintf(": %s (%s)", $charger->getName(), $charger->getSerial()));
-			if (! is_a($cmd, "EaseeCharger_chargerCmd")){
+			if (! is_a($cmd, "EaseeChargerCmd")){
 				throw new Exception (sprintf(__("└─La commande %s n'est pas une commande de type %s",__FILE__),$cmd->getId(), "EaseeCharger_chargerCmd"));
 			}
 			
