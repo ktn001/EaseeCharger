@@ -82,6 +82,12 @@ class EaseeCharger_account {
 	 */
 	public function save() {
 		$oldAccount = self::byName($this->getName());
+		if (is_object ($oldAccount) and ($oldAccount->getIsEnable() == 1)) {
+			$wasEnable = 1;
+		} else {
+			$wasEnable = 0;
+		}
+
 		if ($this->getIsEnable()) {
 			if (!$this->getLogin()) {
 				throw new Exception (__("Le login doit être défini",__FILE__));
@@ -89,25 +95,20 @@ class EaseeCharger_account {
 			if (!$this->getPassword()) {
 				throw new Exception (__("Le password doit être défini",__FILE__));
 			}
-			if ($oldAccount->getLogin() != $this->getLogin() or $oldAccount->getPassword() != $this->getPassword()) { 
+			if ($wasEnable == 0 or $oldAccount->getLogin() != $this->getLogin() or $oldAccount->getPassword() != $this->getPassword()) { 
 				if (!$this->checkLogin()) {
 					throw new Exception(__("Login ou password incorrect",__FILE__));
 				}
 			}
-		}
-		if (is_object ($oldAccount) and ($oldAccount->getIsEnable() == 1)) {
-			$wasEnable = 1;
-		} else {
-			$wasEnable = 0;
 		}
 		$value = utils::o2a($this);
 		$value['password'] = utils::encrypt($value['password']);
 		$value = json_encode($value);
 		$key = 'account::' . $this->name;
 		config::save($key, $value, 'EaseeCharger');
-		if ($this->getIsEnable != 1 and ($wasEnable == 1)) {
+		if ($this->getIsEnable() != 1 and ($wasEnable == 1)) {
 			$chargers = EaseeCharger::byAccount($this->getName());
-			$chargersIds = array();
+			$chargerIds = array();
 			foreach ($chargers as $charger) {
 				$charger->setIsEnable(0);
 				$charger->save();
@@ -149,10 +150,10 @@ class EaseeCharger_account {
 			if (is_array($result) and array_key_exists('accessToken',$result)) {
 				$token = array (
 					'accessToken' => $result['accessToken'],
+					'expiresIn' => $result['expiresIn'],
 					'expiresAt' => time() + $result['expiresIn'],
 					'refreshToken' => $result['refreshToken']
 				);
-				log::add("EaseeCharger","debug",'=============== ' . print_r($token,true));
 				$this->setToken($token);
 			}
 		} catch (EaseeCloudException $e) {
@@ -165,7 +166,8 @@ class EaseeCharger_account {
 	 * Envoi d'une requête API au cloud Easee
 	 */
 	private function sendRequest($path, $data = '', $accessToken='' ) {
-		log::add("EaseeCharger","info",__("Easee: envoi d'une requête au cloud", __FILE__));
+		log::add("EaseeCharger","info","┌─" .__("Easee: envoi d'une requête au cloud", __FILE__));
+			
 
 		$header = [
 			"Accept: application/json",
@@ -187,9 +189,8 @@ class EaseeCharger_account {
 			 */
 		}
 
-		log::add("EaseeCharger","debug", "  " . __("Requête: URL: ",__FILE__) . $this->_site . $path);
-		log::add("EaseeCharger","debug", "         URL: " . $this->_site . $path);
-		log::add("EaseeCharger","debug", "      Header: " . print_r($header,true));
+		log::add("EaseeCharger","debug","|        URL: " . $this->_site . $path);
+		log::add("EaseeCharger","debug","|     Header: " . print_r($header,true));
 		$data2log = $data;
 		if (config::byKey('unsecurelog','EaseeCharger') != 1) {
 			if (is_array($data2log)) {
@@ -201,7 +202,7 @@ class EaseeCharger_account {
 				}
 			}
 		}
-		log::add("EaseeCharger","debug", "        data: " . print_r($data2log,true));
+		log::add("EaseeCharger","debug", "|      data: " . print_r($data2log,true));
 
 		if (is_array($data)) {
 			$data = json_encode($data);
@@ -243,11 +244,11 @@ class EaseeCharger_account {
 				$txt = $msg['title'];
 			}
 			$txt= sprintf(__("Code retour http: %s - %s",__FILE__) , $httpCode, $txt);
-			log::add("EaseeCharger","warning", $txt);
+			log::add("EaseeCharger","warning", "└─" . $txt);
 			throw new EaseeCloudException ($txt);
 		}
-		log::add("EaseeCharger","debug", "  " . __("Code retour http: ",__FILE__) . $httpCode);
-		log::add("EaseeCharger","info", "Requête envoyée");
+		log::add("EaseeCharger","debug", "| " .  __("Code retour http: ",__FILE__) . $httpCode);
+		log::add("EaseeCharger","info", "└─Requête envoyée");
 		return json_decode($response, true);
 	}
 
@@ -313,13 +314,43 @@ class EaseeCharger_account {
 	 * token
 	 */
 	public function setToken($_token) {
-		log::add("EaseeCharger","debug",'!!!!!!!!!!!!!! ' . print_r($_token,true));
-		cache::set('Easee_account:'. $this->getName(), $_token);
+		if (array_key_exists('accessToken',$_token)) {
+			$_token['accessToken'] = utils::encrypt($_token['accessToken']);
+		}
+		if (array_key_exists('refreshToken',$_token)) {
+			$_token['refreshToken'] = utils::encrypt($_token['refreshToken']);
+		}
+		$lifetime = array_key_exists('expiresIn',$_token) ? $_token['expiresIn'] : 192800;
+		cache::set('EaseeCharger_account:'. $this->getName(), $_token, $lifetime);
 		return $this;
 	}
 
-	public function getToken() {
-		return $this->token;
+	public function getToken($retrying = false) {
+		$cache = cache::byKey('EaseeCharger_account:' . $this->getName());
+		if (!is_object($cache)) {
+			if ($retrying) {
+				log::add("EaseeCharger","error",sprintf(__("Erreur lors de la récupération d'un token pour %s",__FILE__)$this->getName()));
+				return "";
+			}
+			if (!$this->checkLogin()) {
+				return "";
+			}
+			return $this->getToken(true);
+		}
+		$token = $cache->getValue();
+		if (!array_key_exists('expiresAt',$token) || $token['expiresAt'] < time()) {
+			if (!$this->checkLogin()) {
+				return "";
+			}
+			return $this->getToken(true);
+		}
+		$time2renew = $token['expiresAt'] - $token['expiresIn']/2;
+		if ($time2renew < time()) {
+			/*
+			 * TODO renew token
+			 */
+		}
+		return $token['accessToken'];
 	}
 
 	/*     * ******************** Exécution des commandes ********************* */
@@ -356,9 +387,9 @@ class EaseeCharger_account {
 	 * cable_lock
 	 */
 	public function execute_cable_lock($cmd) {
-		$serial = $dms->getEqLogic()->getSerial();
+		$serial = $cmd->getEqLogic()->getSerial();
 		$path = 'chargers/' . $serial . '/commands/lock_stats';
-		$dat = array ('state' = 'true');
+		$data = array ('state' => 'true');
 		$this->sednrequest($path, $data);
 	}
 
@@ -368,7 +399,7 @@ class EaseeCharger_account {
 	public function execute_cable_unlock($cmd) {
 		$serial = $dms->getEqLogic()->getSerial();
 		$path = 'chargers/' . $serial . '/commands/lock_stats';
-		$dat = array ('state' = 'false');
+		$dat = array ('state' => 'false');
 		$this->sednrequest($path, $data);
 	}
 
