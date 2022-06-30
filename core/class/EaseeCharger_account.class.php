@@ -309,6 +309,19 @@ class EaseeCharger_account {
 		return $this->_transforms;
 	}
 
+	/*
+	 * token
+	 */
+	public function setToken($_token) {
+		log::add("EaseeCharger","debug",'!!!!!!!!!!!!!! ' . print_r($_token,true));
+		cache::set('Easee_account:'. $this->getName(), $_token);
+		return $this;
+	}
+
+	public function getToken() {
+		return $this->token;
+	}
+
 	/*     * ******************** Exécution des commandes ********************* */
 
 	/*
@@ -340,16 +353,23 @@ class EaseeCharger_account {
 	}
 			
 	/*
-	 * token
+	 * cable_lock
 	 */
-	public function setToken($_token) {
-		log::add("EaseeCharger","debug",'!!!!!!!!!!!!!! ' . print_r($_token,true));
-		cache::set('Easee_account:'. $this->getName(), $_token);
-		return $this;
+	public function execute_cable_lock($cmd) {
+		$serial = $dms->getEqLogic()->getSerial();
+		$path = 'chargers/' . $serial . '/commands/lock_stats';
+		$dat = array ('state' = 'true');
+		$this->sednrequest($path, $data);
 	}
 
-	public function getToken() {
-		return $this->token;
+	/*
+	 * cable_unlock
+	 */
+	public function execute_cable_unlock($cmd) {
+		$serial = $dms->getEqLogic()->getSerial();
+		$path = 'chargers/' . $serial . '/commands/lock_stats';
+		$dat = array ('state' = 'false');
+		$this->sednrequest($path, $data);
 	}
 
 	/*     * ********************** Getteur Setteur *************************** */
