@@ -22,7 +22,6 @@ class EaseeCharger_account {
 	private $login = '';
 	private $password = '';
 	private $isEnable = 0;
-	private $token = '';
 	private $_mapping = null;
 	private $_transforms = null;
 	private $_site = 'https://api.easee.cloud/api/';
@@ -55,11 +54,6 @@ class EaseeCharger_account {
 		} else {
 			$value['password'] = '';
 		}
-		if (array_key_exists('zoken',$value)) {
-			$value['token'] = utils::decrypt($value['token']);
-		} else {
-			$value['token'] = '';
-		}
 		$account = new self();
 		utils::a2o($account,$value);
 		return $account;
@@ -87,12 +81,20 @@ class EaseeCharger_account {
 	 * Enregistrement du compte
 	 */
 	public function save() {
+		$oldAccount = self::byName($this->getName());
 		if ($this->getIsEnable()) {
-			if (!$this->checkLogin()) {
-				throw new Exception(__("Login ou password incorrect",__FILE__));
+			if (!$this->getLogin()) {
+				throw new Exception (__("Le login doit être défini",__FILE__));
+			}
+			if (!$this->getPassword()) {
+				throw new Exception (__("Le password doit être défini",__FILE__));
+			}
+			if ($oldAccount->getLogin() != $this->getLogin() or $oldAccount->getPassword() != $this->getPassword()) { 
+				if (!$this->checkLogin()) {
+					throw new Exception(__("Login ou password incorrect",__FILE__));
+				}
 			}
 		}
-		$oldAccount = self::byName($this->getName());
 		if (is_object ($oldAccount) and ($oldAccount->getIsEnable() == 1)) {
 			$wasEnable = 1;
 		} else {
@@ -100,7 +102,6 @@ class EaseeCharger_account {
 		}
 		$value = utils::o2a($this);
 		$value['password'] = utils::encrypt($value['password']);
-		$value['token'] = utils::encrypt($value['token']);
 		$value = json_encode($value);
 		$key = 'account::' . $this->name;
 		config::save($key, $value, 'EaseeCharger');
@@ -145,6 +146,15 @@ class EaseeCharger_account {
 		);
 		try {
 			$result = $this->sendRequest('accounts/login', $data);
+			if (is_array($result) and array_key_exists('accessToken',$result)) {
+				$token = array (
+					'accessToken' => $result['accessToken'],
+					'expiresAt' => time() + $result['expiresIn'],
+					'refreshToken' => $result['refreshToken']
+				);
+				log::add("EaseeCharger","debug",'=============== ' . print_r($token,true));
+				$this->setToken($token);
+			}
 		} catch (EaseeCloudException $e) {
 			return false;
 		}
@@ -154,7 +164,7 @@ class EaseeCharger_account {
 	/*
 	 * Envoi d'une requête API au cloud Easee
 	 */
-	private function sendRequest($path, $data = '', $token='' ) {
+	private function sendRequest($path, $data = '', $accessToken='' ) {
 		log::add("EaseeCharger","info",__("Easee: envoi d'une requête au cloud", __FILE__));
 
 		$header = [
@@ -162,11 +172,14 @@ class EaseeCharger_account {
 			"Content-Type: application/*+json"
 		];
 
-		if (! $token) {
+		if ($accessToken == '') {
 			$token = $this->getToken();
+			if (is_array($token)) {
+				$accessToken = $token['accessToken'];
+			}
 		}
-		if ($token) {
-			$header[] = 'Authorization: Bearer ' . $token;
+		if ($accessToken) {
+			$header[] = 'Authorization: Bearer ' . $accessToken;
 		} else {
 			/*
 			 * TODO
@@ -326,6 +339,19 @@ class EaseeCharger_account {
 		}
 	}
 			
+	/*
+	 * token
+	 */
+	public function setToken($_token) {
+		log::add("EaseeCharger","debug",'!!!!!!!!!!!!!! ' . print_r($_token,true));
+		cache::set('Easee_account:'. $this->getName(), $_token);
+		return $this;
+	}
+
+	public function getToken() {
+		return $this->token;
+	}
+
 	/*     * ********************** Getteur Setteur *************************** */
 
 	/*
@@ -387,17 +413,6 @@ class EaseeCharger_account {
 		return $this->password;
 	}
 
-	/*
-	 * token
-	 */
-	public function setToken($_token) {
-		$this->_token = $_token;
-		return $this;
-	}
-
-	public function getToken() {
-		return $this->token;
-	}
 }
 
 class EaseeCloudException extends Exception {
