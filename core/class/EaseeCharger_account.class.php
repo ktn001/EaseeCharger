@@ -325,7 +325,21 @@ class EaseeCharger_account {
 			}
 		}
 	}
-			
+	
+	public function execute_cable_lock($cmd) {
+		$serial = $dms->getEqLogic()->getSerial();
+		$path = 'chargers/' . $serial . '/commands/lock_stats';
+		$dat = array ('state' = 'true');
+		$this->sednrequest($path, $data);
+	}
+
+	public function execute_cable_unlock($cmd) {
+		$serial = $dms->getEqLogic()->getSerial();
+		$path = 'chargers/' . $serial . '/commands/lock_stats';
+		$dat = array ('state' = 'false');
+		$this->sednrequest($path, $data);
+	}
+
 	/*     * ********************** Getteur Setteur *************************** */
 
 	/*
