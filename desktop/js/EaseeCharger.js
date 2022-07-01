@@ -367,18 +367,13 @@ $('#table_cmd').delegate('.listEquipementInfo', 'click', function(){
 */
 function addCmdToTable(_cmd) {
 	let isStandard = false;
-	if ('required' in _cmd.configuration) {
-		isStandard = true;
-	}
 	let  tr = '<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">';
 	tr += '<td class="hidden-xs">';
 	tr += '<span class="cmdAttr" data-l1key="id"></span>';
 	tr += '</td>';
 	tr += '<td>';
 	tr += '  <input class="cmdAttr form-control input-sm" data-l1key="name" placeholder="{{Nom de la commande}}" style="margin-bottom:3px">';
-	if (isStandard) {
-		tr += '  <input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="margin-top:5px" disabled>';
-	}
+	tr += '  <input class="cmdAttr form-control input-sm" data-l1key="logicalId" style="margin-top:5px" disabled>';
 	tr += '</td>';
 	tr += '<td>';
 	tr += '  <a class="cmdAction btn btn-default btn-sm" data-l1key="chooseIcon"><i class="fas fa-flag"></i> {{Icône}}</a>';
@@ -388,13 +383,8 @@ function addCmdToTable(_cmd) {
 	tr += '  </select>';
 	tr += '</td>';
 	tr += '<td>';
-	if (isStandard ) {
-		tr += '<input class="cmdAttr form-control input-sm" data-l1key="type" style="width:120px; margin-bottom:3px" disabled>';
-		tr += '<input class="cmdAttr form-control input-sm" data-l1key="subType" style="width:120px; margin-top:5px" disabled>';
-	} else {
-		tr += '<span class="type" type="' + init(_cmd.type) + '">' + jeedom.cmd.availableType() + '</span>';
-		tr += '<span class="subType" subType="' + init(_cmd.subType) + '"></span>';
-	}
+	tr += '<input class="cmdAttr form-control input-sm" data-l1key="type" style="width:120px; margin-bottom:3px" disabled>';
+	tr += '<input class="cmdAttr form-control input-sm" data-l1key="subType" style="width:120px; margin-top:5px" disabled>';
 	tr += '</td>';
 	tr += '<td>';
 	if (_cmd.type == 'info') {
