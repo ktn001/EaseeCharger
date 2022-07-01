@@ -95,7 +95,7 @@ class EaseeCharger_account {
 			if (!$this->getPassword()) {
 				throw new Exception (__("Le password doit être défini",__FILE__));
 			}
-			if ($wasEnable == 0 or $oldAccount->getLogin() != $this->getLogin() or $oldAccount->getPassword() != $this->getPassword()) { 
+			if ($wasEnable == 0 || !is_object($oldAccount) || $oldAccount->getLogin() != $this->getLogin() || $oldAccount->getPassword() != $this->getPassword()) { 
 				if (!$this->checkLogin()) {
 					throw new Exception(__("Login ou password incorrect",__FILE__));
 				}
