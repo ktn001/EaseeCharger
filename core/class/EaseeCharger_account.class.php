@@ -564,16 +564,4 @@ class EaseeCloudException extends Exception {
 //		$this->send2Daemon($message);
 //	}
 //
-//	protected function getTransforms() {
-//		$transformsFile = __DIR__ . '/../../core/config/transforms.ini';
-//		if (! file_exists($transformsFile)) {
-//			return false;
-//		}
-//		$transforms = parse_ini_file($transformsFile,true);
-//		if ($transforms == false) {
-//			throw new Exception (sprintf(__('Erreur lors de la lecture de %s',__FILE__),$transformsFile));
-//		}
-//		return $transforms;
-//	}
-//
 //}
