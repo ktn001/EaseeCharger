@@ -232,8 +232,8 @@ function editAccount(name) {
 								$('.eqLogicDisplayCard[data-eqLogic_id=' + chargerId + ']').addClass('disableCard');
 							}
 						}
+						$(this).dialog("close");
 					});
-					$(this).dialog("close");
 				}
 			}]);
 			$('#modContainer_editAccount').dialog('open');
