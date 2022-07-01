@@ -168,26 +168,6 @@ class EaseeCharger_account {
 	private function sendRequest($path, $data = '', $accessToken='' ) {
 		log::add("EaseeCharger","info","┌─" .__("Easee: envoi d'une requête au cloud", __FILE__));
 			
-
-		$header = [
-			"Accept: application/json",
-			"Content-Type: application/*+json"
-		];
-
-		if ($accessToken == '') {
-			$token = $this->getAccessToken();
-		}
-		if ($accessToken) {
-			$header[] = 'Authorization: Bearer ' . $accessToken;
-		} else {
-			/*
-			 * TODO
-			 * Traitement si pas de login et password dans data
-			 */
-		}
-
-		log::add("EaseeCharger","debug","|        URL: " . $this->_site . $path);
-		log::add("EaseeCharger","debug","|     Header: " . print_r($header,true));
 		$data2log = $data;
 		if (config::byKey('unsecurelog','EaseeCharger') != 1) {
 			if (is_array($data2log)) {
@@ -199,7 +179,29 @@ class EaseeCharger_account {
 				}
 			}
 		}
-		log::add("EaseeCharger","debug", "|      data: " . print_r($data2log,true));
+		log::add("EaseeCharger","debug", "│       data: " . print_r($data2log,true));
+
+		$header = [
+			"Accept: application/json",
+			"Content-Type: application/*+json"
+		];
+
+		if (!$accessToken) {
+			if (!is_array($data) || (!array_key_exists('userName',$data) && !array_key_exists('password', $data))) {
+				$accessToken = $this->getAccessToken();
+			}
+		}
+		if ($accessToken) {
+			$header[] = 'Authorization: Bearer ' . $accessToken;
+		} else {
+			/*
+			 * TODO
+			 * Traitement si pas de login et password dans data
+			 */
+		}
+
+		log::add("EaseeCharger","debug","│        URL: " . $this->_site . $path);
+		log::add("EaseeCharger","debug","│     Header: " . print_r($header,true));
 
 		if (is_array($data)) {
 			$data = json_encode($data);
@@ -236,15 +238,15 @@ class EaseeCharger_account {
 		curl_close($curl);
 		if (substr($httpCode,0,1) != '2') {
 			$txt = $response;
-			$msg = json_decode($response,true);
-			if (array_key_exists('title',$msg)) {
+			$msg = is_json($response,$response);
+			if (is_array($msg) && array_key_exists('title',$msg)) {
 				$txt = $msg['title'];
 			}
 			$txt= sprintf(__("Code retour http: %s - %s",__FILE__) , $httpCode, $txt);
 			log::add("EaseeCharger","warning", "└─" . $txt);
 			throw new EaseeCloudException ($txt);
 		}
-		log::add("EaseeCharger","debug", "| " .  __("Code retour http: ",__FILE__) . $httpCode);
+		log::add("EaseeCharger","debug", "│ " .  __("Code retour http: ",__FILE__) . $httpCode);
 		log::add("EaseeCharger","info", "└─Requête envoyée");
 		return json_decode($response, true);
 	}
@@ -256,7 +258,7 @@ class EaseeCharger_account {
 		try {
 			$charger = $cmd->getEqLogic();
 			log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->getName() , $cmd->getLogicalId()));
-			log::add("EaseeCharger","debug","| " . __("Chargeur",__FILE__) . sprintf(": %s (%s)", $charger->getName(), $charger->getSerial()));
+			log::add("EaseeCharger","debug","│ " . __("Chargeur",__FILE__) . sprintf(": %s (%s)", $charger->getName(), $charger->getSerial()));
 			if (! is_a($cmd, "EaseeChargerCmd")){
 				throw new Exception (sprintf(__("└─La commande %s n'est pas une commande de type %s",__FILE__),$cmd->getId(), "EaseeCharger_chargerCmd"));
 			}
@@ -292,7 +294,7 @@ class EaseeCharger_account {
 	}
 	
 	protected function getTransforms() {
-		if (isset($this->_mapping)) {
+		if (isset($this->_transforms)) {
 			return $this->_mapping;
 		}
 		$transformsFile = __DIR__ . '/../../core/config/transforms.ini';
@@ -326,7 +328,7 @@ class EaseeCharger_account {
 		$cache = cache::byKey('EaseeCharger_account:' . $this->getName());
 		if (!is_object($cache)) {
 			if ($retrying) {
-				log::add("EaseeCharger","error",sprintf(__("Erreur lors de la récupération d'un token pour %s",__FILE__)$this->getName()));
+				log::add("EaseeCharger","error",sprintf(__("Erreur lors de la récupération d'un token pour %s",__FILE__),$this->getName()));
 				return "";
 			}
 			if (!$this->checkLogin()) {
@@ -335,7 +337,7 @@ class EaseeCharger_account {
 			return $this->getToken(true);
 		}
 		$token = $cache->getValue();
-		if (!array_key_exists('expiresAt',$token) || $token['expiresAt'] < time()) {
+		if (!is_array($token) || !array_key_exists('expiresAt',$token) || $token['expiresAt'] < time()) {
 			if (!$this->checkLogin()) {
 				return "";
 			}
@@ -347,6 +349,8 @@ class EaseeCharger_account {
 			 * TODO renew token
 			 */
 		}
+		$token['accessToken'] = utils::decrypt($token['accessToken']);
+		$token['refreshToken'] = utils::decrypt($token['refreshToken']);
 		return $token;
 	}
 	
@@ -364,7 +368,8 @@ class EaseeCharger_account {
 	 * refresh
 	 */
 	private function execute_refresh($cmd) {
-		$serial = $cmd->getEqLogic()->getSerial();
+		$charger = $cmd->getEqLogic();
+		$serial = $charger->getSerial();
 		$path = 'chargers/' . $serial . '/state';
 		$response = $this->sendRequest($path);
 		if (!isset($this->_mapping)) { 
@@ -375,14 +380,14 @@ class EaseeCharger_account {
 		}
 		foreach ($response as $key => $value) {
 			if (! array_key_exists($key, $this->_mapping)) {
-				log::add('EaseeCharger','debug',"|   " . sprintf(__('Pas de traitemment pour %s',__FILE__),$key));
+				log::add('EaseeCharger','debug',"│   " . sprintf(__('Pas de traitemment pour %s',__FILE__),$key));
 				continue;
 			}
 			foreach (explode(',', $this->_mapping[$key]) as $logicalId) {
 				if (array_key_exists($logicalId, $this->_transforms)) {
 					$value = $this->_transforms[$logicalId][$value];
 				}
-				log::add("EVcharger","debug",sprintf("|   " . "LogicalId: %s, value: %s", $logicalId, $value));
+				log::add("EaseeCharger","debug",sprintf("│   " . "%s, value: %s", $logicalId, $value));
 				$charger->checkAndUpdateCmd($logicalId,$value);
 			}
 		}
@@ -393,19 +398,19 @@ class EaseeCharger_account {
 	 */
 	public function execute_cable_lock($cmd) {
 		$serial = $cmd->getEqLogic()->getSerial();
-		$path = 'chargers/' . $serial . '/commands/lock_stats';
+		$path = 'chargers/' . $serial . '/commands/lock_state';
 		$data = array ('state' => 'true');
-		$this->sednrequest($path, $data);
+		$this->sendrequest($path, $data);
 	}
 
 	/*
 	 * cable_unlock
 	 */
 	public function execute_cable_unlock($cmd) {
-		$serial = $dms->getEqLogic()->getSerial();
-		$path = 'chargers/' . $serial . '/commands/lock_stats';
-		$dat = array ('state' => 'false');
-		$this->sednrequest($path, $data);
+		$serial = $cmd->getEqLogic()->getSerial();
+		$path = 'chargers/' . $serial . '/commands/lock_state';
+		$data = array ('state' => 'false');
+		$this->sendrequest($path, $data);
 	}
 
 	/*     * ********************** Getteur Setteur *************************** */

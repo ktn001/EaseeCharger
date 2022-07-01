@@ -401,6 +401,32 @@ class EaseeCharger extends eqLogic {
 }
 	
 class EaseeChargerCmd extends cmd {
+
+	public function preUpdate() {
+		if ($this->getType() == 'info') {
+			$calcul = $this->getConfiguration('calcul');
+			if ($calcul) {
+				if (strpos($calcul, '#' . $this->getId() . '#') !== false) {
+					throw new Exception(__('Vous ne pouvez appeler la commande elle-même (boucle infinie) sur',__FILE__) . ' : ' . $this->getName());
+				}
+				$added_value = [];
+				preg_match_all('/#(\d+)#/', $calcul, $matches);
+				$value = '';
+				foreach ($matches[1] as $cmd_id) {
+					$cmd = cmd::byId($cmd_id);
+					if (is_object($cmd) && $cmd->getType() == 'info') {
+						if (isset($added_value[$cmd_id])) {
+							continue;
+						}
+						$value .= '#' . $cmd_id . '#';
+						$added_value[$cmd_id] = $cmd_id;
+					}
+				}
+				$this->setValue($value);
+			}
+		}
+	}
+
 	public function execute($_options = array()) {
 		switch ($this->getType()) {
 		case 'info':
