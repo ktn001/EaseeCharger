@@ -175,10 +175,7 @@ class EaseeCharger_account {
 		];
 
 		if ($accessToken == '') {
-			$token = $this->getToken();
-			if (is_array($token)) {
-				$accessToken = $token['accessToken'];
-			}
+			$token = $this->getAccessToken();
 		}
 		if ($accessToken) {
 			$header[] = 'Authorization: Bearer ' . $accessToken;
@@ -350,9 +347,17 @@ class EaseeCharger_account {
 			 * TODO renew token
 			 */
 		}
-		return $token['accessToken'];
+		return $token;
 	}
-
+	
+	public function getAccessToken() {
+		$token = $this->getToken();
+		if (is_array($token) && array_key_exists('accessToken', $token)) {
+			return $token['accessToken'];
+		}
+		return '';
+	}
+			
 	/*     * ******************** Exécution des commandes ********************* */
 
 	/*
