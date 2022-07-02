@@ -58,10 +58,8 @@ try {
 			throw new Exception(__("Pas de données pour la sauvegarde du compte",__FILE__));
 		}
 		$data = json_decode($data,true);
-		log::add("EaseeCharger","debug",print_r($data,true));
 		$account = EaseeCharger_account::byName($data['name']);
 		utils::a2o($account,$data);
-		log::add("EaseeCharger","debug",print_r($account,true));
 		$account->save();
 		$return = array();
 		$return['account'] = utils::o2a(EaseeCharger_account::byName($data['name']));

@@ -68,11 +68,29 @@ class EaseeCharger_account {
 					continue;
 				}
 			}
+			if (array_key_exists('password',$config['value'])) {
+				$config['value']['password'] = utils::decrypt($config['value']['password']);
+			} else {
+				$config['value']['password'] = '';
+			}
 			$account = new self();
 			utils::a2o($account,$config['value']);
 			$accounts[] = $account;
 		}
 		return $accounts;
+	}
+
+	public static function cronHourly() {
+		$accounts = self::all(true);
+		foreach ($accounts as $account) {
+			log::add("EaseeCharger","debug",sprintf(__("Vérification du token pour l'account %s",__FILE__),$account->getName()));
+			$token = $account->getToken();
+			if (is_array($token)){
+				log::add("EaseeCharger","debug","  " . sprintf(__("Token valide jusqu'à %s",__FILE__),date('d/m/Y H:i:s', $token['expiresAt'])));
+			} else {
+				log::add("EaseeCharger","error", sprintf(__("Pas de token valid pour l'account %s",__FILE__),$account->getName()));
+			}
+		}
 	}
 
 	/*     * ********************** Méthodes d'instance *************************** */
@@ -337,6 +355,8 @@ class EaseeCharger_account {
 			return $this->getToken(true);
 		}
 		$token = $cache->getValue();
+		$token['accessToken'] = utils::decrypt($token['accessToken']);
+		$token['refreshToken'] = utils::decrypt($token['refreshToken']);
 		if (!is_array($token) || !array_key_exists('expiresAt',$token) || $token['expiresAt'] < time()) {
 			if (!$this->checkLogin()) {
 				return "";
@@ -344,13 +364,23 @@ class EaseeCharger_account {
 			return $this->getToken(true);
 		}
 		$time2renew = $token['expiresAt'] - $token['expiresIn']/2;
-		if ($time2renew < time()) {
-			/*
-			 * TODO renew token
-			 */
+		if ($time2renew <= time()) {
+			$data = array(
+				'accessToken' => $token['accessToken'],
+				'refreshToken' => $token['refreshToken']
+			);
+			$result = $this->sendRequest('accounts/refresh_token',$data,$token['accessToken']);
+			if (is_array($result) and array_key_exists('accessToken',$result)) {
+				$token = array (
+					'accessToken' => $result['accessToken'],
+					'expiresIn' => $result['expiresIn'],
+					'expiresAt' => time() + $result['expiresIn'],
+					'refreshToken' => $result['refreshToken']
+				);
+				$this->setToken($token);
+				log::add("EaseeCharger","info",sprintf(__("Token renouvelé. Valable jusqu'à %s",__FILE__),date('d/m/Y H:i:s', $token['expiresAt'])));
+			}
 		}
-		$token['accessToken'] = utils::decrypt($token['accessToken']);
-		$token['refreshToken'] = utils::decrypt($token['refreshToken']);
 		return $token;
 	}
 	
@@ -380,15 +410,16 @@ class EaseeCharger_account {
 		}
 		foreach ($response as $key => $value) {
 			if (! array_key_exists($key, $this->_mapping)) {
-				log::add('EaseeCharger','debug',"│   " . sprintf(__('Pas de traitemment pour %s',__FILE__),$key));
+				log::add('EaseeCharger','debug',"│   " . sprintf(__('Pas de traitemment pour %s (value: %s)',__FILE__),$key, $value));
 				continue;
 			}
 			foreach (explode(',', $this->_mapping[$key]) as $logicalId) {
+				$finalValue = $value;
 				if (array_key_exists($logicalId, $this->_transforms)) {
-					$value = $this->_transforms[$logicalId][$value];
+					$finalValue = $this->_transforms[$logicalId][$value];
 				}
-				log::add("EaseeCharger","debug",sprintf("│   " . "%s, value: %s", $logicalId, $value));
-				$charger->checkAndUpdateCmd($logicalId,$value);
+				log::add("EaseeCharger","debug",sprintf("│   " . "%s value: %s => %s, value: %s", $key, $value, $logicalId, $finalValue));
+				$charger->checkAndUpdateCmd($logicalId,$finalValue);
 			}
 		}
 	}

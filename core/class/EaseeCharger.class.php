@@ -188,33 +188,9 @@ class EaseeCharger extends eqLogic {
 
 	/*     * ************************ Les crons **************************** */
 
-//	public static function cron() {
-//		EaseeCharger_account::_cron();
-//	}
-//
-//	public static function cron5() {
-//		EaseeCharger_account::_cron5();
-//	}
-//
-//	public static function cron10() {
-//		EaseeCharger_account::_cron10();
-//	}
-//
-//	public static function cron15() {
-//		EaseeCharger_account::_cron15();
-//	}
-//
-//	public static function cron30() {
-//		EaseeCharger_account::_cron30();
-//	}
-//
-//	public static function cronHourly() {
-//		EaseeCharger_account::_cronHourly();
-//	}
-//
-//	public static function cronDaily() {
-//		EaseeCharger_account::_cron15();
-//	}
+	public static function cronHourly() {
+		EaseeCharger_account::cronHourly();
+	}
 
     //========================================================================
     //========================= METHODES D'INSTANCE ==========================
