@@ -98,7 +98,13 @@ class EaseeCharger extends eqLogic {
 		$cmd .= ' --apikey ' . jeedom::getApiKey(__CLASS__);
 		$cmd .= ' --pid ' . jeedom::getTmpFolder(__CLASS__) . '/daemon.pid';
 		log::add(__CLASS__, 'info', 'Lancement démon');
-		log::add(__CLASS__, "info", $cmd . ' >> ' . log::getPathToLog('EaseeCharger_daemon') . ' 2>&1 &');
+		if (config::byKey('unsecurelog','EaseeCharger') != 1) {
+			$cmd .= ' --secureLog';
+			$cmd2log = preg_replace('/--apikey\s\S*/','--apikey **********',$cmd);
+		} else {
+			$cmd2log = $cmd;
+		}
+		log::add(__CLASS__, "info", $cmd2log . ' >> ' . log::getPathToLog('EaseeCharger_daemon') . ' 2>&1 &');
 		$result = exec($cmd . ' >> ' . log::getPathToLog('EaseeCharger_daemon.out') . ' 2>&1 &');
 		$i = 0;
 		while ($i < 20) {
@@ -156,7 +162,20 @@ class EaseeCharger extends eqLogic {
 				'message' => $payload,
 			);
 		}
+		if (!isset($payload['object'])) {
+			$payload['object'] = 'daemon';
+		}
 		$payload['apikey'] = jeedom::getApiKey('EaseeCharger');
+		$payload2log = $payload;
+		if (config::byKey('unsecurelog','EaseeCharger') != 1) {
+			if (isset($payload2log['accessToken'])) {
+				$payload2log['accessToken'] = "**********";
+			}
+			if (isset($payload2log['apikey'])) {
+				$payload2log['apikey'] = "**********";
+			}
+		}
+		log::add("EaseeCharger","debug",__("Envoi d'un message au daemon: " . json_encode($payload2log),__FILE__));
 		$payload = json_encode($payload);
 		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
 		socket_connect($socket,'127.0.0.1',(int)config::byKey('daemon::port','EaseeCharger'));

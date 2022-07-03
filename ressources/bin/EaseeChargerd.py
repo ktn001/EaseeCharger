@@ -28,6 +28,8 @@ _apiKey = ''
 _pidFile = '/tmp/jeedom/EaseeCharger/daemon.pid'
 _socketPort = -1
 _socketHost = 'localhost'
+_secureLog = False
+accounts = {}
 
 #===============================================================================
 # options
@@ -41,6 +43,7 @@ def options():
     global _apiKey
     global _pidFile
     global _socketPort
+    global _secureLog
 
     parser = argparse.ArgumentParser( description="EaseeCharger daemon for Jeedom's plugin")
     parser.add_argument("-l", "--loglevel", help="Log level for the daemon", type=str)
@@ -48,6 +51,7 @@ def options():
     parser.add_argument("-a", "--apikey", help="ApiKey", type=str)
     parser.add_argument("-p", "--pid", help="Pif file", type=str)
     parser.add_argument("-s", "--socketport", help="Port to receive plugin's message", type=int)
+    parser.add_argument("-x", "--secureLog", help="Securised logs", action='store_true')
     args = parser.parse_args()
 
     if args.loglevel:
@@ -65,6 +69,7 @@ def options():
         _pidFile = args.pid
     if args.socketport:
         _socketPort = int(args.socketport)
+    _secureLog = args.secureLog
 
     jeedom_utils.set_logLevel(_logLevel, _extendedDebug)
     
@@ -73,10 +78,43 @@ def options():
     if _logLevel == 'debug':
         logging.info('extendedDebug: ' + str(_extendedDebug))
     logging.info('callback: ' + _callback)
-    logging.debug('Apikey: ' + _apiKey)
+    if _secureLog:
+        logging.debug('Apikey: **********')
+    else:
+        logging.debug('Apikey: ' + _apiKey)
     logging.info('Socket Port: ' + str(_socketPort))
     logging.info('Socket Host: ' + _socketHost)
     logging.info('PID file: ' + _pidFile)
+
+#===============================================================================
+# start_account_thread
+#...............................................................................
+# Lance un thread pour un account
+#===============================================================================
+def start_account(name, accessToken):
+    global accounts
+    if name in accounts.keys():
+        logging.warning(f"'A thread for account < {name} > is already running")
+    logging.info(f"Starting account < {name} >")
+
+#===============================================================================
+# process_daemon_message
+#...............................................................................
+# Traitement de messages de jeedom destinés au daemon
+#===============================================================================
+def process_daemon_message(message):
+    if 'cmd' in message.keys():
+        
+        # startAccount
+        #
+        if message['cmd'] == 'startAccount':
+            if 'account' not in message.keys():
+                logging.error ('Account to start is not defined')
+                return
+            if 'accessToken' not in message.keys():
+                logging.error ('AccessToken is missing')
+                return
+            start_account(message['account'],message['accessToken'])
 
 #===============================================================================
 # read_socket
@@ -90,9 +128,18 @@ def read_socket():
     if not JEEDOM_SOCKET_MESSAGE.empty():
         # jeedom_com a reçu un message qu'il a mis en queue. On le récupère ici
         payload = json.loads(JEEDOM_SOCKET_MESSAGE.get().decode())
+        payload2log = dict(payload)
+        if _secureLog:
+            if 'accessToken' in payload2log.keys():
+                payload2log['accessToken'] = '**********'
+        logging.info(f"Message received from Jeedom: {payload2log}")
 
-        logging.info(f"Message received from Jeedom: {payload}")
-
+        if 'object' in payload.keys():
+            logging.info ("OBJECT")
+            if payload['object'] ==  'daemon':
+                process_daemon_message(payload)
+            elif payload['object'] == 'account': 
+                logging.info ("ACCOUNT")
 
 #===============================================================================
 # handler

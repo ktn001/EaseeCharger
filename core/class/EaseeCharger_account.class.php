@@ -57,7 +57,7 @@ class EaseeCharger_account {
 			return null;
 		}
 		$value = is_json($value,$value);
-		if (array_key_exists('password',$value)) {
+		if (isset($value['password'])) {
 			$value['password'] = utils::decrypt($value['password']);
 		} else {
 			$value['password'] = '';
@@ -79,7 +79,7 @@ class EaseeCharger_account {
 					continue;
 				}
 			}
-			if (array_key_exists('password',$config['value'])) {
+			if (isset($config['value']['password'])) {
 				$config['value']['password'] = utils::decrypt($config['value']['password']);
 			} else {
 				$config['value']['password'] = '';
@@ -179,6 +179,9 @@ class EaseeCharger_account {
 				'message' => $payload,
 			);
 		}
+		if (!isset($payload['object'])) {
+			$payload['object'] = 'account';
+		}
 		$payload['account'] = $this->getName();
 		EaseeCharger::send2Daemon($payload);
 	}
@@ -187,7 +190,12 @@ class EaseeCharger_account {
 	 * Lancement du thread du daemon
 	 */
 	public function StartDaemonThread() {
-		$this->send2Daemon ('start');
+		$message = array(
+			'object' => 'daemon',
+			'cmd' => 'startAccount',
+			'accessToken' => $this->getAccessToken(),
+		);
+		$this->send2Daemon ($message);
 	}
 
 	/*
@@ -206,7 +214,7 @@ class EaseeCharger_account {
 		);
 		try {
 			$result = $this->sendRequest('accounts/login', $data);
-			if (is_array($result) and array_key_exists('accessToken',$result)) {
+			if (isset($result['accessToken'])) {
 				$token = array (
 					'accessToken' => $result['accessToken'],
 					'expiresIn' => $result['expiresIn'],
@@ -230,11 +238,17 @@ class EaseeCharger_account {
 		$data2log = $data;
 		if (config::byKey('unsecurelog','EaseeCharger') != 1) {
 			if (is_array($data2log)) {
-				if ( array_key_exists('password',$data2log) and ($data2log['password'] != '')) {
+				if ( isset($data2log['password'])) {
 					$data2log['password'] = "**********";
 				}
-				if ( array_key_exists('token',$data2log) and ($data2log['token'] != '')) {
+				if ( isset($data2log['token'])) {
 					$data2log['token'] = "**********";
+				}
+				if ( isset($data2log['accessToken'])) {
+					$data2log['accessToken'] = "**********";
+				}
+				if ( isset($data2log['refreshToken'])) {
+					$data2log['refreshToken'] = "**********";
 				}
 			}
 		}
@@ -246,7 +260,7 @@ class EaseeCharger_account {
 		];
 
 		if (!$accessToken) {
-			if (!is_array($data) || (!array_key_exists('userName',$data) && !array_key_exists('password', $data))) {
+			if (!isset($data['userName']) && !isset($data['password'])) {
 				$accessToken = $this->getAccessToken();
 			}
 		}
@@ -298,7 +312,7 @@ class EaseeCharger_account {
 		if (substr($httpCode,0,1) != '2') {
 			$txt = $response;
 			$msg = is_json($response,$response);
-			if (is_array($msg) && array_key_exists('title',$msg)) {
+			if (isset($msg['title'])) {
 				$txt = $msg['title'];
 			}
 			$txt= sprintf(__("Code retour http: %s - %s",__FILE__) , $httpCode, $txt);
@@ -378,7 +392,7 @@ class EaseeCharger_account {
 		if (array_key_exists('refreshToken',$_token)) {
 			$_token['refreshToken'] = utils::encrypt($_token['refreshToken']);
 		}
-		$lifetime = array_key_exists('expiresIn',$_token) ? $_token['expiresIn'] : 192800;
+		$lifetime = isset($_token['expiresIn']) ? $_token['expiresIn'] : 192800;
 		cache::set('EaseeCharger_account:'. $this->getName(), $_token, $lifetime);
 		return $this;
 	}
@@ -411,7 +425,7 @@ class EaseeCharger_account {
 				'refreshToken' => $token['refreshToken']
 			);
 			$result = $this->sendRequest('accounts/refresh_token',$data,$token['accessToken']);
-			if (is_array($result) and array_key_exists('accessToken',$result)) {
+			if (iset($result['accessToken'])) {
 				$token = array (
 					'accessToken' => $result['accessToken'],
 					'expiresIn' => $result['expiresIn'],
@@ -427,7 +441,7 @@ class EaseeCharger_account {
 	
 	public function getAccessToken() {
 		$token = $this->getToken();
-		if (is_array($token) && array_key_exists('accessToken', $token)) {
+		if (isset($token['accessToken'])) {
 			return $token['accessToken'];
 		}
 		return '';
