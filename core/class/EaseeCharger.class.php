@@ -43,12 +43,15 @@ class EaseeCharger extends eqLogic {
 	/*     * ********************** Gestion du daemon ************************* */
 
 	/*
-	 * Info sur le daemon
+	 * Info sur le daemon (function mal nommée pour le core)
 	 */
 	public static function deamon_info() {
 		return self::daemon_info();
 	}
 
+	/*
+	 * Info sur le daemon
+	 */
 	public static function daemon_info() {
 		$return = array();
 		$return['log'] = __CLASS__;
@@ -66,12 +69,15 @@ class EaseeCharger extends eqLogic {
 	}
 
 	/*
-	 * Lancement de daemon
+	 * Lancement de daemon (function mal nommée pour le core)
 	 */
 	public static function deamon_start() {
 		return self::daemon_start();
 	}
 
+	/*
+	 * Lancement de daemon
+	 */
 	public static function daemon_start() {
 		self::daemon_stop();
 		$daemon_info = self::daemon_info();
@@ -112,12 +118,15 @@ class EaseeCharger extends eqLogic {
 	}
 
 	/*
-	 * Arret du daemon
+	 * Arret du daemon (function mal nommée pour le core)
 	 */
 	public static function deamon_stop() {
 		return self::daemon_stop();
 	}
 
+	/*
+	 * Arret du daemon
+	 */
 	public static function daemon_stop() {
 		$pid_file = jeedom::getTmpFolder(__CLASS__) . '/daemon.pid';
 		if (file_exists($pid_file)) {
@@ -131,6 +140,38 @@ class EaseeCharger extends eqLogic {
 				sleep(1);
 			}
 			return;
+		}
+	}
+
+	/*
+	 * Envoi d'un message au daemon
+	 */
+	public static function send2daemon($payload) {
+		if (self::daemon_info()['state'] != 'ok') {
+			throw new Exception (__("Le daemon n'est pas démarré",__FILE__));
+		}
+		$payload = is_json($payload,$payload);
+		if (!is_array($payload)) {
+			$payload = array(
+				'message' => $payload,
+			);
+		}
+		$payload['apikey'] = jeedom::getApiKey('EaseeCharger');
+		$payload = json_encode($payload);
+		$socket = socket_create(AF_INET, SOCK_STREAM, 0);
+		socket_connect($socket,'127.0.0.1',(int)config::byKey('daemon::port','EaseeCharger'));
+		socket_write($socket, $payload, strlen($payload));
+		socket_close($socket);
+	}
+
+	/*
+	 * Function appelée lorsque la daemon confirme sont démarrage
+	 */
+	public static function daemon_started() {
+		log::add("EaseeCharger","info",__("Le daemon est démarré",__FILE__));
+		$accounts = EaseeCharger_account::all(true);
+		foreach ($accounts as $account) {
+			$account->startDaemonThread();
 		}
 	}
 

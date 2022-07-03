@@ -27,8 +27,13 @@ class EaseeCharger_account {
 	private $_site = 'https://api.easee.cloud/api/';
 	private $_modifiedChargers = array ();
 
-	/*     * ********************** Méthodes Static *************************** */
+	/*     * ********************************************************************** */
+	/*     * *************************** Méthodes Static ************************** */
+	/*     * ********************************************************************** */
 
+	/*
+	 * Création d'un account
+	 */
 	public static function create($name) {
 		$key = 'account::' . $name;
 		$config = config::byKey($key, 'EaseeCharger');
@@ -42,6 +47,9 @@ class EaseeCharger_account {
 		return $account;
 	}
 
+	/*
+	 * byName
+	 */
 	public static function byName($name) {
 		$key = 'account::' . $name;
 		$value = config::byKey($key, 'EaseeCharger');
@@ -59,6 +67,9 @@ class EaseeCharger_account {
 		return $account;
 	}
 
+	/*
+	 * Tous les accounts
+	 */
 	public static function all($_onlyEnable = false) {
 		$configs = config::searchKey('account::%', 'EaseeCharger');
 		$accounts = array();
@@ -80,6 +91,11 @@ class EaseeCharger_account {
 		return $accounts;
 	}
 
+	/*     * ******************************** cron ******************************** */
+
+	/*
+	 * cron Hourly
+	 */
 	public static function cronHourly() {
 		$accounts = self::all(true);
 		foreach ($accounts as $account) {
@@ -93,7 +109,9 @@ class EaseeCharger_account {
 		}
 	}
 
+	/*     * ********************************************************************** */
 	/*     * ********************** Méthodes d'instance *************************** */
+	/*     * ********************************************************************** */
 
 	/*
 	 * Enregistrement du compte
@@ -147,6 +165,29 @@ class EaseeCharger_account {
 		}
 		$key = 'account::' . $this->name;
 		return config::remove($key,'EaseeCharger');
+	}
+
+	/*     * ******************************* Daemon ******************************* */
+
+	/*
+	 * Envoi d'un message au daemon
+	 */
+	public function send2Daemon ($message) {
+		$payload = is_json($message,$message);
+		if (!is_array($payload)) {
+			$payload = array(
+				'message' => $payload,
+			);
+		}
+		$payload['account'] = $this->getName();
+		EaseeCharger::send2Daemon($payload);
+	}
+
+	/*
+	 * Lancement du thread du daemon
+	 */
+	public function StartDaemonThread() {
+		$this->send2Daemon ('start');
 	}
 
 	/*
@@ -525,53 +566,6 @@ class EaseeCloudException extends Exception {
 	}
 }
 
-//	/*
-//	 * Démarre le thread du démon pour chaque account actif
-//	 */
-//	public static function startAllDaemonThread(){
-//		foreach (EaseeCharger::byType("EaseeCharger_account_%",true) as $account) {
-//			$account->startDaemonThread();
-//		}
-//	}
-//
-//
-//	/*
-//	 * Envoi d'un message au daemon
-//	 */
-//	public function send2Daemon($message) {
-//		if ($this->getIsEnable() and $this::$_haveDaemon){
-//			if (is_array($message)) {
-//				$message = json_encode($message);
-//			}
-//			if (EaseeCharger::daemon_info()['state'] != 'ok'){
-//				log::add('EaseeCharger','debug',__("Le démon n'est pas démarré!",__FILE__));
-//				return;
-//			}
-//			$params['apikey'] = jeedom::getApiKey('EaseeCharger');
-//			$params['id'] = $this->getId();
-//			$params['message'] = $message;
-//			log::add("EaseeCharger","debug",__("Envoi de message au daemon: ",__FILE__) . print_r($params,true));
-//			$payLoad = json_encode($params);
-//			$socket = socket_create(AF_INET, SOCK_STREAM, 0);
-//			socket_connect($socket,'127.0.0.1',(int)config::byKey('daemon::port','EaseeCharger'));
-//			socket_write($socket, $payLoad, strlen($payLoad));
-//			socket_close($socket);
-//		}
-//	}
-//
-//	/*
-//	 * Lancement d'un thread du daemon pour l'account
-//	 */
-//	public function startDaemonThread() {
-//		if ($this->getIsEnable() and $this::$_haveDaemon){
-//			log::add("EaseeCharger","info","Account " . $this->getHumanName() . ": " . __("Lancement du thread",__FILE__));
-//			$message = array('cmd' => 'start_account');
-//			if (method_exists($this,'msgToStartDaemonThread')){
-//				$message = $this->msgToStartDaemonThread();
-//			}
-//			$this->send2Daemon($message);
-//		}
-//	}
 //
 //	/*
 //	 * Après démarrage du thread de l'account
