@@ -141,8 +141,10 @@ class EaseeCharger_account {
 		$value['password'] = utils::encrypt($value['password']);
 		$value = json_encode($value);
 		$key = 'account::' . $this->name;
+		
+		# Désactivation de l'account
 		config::save($key, $value, 'EaseeCharger');
-		if ($this->getIsEnable() != 1 and ($wasEnable == 1)) {
+		if ($this->getIsEnable() != 1 && ($wasEnable == 1)) {
 			$chargers = EaseeCharger::byAccount($this->getName());
 			$chargerIds = array();
 			foreach ($chargers as $charger) {
@@ -151,6 +153,14 @@ class EaseeCharger_account {
 				$chargerIds[] = $charger->getId();
 			}
 			$this->setModifiedChargers($chargerIds);
+			$this->StopDaemonThread();
+		}
+		
+		# Activation de l'account
+		if ($this->getIsEnable() == 1 && $wasEnable !=1) {
+			if (EaseeCharger::daemon_info()['state'] == 'ok') {
+				$this->StartDaemonThread();
+			}
 		}
 		return $this;
 	}
@@ -193,6 +203,18 @@ class EaseeCharger_account {
 		$message = array(
 			'object' => 'daemon',
 			'cmd' => 'startAccount',
+			'accessToken' => $this->getAccessToken(),
+		);
+		$this->send2Daemon ($message);
+	}
+	
+		/*
+	 * Arrêt du thread du daemon
+	 */
+	public function StopDaemonThread() {
+		$message = array(
+			'object' => 'daemon',
+			'cmd' => 'stopAccount',
 			'accessToken' => $this->getAccessToken(),
 		);
 		$this->send2Daemon ($message);
