@@ -60,7 +60,7 @@ $defaultPort = config::getDefaultConfiguration('EaseeCharger')['EaseeCharger']['
 			{{Log non sécurisés}}
 			<sup><i class="fas fa-question-circle" title="{{Passwords et autres données sensibles en clair}}"></i></sup>
 		    </label>
-			    <span class="col-xs-12 col-sm-9 col-md-7 col-lg-8" style="padding:0 !important"><input class="configKey form-control" type="checkbox" data-l1key="unsecurelog"/></span>
+		    <span class="col-xs-12 col-sm-9 col-md-7 col-lg-8" style="padding:0 !important"><input class="configKey form-control" type="checkbox" data-l1key="unsecurelog"/> ({{Nécessite un redémarrage du démon}})</span>
 		</div>
 	    </fieldset>
 	</div> <!-- partie droite -->

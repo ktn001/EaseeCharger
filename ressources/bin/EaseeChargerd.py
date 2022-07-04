@@ -20,6 +20,7 @@ import traceback
 import json
 import argparse
 from jeedom import *
+from account import account
 
 _logLevel = 'error'
 _extendedDebug = False
@@ -29,7 +30,7 @@ _pidFile = '/tmp/jeedom/EaseeCharger/daemon.pid'
 _socketPort = -1
 _socketHost = 'localhost'
 _secureLog = False
-accounts = {}
+_accounts = {}
 
 #===============================================================================
 # options
@@ -87,15 +88,25 @@ def options():
     logging.info('PID file: ' + _pidFile)
 
 #===============================================================================
-# start_account_thread
+# start_account
 #...............................................................................
-# Lance un thread pour un account
+# Ajout d'un account
 #===============================================================================
 def start_account(name, accessToken):
-    global accounts
-    if name in accounts.keys():
+    global _accounts
+    if name in _accounts.keys():
         logging.warning(f"'A thread for account < {name} > is already running")
     logging.info(f"Starting account < {name} >")
+    _accounts[name] = account(name, accessToken)
+
+#===============================================================================
+# stop_account
+#...............................................................................
+# Retrait d'un account
+#===============================================================================
+def stop_account(name):
+    if name in _accounts.keys:
+        del _accounts[name]
 
 #===============================================================================
 # process_daemon_message
@@ -115,6 +126,16 @@ def process_daemon_message(message):
                 logging.error ('AccessToken is missing')
                 return
             start_account(message['account'],message['accessToken'])
+            return
+        
+        # stopAccount
+        #
+        if message['cmd'] == 'startAccount':
+            if 'account' not in message.keys():
+                logging.error ('Account to stop is not defined')
+                return
+            stop_account(message['account'])
+            return
 
 #===============================================================================
 # read_socket
@@ -135,7 +156,6 @@ def read_socket():
         logging.info(f"Message received from Jeedom: {payload2log}")
 
         if 'object' in payload.keys():
-            logging.info ("OBJECT")
             if payload['object'] ==  'daemon':
                 process_daemon_message(payload)
             elif payload['object'] == 'account': 
