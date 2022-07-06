@@ -19,9 +19,11 @@ import logging
 class account():
     """Class de base pour les differents modèles d'account"""
 
-    def __init__(self, name, accessToken):
+    def __init__(self, name, accessToken, expiresAt, expiresIn):
         self._name = name
         self._accessToken = accessToken
+        self._expiresAt = expiresAt
+        self._lifetime = expiresIn
 
     def log_debug(self,txt):
         logging.debug(f'[account][{self._name}] {txt}')
@@ -35,11 +37,19 @@ class account():
     def log_error(self,txt):
         logging.error(f'[account][{self._name}] {txt}')
 
-    def setAccessToken(self, accessToken):
+    def setAccessToken(self, accessToken, expiresAt):
         self._accessToken = accessToken
+        self._expiresAt = expiresAt
         return self
     
     def getAccessToken(self):
-        self._accessToken = accessToken
         return self._accessToken
     
+    def getExpiresAt(self):
+        return self._expiresAt
+    
+    def getLifetime(self):
+        return self._lifetime
+
+    def getTime2renew(self):
+        return self._expiresAt - self._lifetime/2

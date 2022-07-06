@@ -16,9 +16,20 @@
 
 class charger():
 
-    def __init__(self,serial):
+    def __init__(self, id, name, serial, account):
+        self._id = id
+        self._name = name
         self._serial = serial
+        self._account = account
         
+    def getToken(self):
+        return self._accessToken
+
+    def run(self, accessToken):
+        self._accessToken = accessToken
+        url = "https://api.easee.cloud/hubs/chargers"
+        options = {'access_token_factory': self.getToken}
+
     def log_debug(self,txt):
         logging.debug(f'[charger][{self._serial}]   {txt}')
 
@@ -30,3 +41,16 @@ class charger():
 
     def log_error(self,txt):
         logging.error(f'[charger][{self._serial}]   {txt}')
+
+    def getId(self):
+        return (self._id)
+
+    def getName(self):
+        return (self._name)
+
+    def getSerial(self):
+        return (self._serial)
+
+    def getAccount(self):
+        return (self._account)
+

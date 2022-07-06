@@ -25,7 +25,7 @@ class EaseeCharger_account {
 	private $_mapping = null;
 	private $_transforms = null;
 	private $_site = 'https://api.easee.cloud/api/';
-	private $_modifiedChargers = array ();
+	private $_modifiedChargers = [];
 
 	/*     * ********************************************************************** */
 	/*     * *************************** Méthodes Static ************************** */
@@ -72,7 +72,7 @@ class EaseeCharger_account {
 	 */
 	public static function all($_onlyEnable = false) {
 		$configs = config::searchKey('account::%', 'EaseeCharger');
-		$accounts = array();
+		$accounts = [];
 		foreach ($configs as $config) {
 			if ($_onlyEnable) {
 				if (!isset($config['value']['isEnable']) || $config['value']['isEnable'] == 0 || $config['value']['isEnable'] == '') {
@@ -146,7 +146,7 @@ class EaseeCharger_account {
 		config::save($key, $value, 'EaseeCharger');
 		if ($this->getIsEnable() != 1 && ($wasEnable == 1)) {
 			$chargers = EaseeCharger::byAccount($this->getName());
-			$chargerIds = array();
+			$chargerIds = [];
 			foreach ($chargers as $charger) {
 				$charger->setIsEnable(0);
 				$charger->save();
@@ -182,42 +182,45 @@ class EaseeCharger_account {
 	/*
 	 * Envoi d'un message au daemon
 	 */
-	public function send2Daemon ($message) {
+	public function send2daemon ($message) {
 		$payload = is_json($message,$message);
 		if (!is_array($payload)) {
-			$payload = array(
+			$payload = [
 				'message' => $payload,
-			);
+			];
 		}
 		if (!isset($payload['object'])) {
 			$payload['object'] = 'account';
 		}
 		$payload['account'] = $this->getName();
-		EaseeCharger::send2Daemon($payload);
+		EaseeCharger::transmit2daemon($payload);
 	}
 
 	/*
 	 * Lancement du thread du daemon
 	 */
 	public function StartDaemonThread() {
-		$message = array(
-			'object' => 'daemon',
+		$token = $this->getToken();
+		$message = [
 			'cmd' => 'startAccount',
-			'accessToken' => $this->getAccessToken(),
-		);
-		$this->send2Daemon ($message);
+			'account' => $this->getName(),
+			'accessToken' => $token['accessToken'],
+			'expiresAt' => $token['expiresAt'],
+			'expiresIn' => $token['expiresIn']
+		];
+		EaseeCharger::send2daemon ($message);
 	}
 	
 		/*
 	 * Arrêt du thread du daemon
 	 */
 	public function StopDaemonThread() {
-		$message = array(
+		$message = [
 			'object' => 'daemon',
 			'cmd' => 'stopAccount',
 			'accessToken' => $this->getAccessToken(),
-		);
-		$this->send2Daemon ($message);
+		];
+		$this->send2daemon ($message);
 	}
 
 	/*
@@ -230,19 +233,19 @@ class EaseeCharger_account {
 		if (!$password) {
 			$password = $this->getPassword();
 		}
-		$data = array(
+		$data = [
 			'userName' => $login,
 			'password' => $password
-		);
+		];
 		try {
 			$result = $this->sendRequest('accounts/login', $data);
 			if (isset($result['accessToken'])) {
-				$token = array (
+				$token = [
 					'accessToken' => $result['accessToken'],
 					'expiresIn' => $result['expiresIn'],
 					'expiresAt' => time() + $result['expiresIn'],
 					'refreshToken' => $result['refreshToken']
-				);
+				];
 				$this->setToken($token);
 			}
 		} catch (EaseeCloudException $e) {
@@ -442,18 +445,18 @@ class EaseeCharger_account {
 		}
 		$time2renew = $token['expiresAt'] - $token['expiresIn']/2;
 		if ($time2renew <= time()) {
-			$data = array(
+			$data = [
 				'accessToken' => $token['accessToken'],
 				'refreshToken' => $token['refreshToken']
-			);
+			];
 			$result = $this->sendRequest('accounts/refresh_token',$data,$token['accessToken']);
-			if (iset($result['accessToken'])) {
-				$token = array (
+			if (isset($result['accessToken'])) {
+				$token = [
 					'accessToken' => $result['accessToken'],
 					'expiresIn' => $result['expiresIn'],
 					'expiresAt' => time() + $result['expiresIn'],
 					'refreshToken' => $result['refreshToken']
-				);
+				];
 				$this->setToken($token);
 				log::add("EaseeCharger","info",sprintf(__("Token renouvelé. Valable jusqu'à %s",__FILE__),date('d/m/Y H:i:s', $token['expiresAt'])));
 			}
@@ -507,7 +510,7 @@ class EaseeCharger_account {
 	public function execute_cable_lock($cmd) {
 		$serial = $cmd->getEqLogic()->getSerial();
 		$path = 'chargers/' . $serial . '/commands/lock_state';
-		$data = array ('state' => 'true');
+		$data = ['state' => 'true'];
 		$this->sendrequest($path, $data);
 	}
 
@@ -517,7 +520,7 @@ class EaseeCharger_account {
 	public function execute_cable_unlock($cmd) {
 		$serial = $cmd->getEqLogic()->getSerial();
 		$path = 'chargers/' . $serial . '/commands/lock_state';
-		$data = array ('state' => 'false');
+		$data = ['state' => 'false'];
 		$this->sendrequest($path, $data);
 	}
 
@@ -550,7 +553,7 @@ class EaseeCharger_account {
 	/*
 	 * _modifiedCharger
 	 */
-	public function setModifiedChargers( $_chargers = array()) {
+	public function setModifiedChargers( $_chargers = []) {
 		$this->_modifiedChargers = $_chargers;
 	}
 

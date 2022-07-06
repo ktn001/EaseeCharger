@@ -21,6 +21,8 @@ import json
 import argparse
 from jeedom import *
 from account import account
+from charger import charger
+from datetime import datetime
 
 _logLevel = 'error'
 _extendedDebug = False
@@ -31,7 +33,29 @@ _socketPort = -1
 _socketHost = 'localhost'
 _secureLog = False
 _accounts = {}
+_chargers = {}
 
+_commands = {
+    'startAccount' : [
+        'account',
+        'accessToken',
+        'expiresIn',
+        'expiresAt',
+    ],
+    'stopAccount' : [
+        'account',
+    ],
+    'startCharger' : [
+        'id',
+        'serial',
+        'name',
+        'account',
+    ],
+    'stopCharger' : [
+        'id',
+    ],
+    'shutdown' : [],
+}
 #===============================================================================
 # options
 #...............................................................................
@@ -88,16 +112,36 @@ def options():
     logging.info('PID file: ' + _pidFile)
 
 #===============================================================================
+# logStatus
+#...............................................................................
+# Log l'état interne du daemon
+#===============================================================================
+def logStatus():
+    logging.info ("┌── Daemon state: ──────────────────────────────────────────")
+    logging.info ("│ Accounts:") 
+    for accountName in _accounts:
+        expiresAt = datetime.fromtimestamp(_accounts[accountName].getExpiresAt())
+        lifetime = _accounts[accountName].getLifetime()
+        time2renew = datetime.fromtimestamp(_accounts[accountName].getTime2renew())
+        logging.info (f"│ - {accountName}")
+        logging.info (f"│   - Token expires at {expiresAt}")
+        logging.info (f"│   - Lifetime: {lifetime}")
+        logging.info (f"│   - Time to renew: {time2renew}")
+    logging.info ("└──────────────────────────────────────────────────────────")
+
+
+#===============================================================================
 # start_account
 #...............................................................................
 # Ajout d'un account
 #===============================================================================
-def start_account(name, accessToken):
+def start_account(name, accessToken, expiresAt, expiresIn):
     global _accounts
-    if name in _accounts.keys():
-        logging.warning(f"'A thread for account < {name} > is already running")
+    if name in _accounts:
+        logging.warning(f"Account < {name} > is already defined")
+        return
     logging.info(f"Starting account < {name} >")
-    _accounts[name] = account(name, accessToken)
+    _accounts[name] = account(name, accessToken, expiresAt, expiresIn)
 
 #===============================================================================
 # stop_account
@@ -105,37 +149,30 @@ def start_account(name, accessToken):
 # Retrait d'un account
 #===============================================================================
 def stop_account(name):
-    if name in _accounts.keys:
+    if name in _accounts:
         del _accounts[name]
 
 #===============================================================================
-# process_daemon_message
+# start_charger
 #...............................................................................
-# Traitement de messages de jeedom destinés au daemon
+# Démarrage d'un thread pour un charger
 #===============================================================================
-def process_daemon_message(message):
-    if 'cmd' in message.keys():
-        
-        # startAccount
-        #
-        if message['cmd'] == 'startAccount':
-            if 'account' not in message.keys():
-                logging.error ('Account to start is not defined')
-                return
-            if 'accessToken' not in message.keys():
-                logging.error ('AccessToken is missing')
-                return
-            start_account(message['account'],message['accessToken'])
-            return
-        
-        # stopAccount
-        #
-        if message['cmd'] == 'startAccount':
-            if 'account' not in message.keys():
-                logging.error ('Account to stop is not defined')
-                return
-            stop_account(message['account'])
-            return
+def start_charger(id, name, serial, account):
+    global _chargers
+    if id in _chargers:
+        logging.warning(f"Charger {id} is already running")
+        return
+    logging.info(f"Starting charger {name} (id: {id}) ")
+    _chargers[id] = charger(id, name, serial, account)
+    _chargers[id].run()
+
+#===============================================================================
+# stop_charger
+#...............................................................................
+# Arrêt du thread d'un charger
+#===============================================================================
+def stop_charger(id):
+    pass
 
 #===============================================================================
 # read_socket
@@ -148,18 +185,39 @@ def read_socket():
 
     if not JEEDOM_SOCKET_MESSAGE.empty():
         # jeedom_com a reçu un message qu'il a mis en queue. On le récupère ici
-        payload = json.loads(JEEDOM_SOCKET_MESSAGE.get().decode())
-        payload2log = dict(payload)
+        message = json.loads(JEEDOM_SOCKET_MESSAGE.get().decode())
+        message2log = dict(message)
         if _secureLog:
-            if 'accessToken' in payload2log.keys():
-                payload2log['accessToken'] = '**********'
-        logging.info(f"Message received from Jeedom: {payload2log}")
+            if 'accessToken' in message2log.keys():
+                message2log['accessToken'] = '**********'
+            if 'apikey' in message2log.keys():
+                message2log['apikey'] = '**********'
+        logging.info(f"Message received from Jeedom: {message2log}")
 
-        if 'object' in payload.keys():
-            if payload['object'] ==  'daemon':
-                process_daemon_message(payload)
-            elif payload['object'] == 'account': 
-                logging.info ("ACCOUNT")
+        if 'cmd' not in message:
+            logging.warning("'cmd' is not in message")
+            return
+
+        if message['cmd'] not in _commands:
+            logging.warning(f"Unknow command {message['cmd']} in message")
+            return
+
+        for arg in _commands[message['cmd']]:
+            if arg not in message:
+                logging.error(f"Arg {arg} is missing for cmd {message['cmd']}")
+                return
+
+        if message['cmd'] == 'startAccount':
+            start_account(message['account'],message['accessToken'],message['expiresAt'],message['expiresIn'])
+        elif message['cmd'] == 'stopAccount':
+            stop_account(message['account'])
+        elif message['cmd'] == 'startCharger':
+            start_charger(message['id'],message['name'],message['serial'],message['account'])
+        elif message['cmd'] == 'stopCharger':
+            stop_charger(message['id'])
+        elif message['cmd'] == 'shutdown':
+            shutdown()
+        return
 
 #===============================================================================
 # handler
@@ -167,6 +225,11 @@ def read_socket():
 # Procédure appelée pour trapper divers signaux
 #===============================================================================
 def handler(signum=None, frame=None):
+
+    if signum == signal.SIGUSR1:
+        logStatus()
+        return
+
     logging.debug("Signal %i caught, exiting..." % int(signum))
     shutdown()
 
@@ -206,6 +269,7 @@ def shutdown():
 options()
 
 signal.signal(signal.SIGINT, handler)
+signal.signal(signal.SIGUSR1, handler)
 
 try:
     jeedom_utils.write_pid(_pidFile)

@@ -53,7 +53,7 @@ class EaseeCharger extends eqLogic {
 	 * Info sur le daemon
 	 */
 	public static function daemon_info() {
-		$return = array();
+		$return = [];
 		$return['log'] = __CLASS__;
 		$return['state'] = 'nok';
 		$pid_file = jeedom::getTmpFolder(__CLASS__) . '/daemon.pid';
@@ -134,6 +134,18 @@ class EaseeCharger extends eqLogic {
 	 * Arret du daemon
 	 */
 	public static function daemon_stop() {
+		if (self::daemon_info()['state'] == 'ok') {
+			log::add("EaseeCharger","debug",__("Envoi de la commande d'arrêt au daemon",__FILE__));
+			self::send2daemon(['cmd' => 'shutdown']);
+			foreach (range(0,10) as $i) {
+				if (self::daemon_info()['state'] == 'nok'){
+					log::add("EaseeCharger","debug",__("Le daemon s'est arrêté",__FILE__));
+					return;
+				}
+				sleep(1);
+			}
+		}
+
 		$pid_file = jeedom::getTmpFolder(__CLASS__) . '/daemon.pid';
 		if (file_exists($pid_file)) {
 			$pid = intval(trim(file_get_contents($pid_file)));
@@ -155,15 +167,6 @@ class EaseeCharger extends eqLogic {
 	public static function send2daemon($payload) {
 		if (self::daemon_info()['state'] != 'ok') {
 			throw new Exception (__("Le daemon n'est pas démarré",__FILE__));
-		}
-		$payload = is_json($payload,$payload);
-		if (!is_array($payload)) {
-			$payload = array(
-				'message' => $payload,
-			);
-		}
-		if (!isset($payload['object'])) {
-			$payload['object'] = 'daemon';
 		}
 		$payload['apikey'] = jeedom::getApiKey('EaseeCharger');
 		$payload2log = $payload;
@@ -200,34 +203,34 @@ class EaseeCharger extends eqLogic {
 	 * template pour les widget
 	 */
 	public static function templateWidget() {
-		$return = array(
-			'action' => array(
-				'other' => array(
-					'cable_lock' => array(
+		$return = [
+			'action' => [
+				'other' => [
+					'cable_lock' => [
 						'template' => 'cable_lock',
-						'replace' => array(
+						'replace' => [
 							'#_icon_on_#' => '<i class=\'icon_green icon jeedom-lock-ferme\'><i>',
 							'#_icon_off_#' => '<i class=\'icon_orange icon jeedom-lock-ouvert\'><i>'
-						)
-					)
-				)
-			),
-			'info' => array(
-				'numeric' => array(
-					'etat' => array(
+						]
+					]
+				]
+			],
+			'info' => [
+				'numeric' => [
+					'etat' => [
 						'template' => 'etat',
-						'replace' => array(
+						'replace' => [
 							'#texte_1#' =>  '{{Débranché}}',
 							'#texte_2#' =>  '{{En attente}}',
 							'#texte_3#' =>  '{{Recharge}}',
 							'#texte_4#' =>  '{{Terminé}}',
 							'#texte_5#' =>  '{{Erreur}}',
 							'#texte_6#' =>  '{{Prêt}}'
-						)
-					)
-				)
-			)
-		);
+						]
+					]
+				]
+			]
+		];
 		return $return;
 	}
 
@@ -257,6 +260,17 @@ class EaseeCharger extends eqLogic {
     //========================================================================
 
 	/*
+	 * Préparation avant sauvegarde
+	 */
+	public function preSave() {
+		$this->_wasEnable = 0;
+		$oldCharger = EaseeCharger::byId($this->getId());
+		if (is_object($oldCharger) && $oldCharger->getIsEnable() != 0) {
+			$this->_wasEnable = 1;
+		}
+	}
+
+	/*
 	 * Vérifications avant enregistrement
 	 */
 	public function preUpdate() {
@@ -276,6 +290,39 @@ class EaseeCharger extends eqLogic {
 	 */
 	public function postInsert() {
 		$this->createCmds();
+	}
+
+	/*
+	 * Gestion de daemon après sauvegarde
+	 */
+	public function postSave() {
+		if (self::daemon_info()['state'] == 'ok') {
+			if ($this->getIsEnable() == 1 && $this->_wasEnable !=1) {
+				$this->start_daemon_thread();
+			}	
+			if ($this->getIsEnable() != 1 && $this->_wasEnable ==1) {
+				$this->stop_daemon_thread();
+			}
+		}
+	}
+
+	public function start_daemon_thread() {
+		log::add("EaseeCharger","debug",sprintf(__("Lanocement du thread de daemon pour %s",__FILE__),$this->getHumanName()));
+		$this->send2daemon([
+			'cmd' => 'startCharger',
+			'id' => $this->getId(),
+			'serial' => $this->getSerial(),
+			'name' => $this->getHumanName(),
+			'account' => $this->getAccountName()
+		]);
+	}
+
+	public function stop_daemon_thread() {
+		log::add("EaseeCharger","debug",sprintf(__("Arrêt du thread de daemon pour %s",__FILE__),$this->getHumanName()));
+		$this->send2daemon([
+			'cmd' => 'stopCharger',
+			'id' => $this->getId(),
+		]);
 	}
 
 	/*
@@ -463,7 +510,7 @@ class EaseeChargerCmd extends cmd {
 		}
 	}
 
-	public function execute($_options = array()) {
+	public function execute($_options = []) {
 		switch ($this->getType()) {
 		case 'info':
 			$calcul = $this->getConfiguration('calcul');
