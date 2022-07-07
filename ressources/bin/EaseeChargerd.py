@@ -20,8 +20,8 @@ import traceback
 import json
 import argparse
 from jeedom import *
-from account import account
-from charger import charger
+from account import Account
+from charger import Charger
 from datetime import datetime
 
 _logLevel = 'error'
@@ -32,7 +32,6 @@ _pidFile = '/tmp/jeedom/EaseeCharger/daemon.pid'
 _socketPort = -1
 _socketHost = 'localhost'
 _secureLog = False
-_accounts = {}
 
 _commands = {
     'startAccount' : [
@@ -118,14 +117,20 @@ def options():
 def logStatus():
     logging.info ("┌── Daemon state: ──────────────────────────────────────────")
     logging.info ("│ Accounts:") 
-    for accountName in _accounts:
-        expiresAt = datetime.fromtimestamp(_accounts[accountName].getExpiresAt())
-        lifetime = _accounts[accountName].getLifetime()
-        time2renew = datetime.fromtimestamp(_accounts[accountName].getTime2renew())
-        logging.info (f"│ - {accountName}")
+    for account in Account.all():
+        expiresAt = datetime.fromtimestamp(account.getExpiresAt())
+        lifetime = account.getLifetime()
+        time2renew = datetime.fromtimestamp(account.getTime2renew())
+        logging.info (f"│ - {account.getName()}")
         logging.info (f"│   - Token expires at {expiresAt}")
         logging.info (f"│   - Lifetime: {lifetime}")
         logging.info (f"│   - Time to renew: {time2renew}")
+    logging.info ("│ Chargers:") 
+    for charger in Charger.all():
+        logging.info (f"│ - {charger.getName()}")
+        logging.info (f"│   - Serial: {charger.getSerial()}")
+        account = charger.getAccount().getName()
+        logging.info (f"│   - Account: {account}")
     logging.info ("└──────────────────────────────────────────────────────────")
 
 
@@ -135,12 +140,12 @@ def logStatus():
 # Ajout d'un account
 #===============================================================================
 def start_account(name, accessToken, expiresAt, expiresIn):
-    global _accounts
-    if name in _accounts:
+    account = Account.byName(name)
+    if account:
         logging.warning(f"Account < {name} > is already defined")
         return
     logging.info(f"Starting account < {name} >")
-    _accounts[name] = account(name, accessToken, expiresAt, expiresIn)
+    Account(name, accessToken, expiresAt, expiresIn)
 
 #===============================================================================
 # stop_account
@@ -148,22 +153,24 @@ def start_account(name, accessToken, expiresAt, expiresIn):
 # Retrait d'un account
 #===============================================================================
 def stop_account(name):
-    if name in _accounts:
-        del _accounts[name]
+    account = Account.byName(name)
+    if account:
+        account.remove()
 
 #===============================================================================
 # start_charger
 #...............................................................................
 # Démarrage d'un thread pour un charger
 #===============================================================================
-def start_charger(id, name, serial, account):
-    charger = charger.byId(id)
+def start_charger(id, name, serial, accountName):
+    charger = Charger.byId(id)
     if charger:
         logging.warning(f"Charger {id} is already running")
         return
     logging.info(f"Starting charger {name} (id: {id}) ")
-    charger = charger(id, name, serial, account)
-    charger.run()
+    account = Account.byName(accountName)
+    charger = Charger(id, name, serial, account)
+    # charger.run()
 
 #===============================================================================
 # stop_charger
@@ -171,7 +178,9 @@ def start_charger(id, name, serial, account):
 # Arrêt du thread d'un charger
 #===============================================================================
 def stop_charger(id):
-    pass
+    charger = Charger.byId(id)
+    if charger:
+        charger.remove()
 
 #===============================================================================
 # read_socket

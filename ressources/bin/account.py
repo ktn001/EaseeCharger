@@ -16,14 +16,19 @@
 
 import logging
 
-class account():
-    """Class de base pour les differents modèles d'account"""
+class Account():
 
-    def __init__(self, name, accessToken, expiresAt, expiresIn):
-        self._name = name
-        self._accessToken = accessToken
-        self._expiresAt = expiresAt
-        self._lifetime = expiresIn
+    _accounts = {}
+
+    @staticmethod
+    def all():
+        return __class__._accounts.values()
+
+    @staticmethod
+    def byName(name):
+        if name in __class__._accounts:
+            return __class__._accounts[name]
+        return None
 
     def log_debug(self,txt):
         logging.debug(f'[account][{self._name}] {txt}')
@@ -36,6 +41,23 @@ class account():
 
     def log_error(self,txt):
         logging.error(f'[account][{self._name}] {txt}')
+
+    def __init__(self, name, accessToken, expiresAt, expiresIn):
+        self._name = name
+        self._accessToken = accessToken
+        self._expiresAt = expiresAt
+        self._lifetime = expiresIn
+        self._accounts[name] = self
+
+    def __del__(self):
+        self.log_debug (f"del account {self._name}")
+        if self._name in self._accounts:
+            del self._accounts[self._name]
+
+    def remove(self):
+        self.log_debug (f"remove account {self._name}")
+        if self._name in self._accounts:
+            del self._accounts[self._name]
 
     def setAccessToken(self, accessToken, expiresAt):
         self._accessToken = accessToken
@@ -50,6 +72,9 @@ class account():
     
     def getLifetime(self):
         return self._lifetime
+
+    def getName(self):
+        return self._name
 
     def getTime2renew(self):
         return self._expiresAt - self._lifetime/2

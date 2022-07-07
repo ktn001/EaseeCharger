@@ -14,7 +14,9 @@
 # along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
 #
 
-class charger():
+import logging
+
+class Charger():
 
     _chargers = {}
     
@@ -23,29 +25,11 @@ class charger():
         return __class__._chargers.values()
     
     @staticmethod
-    def byId (id):
+    def byId(id):
         if id in __class__._chargers:
             return __class__._chargers[id]
-        return null
+        return None
                                       
-    def __init__(self, id, name, serial, account):
-        self._id = id
-        self._name = name
-        self._serial = serial
-        self._account = account
-        self._chargers['id'] = self
-        
-    def __del__(self):
-        del self._chargers[self.id]
-        
-    def getToken(self):
-        return self._accessToken
-
-    def run(self, accessToken):
-        self._accessToken = accessToken
-        url = "https://api.easee.cloud/hubs/chargers"
-        options = {'access_token_factory': self.getToken}
-
     def log_debug(self,txt):
         logging.debug(f'[charger][{self._serial}]   {txt}')
 
@@ -57,6 +41,31 @@ class charger():
 
     def log_error(self,txt):
         logging.error(f'[charger][{self._serial}]   {txt}')
+
+    def __init__(self, id, name, serial, account):
+        self._id = id
+        self._name = name
+        self._serial = serial
+        self._account = account
+        self._chargers[id] = self
+        
+    def __del__(self):
+        self.log_debug (f"del charger {self._name}")
+        if self._id in self._chargers:
+            del self._chargers[self._id]
+
+    def remove(self):
+        self.log_debug (f"remove charger {self._name}")
+        if self._id in self._chargers:
+            del self._chargers[self._id]
+        
+    def getToken(self):
+        return self._accessToken
+
+    def run(self, accessToken):
+        self._accessToken = accessToken
+        url = "https://api.easee.cloud/hubs/chargers"
+        options = {'access_token_factory': self.getToken}
 
     def getId(self):
         return (self._id)

@@ -193,7 +193,7 @@ class EaseeCharger_account {
 			$payload['object'] = 'account';
 		}
 		$payload['account'] = $this->getName();
-		EaseeCharger::transmit2daemon($payload);
+		EaseeCharger::send2daemon($payload);
 	}
 
 	/*
