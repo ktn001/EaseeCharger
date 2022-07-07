@@ -141,7 +141,7 @@ class EaseeCharger_account {
 		$value['password'] = utils::encrypt($value['password']);
 		$value = json_encode($value);
 		$key = 'account::' . $this->name;
-		
+
 		# Désactivation de l'account
 		config::save($key, $value, 'EaseeCharger');
 		if ($this->getIsEnable() != 1 && ($wasEnable == 1)) {
@@ -153,13 +153,13 @@ class EaseeCharger_account {
 				$chargerIds[] = $charger->getId();
 			}
 			$this->setModifiedChargers($chargerIds);
-			$this->StopDaemonThread();
+			$this->stop_account_on_daemon();
 		}
-		
+
 		# Activation de l'account
 		if ($this->getIsEnable() == 1 && $wasEnable !=1) {
 			if (EaseeCharger::daemon_info()['state'] == 'ok') {
-				$this->StartDaemonThread();
+				$this->start_account_on_daemon();
 			}
 		}
 		return $this;
@@ -199,7 +199,7 @@ class EaseeCharger_account {
 	/*
 	 * Lancement du thread du daemon
 	 */
-	public function StartDaemonThread() {
+	public function start_account_on_daemon() {
 		$token = $this->getToken();
 		$message = [
 			'cmd' => 'startAccount',
@@ -210,11 +210,16 @@ class EaseeCharger_account {
 		];
 		EaseeCharger::send2daemon ($message);
 	}
-	
-		/*
+
+	public function account_on_daemon_started() {
+		foreach (EaseeCharger::byAccount($this->getName(),true) as $charger){
+			$charger->start_daemon_thread();
+		}
+	}
+	/*
 	 * Arrêt du thread du daemon
 	 */
-	public function StopDaemonThread() {
+	public function stop_account_on_daemon() {
 		$message = [
 			'object' => 'daemon',
 			'cmd' => 'stopAccount',
@@ -259,7 +264,7 @@ class EaseeCharger_account {
 	 */
 	private function sendRequest($path, $data = '', $accessToken='' ) {
 		log::add("EaseeCharger","info","┌─" .__("Easee: envoi d'une requête au cloud", __FILE__));
-			
+
 		$data2log = $data;
 		if (config::byKey('unsecurelog','EaseeCharger') != 1) {
 			if (is_array($data2log)) {
@@ -360,7 +365,7 @@ class EaseeCharger_account {
 			if (! is_a($cmd, "EaseeChargerCmd")){
 				throw new Exception (sprintf(__("└─La commande %s n'est pas une commande de type %s",__FILE__),$cmd->getId(), "EaseeCharger_chargerCmd"));
 			}
-			
+
 			$method = 'execute_' . $cmd->getLogicalId();
 			if (!method_exists($this, $method)) {
 				throw new Exception (sprintf(__("└─La méthode %s est introuvable",__FILE__),$method));
@@ -374,7 +379,7 @@ class EaseeCharger_account {
 			throw $e;
 		}
 	}
-	
+
 	protected function getMapping() {
 		if (isset($this->_mapping)) {
 			return $this->_mapping;
@@ -390,7 +395,7 @@ class EaseeCharger_account {
 		$this->_mapping = $mapping['API'];
 		return $this->_mapping;
 	}
-	
+
 	protected function getTransforms() {
 		if (isset($this->_transforms)) {
 			return $this->_mapping;
@@ -463,7 +468,7 @@ class EaseeCharger_account {
 		}
 		return $token;
 	}
-	
+
 	public function getAccessToken() {
 		$token = $this->getToken();
 		if (isset($token['accessToken'])) {
@@ -471,7 +476,7 @@ class EaseeCharger_account {
 		}
 		return '';
 	}
-			
+
 	/*     * ******************** Exécution des commandes ********************* */
 
 	/*
@@ -503,7 +508,7 @@ class EaseeCharger_account {
 			}
 		}
 	}
-			
+
 	/*
 	 * cable_lock
 	 */

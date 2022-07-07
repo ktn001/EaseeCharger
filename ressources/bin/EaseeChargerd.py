@@ -145,7 +145,14 @@ def start_account(name, accessToken, expiresAt, expiresIn):
         logging.warning(f"Account < {name} > is already defined")
         return
     logging.info(f"Starting account < {name} >")
-    Account(name, accessToken, expiresAt, expiresIn)
+    account = Account(name, accessToken, expiresAt, expiresIn)
+    if account:
+        jeedom_com.send_change_immediate({
+            'object' : 'account',
+            'message': 'started',
+            'account' : account.getName()
+    })
+
 
 #===============================================================================
 # stop_account
@@ -252,6 +259,8 @@ def shutdown():
         jeedom_socket.close()
     except:
         pass
+    for charger in list(Charger.all()):
+        charger.remove()
     logging.debug("Removing PID file " + _pidFile)
     try:
         os.remove(_pidFile)

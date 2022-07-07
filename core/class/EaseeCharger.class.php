@@ -32,14 +32,24 @@ class EaseeCharger extends eqLogic {
 
 	/*     * ******************** recherche de chargers *********************** */
 
-	public static function byAccount($accountName) {
-		return self::byTypeAndSearchConfiguration(__CLASS__,'"accountName":"'.$accountName.'"');
+	public static function byAccount($accountName, $_onlyEnable = false) {
+		$chargers = self::byTypeAndSearchConfiguration(__CLASS__,'"accountName":"'.$accountName.'"');
+		if (!$_onlyEnable) {
+			return $chargers;
+		}
+		$enabledchargers = [];
+		foreach ($chargers as $charger) {
+			if ($charger->getIsEnable() == 1) {
+				$enabledChargers[] = $charger;
+			}
+		}
+		return $enabledChargers;
 	}
 
 	public static function bySerial($serial) {
 		return self::byTypeAndSearchConfiguration(__CLASS__,'"serial":"'.$serial.'"');
 	}
-		
+
 	/*     * ********************** Gestion du daemon ************************* */
 
 	/*
@@ -193,7 +203,7 @@ class EaseeCharger extends eqLogic {
 		log::add("EaseeCharger","info",__("Le daemon est démarré",__FILE__));
 		$accounts = EaseeCharger_account::all(true);
 		foreach ($accounts as $account) {
-			$account->startDaemonThread();
+			$account->start_account_on_daemon();
 		}
 	}
 
@@ -299,7 +309,7 @@ class EaseeCharger extends eqLogic {
 		if (self::daemon_info()['state'] == 'ok') {
 			if ($this->getIsEnable() == 1 && $this->_wasEnable !=1) {
 				$this->start_daemon_thread();
-			}	
+			}
 			if ($this->getIsEnable() != 1 && $this->_wasEnable ==1) {
 				$this->stop_daemon_thread();
 			}
@@ -307,7 +317,7 @@ class EaseeCharger extends eqLogic {
 	}
 
 	public function start_daemon_thread() {
-		log::add("EaseeCharger","debug",sprintf(__("Lanocement du thread de daemon pour %s",__FILE__),$this->getHumanName()));
+		log::add("EaseeCharger","debug",sprintf(__("Lancement du thread de daemon pour %s",__FILE__),$this->getHumanName()));
 		$this->send2daemon([
 			'cmd' => 'startCharger',
 			'id' => $this->getId(),
@@ -482,7 +492,7 @@ class EaseeCharger extends eqLogic {
 		return $this->getConfiguration('serial');
 	}
 }
-	
+
 class EaseeChargerCmd extends cmd {
 
 	public function preUpdate() {

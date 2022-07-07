@@ -11,13 +11,17 @@ try {
 	}
 
 	function process_account_payload($payload) {
-		if ($payload['info'] == 'thread_started'){
-			$account = EaseeCharger_account::byName($payload['account_name']);
-			if (is_object($account)) {
-				$account->daemonThreadStarted();
-			} else {
-				log::add("EaseeCharger","error",sprintf(__("L'account %s est introuvable",__FILE__),$payload['account_name']));
+		if (isset($payload['message']) && $payload['message'] == 'started') {
+			if (!isset($payload['account'])){
+				log::add("EaseeCharger","warning",__("Le nom du compte démarré n'est pas fourni",__FILE__));
+				return;
 			}
+			$account = EaseeCharger_account::byName($payload['account']);
+			if (!is_object($account)) {
+				log::add("EaseeCharger","error",sprintf(__("Le compte %s est introuvable",__FILE__),$payload['account']));
+				return;
+			}
+			$account->account_on_daemon_started();
 		}
 	}
 
