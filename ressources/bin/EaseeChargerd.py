@@ -33,7 +33,6 @@ _socketPort = -1
 _socketHost = 'localhost'
 _secureLog = False
 _accounts = {}
-_chargers = {}
 
 _commands = {
     'startAccount' : [
@@ -158,13 +157,13 @@ def stop_account(name):
 # Démarrage d'un thread pour un charger
 #===============================================================================
 def start_charger(id, name, serial, account):
-    global _chargers
-    if id in _chargers:
+    charger = charger.byId(id)
+    if charger:
         logging.warning(f"Charger {id} is already running")
         return
     logging.info(f"Starting charger {name} (id: {id}) ")
-    _chargers[id] = charger(id, name, serial, account)
-    _chargers[id].run()
+    charger = charger(id, name, serial, account)
+    charger.run()
 
 #===============================================================================
 # stop_charger
