@@ -16,12 +16,16 @@
 
 class charger():
 
-    chargers = {}
+    _chargers = {}
+    
+    @staticmethod
+    def all():
+        return __class__._chargers.values()
     
     @staticmethod
     def byId (id):
-        if id in __class__.chargers:
-            return __class__.chargers[id]
+        if id in __class__._chargers:
+            return __class__._chargers[id]
         return null
                                       
     def __init__(self, id, name, serial, account):
@@ -29,10 +33,10 @@ class charger():
         self._name = name
         self._serial = serial
         self._account = account
-        self.chargers['id'] = self
+        self._chargers['id'] = self
         
     def __del__(self):
-        del self.chargers[self.id]
+        del self._chargers[self.id]
         
     def getToken(self):
         return self._accessToken
