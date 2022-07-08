@@ -277,6 +277,9 @@ class EaseeCharger extends eqLogic {
 		$oldCharger = EaseeCharger::byId($this->getId());
 		if (is_object($oldCharger) && $oldCharger->getIsEnable() != 0) {
 			$this->_wasEnable = 1;
+			$this->_oldserial = $oldCharger->getSerial();
+			$this->_oldHumanName = $oldCharger->getHumanName();
+			$this->_oldAccountName = $oldCharger->getAccountName();
 		}
 	}
 
@@ -307,8 +310,26 @@ class EaseeCharger extends eqLogic {
 	 */
 	public function postSave() {
 		if (self::daemon_info()['state'] == 'ok') {
-			if ($this->getIsEnable() == 1 && $this->_wasEnable !=1) {
-				$this->start_daemon_thread();
+			if ($this->getIsEnable() == 1){
+				$needDaemonRestart = false;
+				if ($this->_wasEnable !=1) {
+					$needDaemonRestart = true;
+				}
+				if ($this->getSerial() != $this->_oldserial) {
+					$needDaemonRestart = true;
+				}
+				if ($this->getHumanName() != $this->_oldHumanName) {
+					$needDaemonRestart = true;
+				}
+				if ($this->getAccountName() != $this->_oldAccountName) {
+					$needDaemonRestart = true;
+				}
+				if ($needDaemonRestart){
+					log::add("EaseeCharger","debug",sprintf(__("Redémarrage du thread du daemon pour %s",__FILE__),$this->getHumanName()));
+					$this->stop_daemon_thread();
+					sleep (1);
+					$this->start_daemon_thread();
+				}
 			}
 			if ($this->getIsEnable() != 1 && $this->_wasEnable ==1) {
 				$this->stop_daemon_thread();
