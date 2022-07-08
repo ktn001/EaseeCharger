@@ -128,9 +128,11 @@ def logStatus():
     logging.info ("│ Chargers:") 
     for charger in Charger.all():
         logging.info (f"│ - {charger.getName()}")
-        logging.info (f"│   - Serial: {charger.getSerial()}")
-        account = charger.getAccount().getName()
-        logging.info (f"│   - Account: {account}")
+        logging.info (f"│   - Serial:     {charger.getSerial()}")
+        accountName = charger.getAccount().getName()
+        logging.info (f"│   - Account:    {accountName}")
+        logging.info (f"│   - State:      {charger.getState()}")
+        logging.info (f"│   - Nb Restart: {charger.getNbRestart()}")
     logging.info ("└──────────────────────────────────────────────────────────")
 
 
@@ -177,7 +179,7 @@ def start_charger(id, name, serial, accountName):
     logging.info(f"Starting charger {name} (id: {id}) ")
     account = Account.byName(accountName)
     charger = Charger(id, name, serial, account)
-    # charger.run()
+    charger.run()
 
 #===============================================================================
 # stop_charger
@@ -244,7 +246,10 @@ def handler(signum=None, frame=None):
     if signum == signal.SIGUSR1:
         logStatus()
         return
-
+    if signum == signal.SIGALRM:
+        logging.debug("ALARM")
+        signal.alarm(30)
+        return
     logging.debug("Signal %i caught, exiting..." % int(signum))
     shutdown()
 
@@ -287,6 +292,7 @@ options()
 
 signal.signal(signal.SIGINT, handler)
 signal.signal(signal.SIGUSR1, handler)
+signal.signal(signal.SIGALRM, handler)
 
 try:
     jeedom_utils.write_pid(_pidFile)
@@ -300,6 +306,8 @@ try:
     # Réception des message de jeedom qui seont mis en queue dans JEEDOM_SOCKET_MESSAGE
     jeedom_socket = jeedom_socket(port=_socketPort,address=_socketHost)
     jeedom_socket.open()
+
+    signal.alarm(10)
 
     # Annonce à jeedom que le daemon est démarré
     jeedom_com.send_change_immediate({

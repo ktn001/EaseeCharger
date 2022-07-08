@@ -20,6 +20,9 @@ class Account():
 
     _accounts = {}
 
+    # ======= Méthodes statiques =======
+    # ==================================
+
     @staticmethod
     def all():
         return __class__._accounts.values()
@@ -29,6 +32,9 @@ class Account():
         if name in __class__._accounts:
             return __class__._accounts[name]
         return None
+
+    # ====== Méthodes de logging =======
+    # ==================================
 
     def log_debug(self,txt):
         logging.debug(f'[account][{self._name}] {txt}')
@@ -41,6 +47,9 @@ class Account():
 
     def log_error(self,txt):
         logging.error(f'[account][{self._name}] {txt}')
+
+    # ====== Méthodes d'instance =======
+    # ==================================
 
     def __init__(self, name, accessToken, expiresAt, expiresIn):
         self._name = name
@@ -63,13 +72,16 @@ class Account():
         self._accessToken = accessToken
         self._expiresAt = expiresAt
         return self
-    
+
+    # ======== getter / setter =========
+    # ==================================
+
     def getAccessToken(self):
         return self._accessToken
-    
+
     def getExpiresAt(self):
         return self._expiresAt
-    
+
     def getLifetime(self):
         return self._lifetime
 
