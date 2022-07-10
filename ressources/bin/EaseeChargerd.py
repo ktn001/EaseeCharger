@@ -135,7 +135,6 @@ def logStatus():
         logging.info (f"│   - Nb Restart: {charger.getNbRestart()}")
     logging.info ("└──────────────────────────────────────────────────────────")
 
-
 #===============================================================================
 # start_account
 #...............................................................................
@@ -302,6 +301,7 @@ try:
     if (not jeedom_com.test()):
         logging.error('Network communication issue. Unable to send messages to Jeedom')
         shutdown();
+    Charger.set_jeedom_com(jeedom_com)
 
     # Réception des message de jeedom qui seont mis en queue dans JEEDOM_SOCKET_MESSAGE
     jeedom_socket = jeedom_socket(port=_socketPort,address=_socketHost)

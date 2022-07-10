@@ -35,15 +35,15 @@ try {
 		if (!array_key_exists('charger',$payload)) {
 			log::add('EaseeCharger','error',"[jeeEaseeCharger] " .  __("Message du demon de modèle <cmd> mais sans identifiant de chargeur!",__FILE__));
 		}
-		if (!array_key_exists('modelId',$payload)) {
-			log::add('EaseeCharger','error',"[jeeEaseeCharger] " .  __("Message du demon de modèle <cmd> mais sans modèle de chargeur!",__FILE__));
-		}
 		if (!array_key_exists('logicalId',$payload)) {
 			log::add('EaseeCharger','error',"[jeeEaseeCharger] " . __("Message du demon de modèle <cmd> mais sans <logicalId>!",__FILE__));
 		}
-		foreach (EaseeCharger_charger::bySerial($payload['charger']) as $charger){
-			$charger->checkAndUpdateCmd($payload['logicalId'],$payload['value']);
+		$charger = EaseeCharger_charger::byId($payload['charger']);
+		if (!is_object($charger)) {
+			log::add('EaseeCharger','error',sprintf("[jeeEaseeCharger] " . __("Message du daemon de modèle <cmd> pour le chargeur %s qui est introuvable",__FILE__),$payload['charger']));
 		}
+		$charger->checkAndUpdateCmd($payload['logicalId'],$payload['value']);
+		return;
 	}
 
 	if (!jeedom::apiAccess(init('apikey'), 'EaseeCharger')) {

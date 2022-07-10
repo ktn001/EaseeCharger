@@ -15,30 +15,40 @@
 #
 
 import logging
+import os
+import configparser
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from jeedom import *
 
 class Charger():
 
     _chargers = {}
-    _mapping = None
     _translate = None
+    _mapping = configparser.ConfigParser()
+    _mapping.read(os.path.dirname(__file__) + '/../../core/config/mapping.ini')
+    _transforms = configparser.ConfigParser()
+    _transforms.read(os.path.dirname(__file__) + '/../../core/config/transforms.ini')
+
 
     # ======= Methodes statiques =======
     # ==================================
 
-    @staticmethod
-    def all():
-        return __class__._chargers.values()
+    @classmethod
+    def all(cls):
+        return cls._chargers.values()
+
+    @classmethod
+    def byId(cls,id):
+        if id in cls._chargers:
+            return cls._chargers[id]
+        return None
+
+    @classmethod
+    def set_jeedom_com(cls,jeedom_com):
+        cls._jeedom_com = jeedom_com
 
     # ====== Methodes de logging ======
     # =================================
-
-    @staticmethod
-    def byId(id):
-        if id in __class__._chargers:
-            return __class__._chargers[id]
-        return None
 
     def log_debug(self,txt):
         logging.debug(f'[charger][{self._serial}]   {txt}')
@@ -89,7 +99,7 @@ class Charger():
             logLevel = logging.INFO
         elif logLevel == 'debug':
             if extendedDebug:
-                logLevel= logging.DEBUUG
+                logLevel= logging.DEBUG
             else:
                 logLevel = logging.INFO
 
@@ -143,6 +153,17 @@ class Charger():
             self._lastMessage = message
             cmdId = str(message['id'])
             self.log_debug(f'Processing command {cmdId}, value: {message["value"]}')
+            if cmdId not in self._mapping['signalR']:
+                continue
+            for logicalId in self._mapping['signalR'][cmdId].split(','):
+                value = self._transforms.get(logicalId,message['value'],fallback=message['value'])
+                self.log_debug(f"  - {logicalId} : {value}")
+                self._jeedom_com.send_change_immediate({
+                    'object' : 'cmd',
+                    'charger' : self.getId(),
+                    'logicalId' : logicalId,
+                    'value' : value
+                })
 
     def on_CommandResponse(self,massages):
         pass

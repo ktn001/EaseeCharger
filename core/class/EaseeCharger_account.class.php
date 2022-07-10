@@ -358,26 +358,22 @@ class EaseeCharger_account {
 	 * Execution d'une commande destinée au Cloud Easee
 	 */
 	public function execute ($cmd) {
-		try {
-			$charger = $cmd->getEqLogic();
-			log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->getName() , $cmd->getLogicalId()));
-			log::add("EaseeCharger","debug","│ " . __("Chargeur",__FILE__) . sprintf(": %s (%s)", $charger->getName(), $charger->getSerial()));
-			if (! is_a($cmd, "EaseeChargerCmd")){
-				throw new Exception (sprintf(__("└─La commande %s n'est pas une commande de type %s",__FILE__),$cmd->getId(), "EaseeCharger_chargerCmd"));
-			}
-
-			$method = 'execute_' . $cmd->getLogicalId();
-			if (!method_exists($this, $method)) {
-				throw new Exception (sprintf(__("└─La méthode %s est introuvable",__FILE__),$method));
-			}
-			$this->$method($cmd);
-			log::add("EaseeCharger","debug","└─" . __("OK",__FILE__));
-			return;
-		} catch (Exception $e) {
-			log::add("EaseeCharger","error",$e->getMessage());
-			log::add("EaseeCharger","debug","└─" . __("ERROR",__FILE__));
-			throw $e;
+		$charger = $cmd->getEqLogic();
+		log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->getName() , $cmd->getLogicalId()));
+		log::add("EaseeCharger","debug","│ " . __("Chargeur",__FILE__) . sprintf(": %s (%s)", $charger->getName(), $charger->getSerial()));
+		if (! is_a($cmd, "EaseeChargerCmd")){
+			throw new Exception (sprintf(__("└─La commande %s n'est pas une commande de type %s",__FILE__),$cmd->getId(), "EaseeCharger_chargerCmd"));
 		}
+
+		$method = 'execute_' . $cmd->getLogicalId();
+		if (!method_exists($this, $method)) {
+			$msg = sprintf(__("La méthode %s est introuvable",__FILE__),$method);
+			log::add("EaseeCharger","debug","└─" . $msg);
+			throw new Exception ($msg);
+		}
+		$this->$method($cmd);
+		log::add("EaseeCharger","debug","└─" . __("OK",__FILE__));
+		return;
 	}
 
 	protected function getMapping() {
@@ -526,6 +522,24 @@ class EaseeCharger_account {
 		$serial = $cmd->getEqLogic()->getSerial();
 		$path = 'chargers/' . $serial . '/commands/lock_state';
 		$data = ['state' => 'false'];
+		$this->sendrequest($path, $data);
+	}
+
+	/*
+	 * pause ON
+	 */
+	public function execute_pause_ON($cmd) {
+		$serial = $cmd->getEqLogic()->getSerial();
+		$path = 'chargers/' . $serial . '/commands/pause_charging';
+		$this->sendrequest($path, $data);
+	}
+
+	/*
+	 * pause OFF
+	 */
+	public function execute_pause_OFF($cmd) {
+		$serial = $cmd->getEqLogic()->getSerial();
+		$path = 'chargers/' . $serial . '/commands/resume_charging';
 		$this->sendrequest($path, $data);
 	}
 

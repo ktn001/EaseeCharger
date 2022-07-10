@@ -367,6 +367,162 @@ class EaseeCharger extends eqLogic {
 		return $image;
 	}
 
+	public function configureCmd(&$cmd, $config, $secondPass=false) {
+		if ($secondPass == false) {
+			$needSave = false;
+
+			// displayName
+			// -----------
+			if (isset($config['displayName'])) {
+				if ($cmd->getDisplay('showNameOndashboard') != $config['displayName']) {
+					$cmd->setDisplay('showNameOndashboard',$config['displayName']);
+					$needSave = true;
+				}
+			}
+	
+			// display::graphStep
+			// ------------------
+			if (isset($config['display::graphStep'])) {
+				if ($cmd->getDisplay('graphStep') != $config['display::graphStep']) {
+					$cmd->setDisplay('graphStep',$config['display::graphStep']);
+					$needSave = true;
+				}
+			}
+	
+			// eqLogic_id
+			// ----------
+			if ($cmd->getEqLogic_id() != $this->getId()) {
+				$cmd->setEqLogic_id($this->getId());
+				$needSave = true;
+			}
+	
+			// name
+			// ----
+			if (isset($config['name'])) {
+				if ($cmd->getName() != $config['name']) {
+					$cmd->setName($config['name']);
+					$needSave = true;
+				}
+			} else {
+				if ($cmd->getName() != $cmd->getLogicalId()) {
+					$cmd->setName($cmd->getLogicalId);
+					$needSave = true;
+				}
+			}
+	
+			// order
+			// -----
+			if (isset($config['order'])) {
+				if ($cmd->getOrder() != $config['order']) {
+					$cmd->setOrder($config['order']);
+					$needSave = true;
+				}
+			}
+	
+			// rounding
+			// --------
+			if (isset($config['rounding'])) {
+				if ($cmd->getConfiguration('historizeRound') != $config['rounding']) {
+					$cmd->setConfiguration('historizeRound',$config['rounding']);
+					$needSave = true;
+				}
+			}
+	
+			// subType
+			// -------
+			if (isset($config['subType'])) {
+				if ($cmd->getSubType() != $config['subType']) {
+					$cmd->setSubType($config['subType']);
+					$needSave = true;
+				}
+			} else {
+				log::add("EaseeCharger","error",sprintf(__("Le subType de la commande %s n'est pas défini",__FILE__),$logicalId));
+			}
+	
+			// template
+			// --------
+			if (isset($config['template'])) {
+				if ($cmd->getTemplate('dashboard') != $config['template']) {
+					$cmd->setTemplate('dashboard',$config['template']);
+					$needSave = true;
+				}
+				if ($cmd->getTemplate('mobile') != $config['template']) {
+					$cmd->getTemplate('mobile',$config['template']);
+					$needSave = true;
+				}
+			}
+	
+			// type
+			// ----
+			if (isset($config['type'])) {
+				if ($cmd->getType() != $config['type']) {
+					$cmd->setType($config['type']);
+					$needSave = true;
+				}
+			} else {
+				log::add("EaseeCharger","error",sprintf(__("Le type de la commande %s n'est pas défini",__FILE__),$logicalId));
+			}
+	
+			// unite
+			// -----
+			if (isset($config['unite'])) {
+				if ($cmd->getUnite() != $config['unite']) {
+					$cmd->setUnite($config['unite']);
+					$needSave = true;
+				}
+			}
+	
+			// visible
+			// -------
+			if (isset($config['visible'])) {
+				if ($cmd->getIsVisible() != $config['visible']) {
+					$cmd->setIsVisible($config['visible']);
+					$needSave = true;
+				}
+			}
+			if ($needSave) {
+				$cmd->save();
+			}
+			return $cmd;
+		} else {
+			$needSave = false;
+
+			if (isset ($config['calcul'])) {
+				$calcul = $config['calcul'];
+				preg_match_all('/#(.*?)#/',$calcul,$matches);
+				foreach ($matches[1] as $cible) {
+					$cmdCible = $this->getCmd(null, $cible);
+					if (is_object($cmdCible)) {
+						$calcul = str_replace('#' . $cible . '#','#' . $cmdCible->getId() . '#', $calcul);
+					}
+				}
+				if ($cmd->getConfiguration('calcul') !=  $calcul) {
+					$cmd->setConfiguration('calcul', $calcul);
+					$needSave = true;
+				}
+			}
+
+			if (isset($config['value'])) {
+				$cmdValue = $this->getCmd(null, $config['value']);
+				$value = "";
+				if (is_object($cmdValue)) {
+					if ($cmd->getType() == 'info') {
+						$value = '#' . $cmdValue->getId() . '#';
+					} else {
+						$value = $cmdValue->getId();
+					}
+				}
+				if ($cmd->getValue(i) != $value) {
+					$cmd->setValue($value);
+					$needSave = true;
+				}
+			}
+			if ($needSave) {
+				$cmd->save();
+			}
+		}
+	}
+
 	public function createCmds() {
 		$cfgFile = realpath (__DIR__ . '/../config/cmd.config.ini');
 		log::add("EaseeCharger","debug",sprintf(__("Lecture du fichier %s ...",__FILE__),$cfgFile));
@@ -378,118 +534,14 @@ class EaseeCharger extends eqLogic {
 				continue;
 			}
 			log::add("EaseeCharger","info",sprintf(__("Création de la commande %s...",__FILE__),$logicalId));
-
 			$cmd = new EaseeChargerCMD();
-
-			// displayName
-			// -----------
-			if (array_key_exists('displayName',$config)) {
-				$cmd->setDisplay('showNameOndashboard',$config['displayName']);
-			}
-
-			// display::graphStep
-			// ------------------
-			if (array_key_exists('display::graphStep',$config)) {
-				$cmd->setDisplay('graphStep',$config['display::graphStep']);
-			}
-
-			// eqLogic_id
-			// ----------
-			$cmd->setEqLogic_id($this->getId());
-
-			// logicalId
-			// ---------
 			$cmd->setLogicalId($logicalId);
-
-			// name
-			// ----
-			if (array_key_exists('name',$config)) {
-				$cmd->setName($config['name']);
-			} else {
-				$cmd->setName($logicalId);
-			}
-
-			// order
-			// -----
-			if (array_key_exists('order',$config)) {
-				$cmd->setOrder($config['order']);
-			}
-
-			// rounding
-			// --------
-			if (array_key_exists('rounding',$config)) {
-				$cmd->setConfiguration('historizeRound',$config['rounding']);
-			}
-
-			// subType
-			// -------
-			if (array_key_exists('subType',$config)) {
-				$cmd->setSubType($config['subType']);
-			} else {
-				log::add("EaseeCharger","error",sprintf(__("Le subType de la commande %s n'est pas défini",__FILE__),$logicalId));
-			}
-
-			// template
-			// --------
-			if (array_key_exists('template',$config)) {
-				$cmd->setTemplate('dashboard',$config['template']);
-				$cmd->setTemplate('mobile',$config['template']);
-			}
-
-			// type
-			// ----
-			if (array_key_exists('type',$config)) {
-				$cmd->setType($config['type']);
-			} else {
-				log::add("EaseeCharger","error",sprintf(__("Le type de la commande %s n'est pas défini",__FILE__),$logicalId));
-			}
-
-			// unite
-			// -----
-			if (array_key_exists('unite',$config)) {
-				$cmd->setUnite($config['unite']);
-			}
-
-			// visible
-			// -------
-			if (array_key_exists('visible',$config)) {
-				$cmd->setIsVisible($config['visible']);
-			}
-
-			$cmd->save();
+			$this->configureCmd($cmd,$config);
 		}
+
 		foreach ($cmdConfigs as $logicalId => $config) {
 			$cmd = $this->getCmd(null,$logicalId);
-			$needSave = false;
-
-			if (array_key_exists('calcul',$config)) {
-				$calcul = $config['calcul'];
-				preg_match_all('/#(.*?)#/',$calcul,$matches);
-				foreach ($matches[1] as $cible) {
-					$cmdCible = $this->getCmd(null, $cible);
-					if (is_object($cmdCible)) {
-						$calcul = str_replace('#' . $cible . '#','#' . $cmdCible->getId() . '#', $calcul);
-					}
-				}
-				$cmd->setConfiguration('calcul', $calcul);
-				$needSave = true;
-			}
-
-			if (array_key_exists('value',$config)) {
-				$cmdValue = $this->getCmd(null, $config['value']);
-				if (is_object($cmdValue)) {
-					if ($cmd->getType() == 'info') {
-						$value = '#' . $cmdValue->getId() . '#';
-					} else {
-						$value = $cmdValue->getId();
-					}
-					$cmd->setValue($value);
-				}
-				$needSave = true;
-			}
-			if ($needSave) {
-				$cmd->save();
-			}
+			$this->configureCmd($cmd,$config,true);
 		}
 	}
 
