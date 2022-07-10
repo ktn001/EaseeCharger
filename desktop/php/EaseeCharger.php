@@ -233,7 +233,7 @@ sendVarToJS('eqType', $plugin->getId());
 	    <!-- ================================== -->
 	    <div role="tabpanel" class="tab-pane" id="commandtab">
 		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="add" style="margin-top:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter une commande}}</a>
-		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="createMissing" style="margin-top:5px;"><i class="fas fa-magic"></i> {{Créer les commandes manquantes}}</a>
+		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="createMissing" style="margin-top:5px;"><i class="fas fa-magic"></i> {{Recréer les commandes manquantes}}</a>
 		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="reconfigure" style="margin-top:5px;"><i class="fas fa-redo"></i> {{Reconfigurer les commandes}}</a>
 		<br/><br/>
 		<div class="table-responsive">

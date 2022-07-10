@@ -98,7 +98,7 @@ try {
 			} elseif (init('action') == 'updateCmds')  {
 				$options["updateOnly"] = true;
 			}
-			$charger->updateCmds($options);
+			$charger->createCmds($options);
 			ajax::success();
 		} catch (Exception $e){
 			ajax::error(displayException($e), $e->getCode());

@@ -244,21 +244,6 @@ class EaseeCharger extends eqLogic {
 		return $return;
 	}
 
-	/*     * ********************* Les utilitaires ************************* */
-
-	public static function distance($lat1, $lng1, $lat2, $lng2 ) {
-		$earth_radius = 6378137;   // Terre = sphère de 6378km de rayon
-		$rlo1 = deg2rad($lng1);
-		$rla1 = deg2rad($lat1);
-		$rlo2 = deg2rad($lng2);
-		$rla2 = deg2rad($lat2);
-		$dlo = ($rlo2 - $rlo1) / 2;
-		$dla = ($rla2 - $rla1) / 2;
-		$a = (sin($dla) * sin($dla)) + cos($rla1) * cos($rla2) * (sin($dlo) * sin($dlo));
-		$d = 2 * atan2(sqrt($a), sqrt(1 - $a));
-		return round($earth_radius * $d);
-	}
-
 	/*     * ************************ Les crons **************************** */
 
 	public static function cronHourly() {
@@ -356,6 +341,13 @@ class EaseeCharger extends eqLogic {
 		]);
 	}
 
+	public function refresh() {
+		$cmd = $this->getCmd('action', 'refresh');
+		if (is_object($cmd)) {
+			$cmd->execute();
+		}
+	}
+
 	/*
 	 * Path de l'image du chargeur
 	 */
@@ -413,7 +405,20 @@ class EaseeCharger extends eqLogic {
 			// order
 			// -----
 			if (isset($config['order'])) {
-				if ($cmd->getOrder() != $config['order']) {
+				$oldOrder = $cmd->getOrder();
+				if ($oldOrder != $config['order']) {
+					log::add("EaseeCharger","debug","========================");
+					log::add("EaseeCharger","debug",$config['order']);
+					foreach ($this->getCmd() as $c) {
+						log::add("EaseeCharger","debug","c: " . $c->getLogicalId() . " o: " . $c->getOrder());
+						if ($c->getOrder() >= $config['order']) {
+							if ($odlsOrder == 0 || $c->getOrder < $oldOrder) {
+								$c->setOrder($c->getOrder()+1);
+								$c->save();
+							}
+						}
+						log::add("EaseeCharger","debug","c: " . $c->getLogicalId() . " o: " . $c->getOrder());
+					}
 					$cmd->setOrder($config['order']);
 					$needSave = true;
 				}
@@ -527,6 +532,7 @@ class EaseeCharger extends eqLogic {
 		$cfgFile = realpath (__DIR__ . '/../config/cmd.config.ini');
 		log::add("EaseeCharger","debug",sprintf(__("Lecture du fichier %s ...",__FILE__),$cfgFile));
 		$cmdConfigs = parse_ini_file($cfgFile,true,INI_SCANNER_RAW);
+		$createdCmds = [];
 		foreach ($cmdConfigs as $logicalId => $config) {
 			$cmd = cmd::byEqLogicIdAndLogicalId($this->getId(),$logicalId);
 			if (is_object($cmd)) {
@@ -537,12 +543,17 @@ class EaseeCharger extends eqLogic {
 			$cmd = new EaseeChargerCMD();
 			$cmd->setLogicalId($logicalId);
 			$this->configureCmd($cmd,$config);
+			$createdCmds[] = $logicalId;
 		}
 
 		foreach ($cmdConfigs as $logicalId => $config) {
+			if (!in_array($logicalId, $createdCmds)) {
+				continue;
+			}
 			$cmd = $this->getCmd(null,$logicalId);
 			$this->configureCmd($cmd,$config,true);
 		}
+		$this->refresh();
 	}
 
 	public function getAccount() {
