@@ -181,26 +181,6 @@ sendVarToJS('eqType', $plugin->getId());
 
 			    <legend><i class="fas fa-cogs"></i> {{Paramètres}}</legend>
 
-			    <!-- Coordonnées GPS -->
-			    <div class='form-group'>
-				<label class="col-sm-3 control-label">{{Coordonnées GPS}}</label>
-				<div class="col-sm-7">
-				   <i class="far fa-comment"></i>
-				   <i>{{Pour obtenir les coordonnées GPS, vous pouvez utiliser ce <a href="https://www.torop.net/coordonnees-gps.php" target="_blank">site.</a>}}</i>
-				</div>
-				<div class="col-sm-3"></div>
-				<div class="col-sm-7" style="padding: 0 !important">
-				    <label class="col-sm-3">{{Latitude}}:</label>
-				    <div class="col-sm-9">
-					<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="latitude" placeholder="{{Latitude}}"/>
-				    </div>
-				    <label class="col-sm-3">{{Longitude}}:</label>
-				    <div class="col-sm-9">
-					<input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="longitude" placeholder="{{Longitude}}"/>
-				    </div>
-				</div>
-			    </div>
-
 			    <!-- Compte -->
 			    <div class='form-group'>
 				<label class="col-sm-3 control-label">{{Compte}}</label>
