@@ -38,7 +38,7 @@ try {
 		if (!array_key_exists('logicalId',$payload)) {
 			log::add('EaseeCharger','error',"[jeeEaseeCharger] " . __("Message du demon de modèle <cmd> mais sans <logicalId>!",__FILE__));
 		}
-		$charger = EaseeCharger_charger::byId($payload['charger']);
+		$charger = EaseeCharger::byId($payload['charger']);
 		if (!is_object($charger)) {
 			log::add('EaseeCharger','error',sprintf("[jeeEaseeCharger] " . __("Message du daemon de modèle <cmd> pour le chargeur %s qui est introuvable",__FILE__),$payload['charger']));
 		}

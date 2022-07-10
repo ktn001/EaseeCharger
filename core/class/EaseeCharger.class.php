@@ -579,6 +579,13 @@ class EaseeCharger extends eqLogic {
 
 class EaseeChargerCmd extends cmd {
 
+	public function dontRemoveCmd() {
+		if ($this->getLogicalId() == 'refresh') {
+			return true;
+		}
+		return false;
+	}
+
 	public function preUpdate() {
 		if ($this->getType() == 'info') {
 			$calcul = $this->getConfiguration('calcul');
@@ -628,4 +635,3 @@ class EaseeChargerCmd extends cmd {
 }
 
 require_once __DIR__  . '/EaseeCharger_account.class.php';
-require_once __DIR__  . '/EaseeCharger_charger.class.php';

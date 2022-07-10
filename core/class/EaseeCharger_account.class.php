@@ -362,7 +362,7 @@ class EaseeCharger_account {
 		log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->getName() , $cmd->getLogicalId()));
 		log::add("EaseeCharger","debug","│ " . __("Chargeur",__FILE__) . sprintf(": %s (%s)", $charger->getName(), $charger->getSerial()));
 		if (! is_a($cmd, "EaseeChargerCmd")){
-			throw new Exception (sprintf(__("└─La commande %s n'est pas une commande de type %s",__FILE__),$cmd->getId(), "EaseeCharger_chargerCmd"));
+			throw new Exception (sprintf(__("└─La commande %s n'est pas une commande de type %s",__FILE__),$cmd->getId(), "EaseeChargerCmd"));
 		}
 
 		$method = 'execute_' . $cmd->getLogicalId();
@@ -623,33 +623,3 @@ class EaseeCloudException extends Exception {
 		return $this->response;
 	}
 }
-
-//
-//	/*
-//	 * Après démarrage du thread de l'account
-//	 */
-//	public function daemonThreadStarted() {
-//		log::add("EaseeCharger","info","Account " . $this->getHumanName() . ": " . __("Le thread est démarré",__FILE__));
-//		foreach (EaseeCharger_charger::byAccount($this->getId()) as $charger) {
-//			$charger->startDaemonThread();
-//		}
-//	}
-//
-//	/*
-//	 * Arrêt du thread dédié au compte
-//	 */
-//	public function stopDaemonThread() {
-//		foreach (EaseeCharger_charger::byAccount($this->getId()) as $charger){
-//			if ($charger->getIsEnable()) {
-//				$message = array(
-//					'cmd' => 'stop',
-//					'charger' => $charger->getIdentifiant(),
-//				);
-//				$this->send2Daemon($message);
-//			}
-//		}
-//		$message = array('cmd' => 'stop_account');
-//		$this->send2Daemon($message);
-//	}
-//
-//}
