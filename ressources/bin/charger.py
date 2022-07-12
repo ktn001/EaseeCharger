@@ -29,7 +29,6 @@ class Charger():
     _transforms = configparser.ConfigParser()
     _transforms.read(os.path.dirname(__file__) + '/../../core/config/transforms.ini')
 
-
     # ======= Methodes statiques =======
     # ==================================
 
@@ -46,6 +45,12 @@ class Charger():
     @classmethod
     def set_jeedom_com(cls,jeedom_com):
         cls._jeedom_com = jeedom_com
+        
+    @classmethod
+    def LogicIds(cls,cmdId):
+        cmdApi = mapping['signalR-API'][cmdid]
+        logicalIds = mapping['API'][cmdApi].split(',')
+        return logicalIds
 
     # ====== Methodes de logging ======
     # =================================
@@ -155,7 +160,7 @@ class Charger():
             self.log_debug(f'Processing command {cmdId}, value: {message["value"]}')
             if cmdId not in self._mapping['signalR']:
                 continue
-            for logicalId in self._mapping['signalR'][cmdId].split(','):
+            for logicalId in self.logicalIds(cmdId]):
                 value = self._transforms.get(logicalId,message['value'],fallback=message['value'])
                 self.log_debug(f"  - {logicalId} : {value}")
                 self._jeedom_com.send_change_immediate({
