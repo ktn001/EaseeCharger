@@ -177,7 +177,7 @@ function editAccount(name) {
 							console.log(data);
 
 							// Traitement de la Card			
-							card = $('.accountDisplayCard[data-account_name=' + data['account']['name'] + ']'); 
+							card = $('.accountDisplayCard[data-account_name=' + data['account']['name'] + ']');
 							if (card.length == 1) {
 								// La card existe, on la met à jour
 								if (data['account']['isEnable'] == 1) {

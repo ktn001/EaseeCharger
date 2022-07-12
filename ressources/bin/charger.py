@@ -47,10 +47,25 @@ class Charger():
         cls._jeedom_com = jeedom_com
         
     @classmethod
-    def LogicIds(cls,cmdId):
-        cmdApi = mapping['signalR-API'][cmdid]
-        logicalIds = mapping['API'][cmdApi].split(',')
+    def logicalIds(cls,cmdId):
+        if cmdId not in cls._mapping['signalR']:
+            return []
+        cmdApi = cls._mapping['signalR'][cmdId]
+        if cmdApi not in cls._mapping['API']:
+            cls.log_warning(f'{cmdApi} not in API commands')
+            return []
+        logicalIds = cls._mapping['API'][cmdApi].split(',')
         return logicalIds
+
+    @classmethod
+    def transforms(cls,logicalId,value):
+        if logicalId not in cls._transforms:
+            return value
+        if value in cls._transforms[logicalId]:
+            return cls._transforms[logicalId][value]
+        if 'default' in cls._transforms[logicalId]:
+            return cls._transforms[logicalId]['default']
+        return value
 
     # ====== Methodes de logging ======
     # =================================
@@ -160,8 +175,8 @@ class Charger():
             self.log_debug(f'Processing command {cmdId}, value: {message["value"]}')
             if cmdId not in self._mapping['signalR']:
                 continue
-            for logicalId in self.logicalIds(cmdId]):
-                value = self._transforms.get(logicalId,message['value'],fallback=message['value'])
+            for logicalId in self.logicalIds(cmdId):
+                value = self.transforms(logicalId,message['value'])
                 self.log_debug(f"  - {logicalId} : {value}")
                 self._jeedom_com.send_change_immediate({
                     'object' : 'cmd',

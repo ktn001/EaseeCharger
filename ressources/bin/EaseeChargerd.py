@@ -32,6 +32,7 @@ _pidFile = '/tmp/jeedom/EaseeCharger/daemon.pid'
 _socketPort = -1
 _socketHost = 'localhost'
 _secureLog = False
+_startTime = datetime.fromtimestamp(time.time())
 
 _commands = {
     'startAccount' : [
@@ -95,7 +96,7 @@ def options():
     _secureLog = args.secureLog
 
     jeedom_utils.set_logLevel(_logLevel, _extendedDebug)
-    
+
     logging.info('Start daemon')
     logging.info('Log level: ' + _logLevel)
     if _logLevel == 'debug':
@@ -116,7 +117,9 @@ def options():
 #===============================================================================
 def logStatus():
     logging.info ("┌── Daemon state: ──────────────────────────────────────────")
-    logging.info ("│ Accounts:") 
+    logging.info ("│ Daemon:")
+    logging.info (f"│   - Started at : {_startTime}")
+    logging.info ("│ Accounts:")
     for account in Account.all():
         expiresAt = datetime.fromtimestamp(account.getExpiresAt())
         lifetime = account.getLifetime()
@@ -125,7 +128,7 @@ def logStatus():
         logging.info (f"│   - Token expires at {expiresAt}")
         logging.info (f"│   - Lifetime: {lifetime}")
         logging.info (f"│   - Time to renew: {time2renew}")
-    logging.info ("│ Chargers:") 
+    logging.info ("│ Chargers:")
     for charger in Charger.all():
         logging.info (f"│ - {charger.getName()}")
         logging.info (f"│   - Serial:     {charger.getSerial()}")
@@ -314,7 +317,7 @@ try:
         'object' : 'daemon',
         'message': 'started'
     })
- 
+
     # Boucle de traitement des messages mis en queue par jeedom_socket
     try:
         while 1:
