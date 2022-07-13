@@ -222,6 +222,13 @@ class EaseeCharger extends eqLogic {
 			    '#_icon_on_#' => '<i class=\'icon_green icon jeedom-lock-ferme\'><i>',
 			    '#_icon_off_#' => '<i class=\'icon_orange icon jeedom-lock-ouvert\'><i>'
 			]
+		    ],
+		    'paused' => [
+			'template' => 'tmplicon',
+			'replace' => [
+			    '#_icon_off_#' => '000000',
+			    '#_icon_on_#' => '111111'
+			]
 		    ]
 		]
 	    ],

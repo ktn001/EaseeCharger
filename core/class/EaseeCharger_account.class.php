@@ -18,12 +18,13 @@
 
 class EaseeCharger_account {
 
+    private static $_mapping = null;
+    private static $_transforms = null;
+
     private $name = '';
     private $login = '';
     private $password = '';
     private $isEnable = 0;
-    private $_mapping = null;
-    private $_transforms = null;
     private $_site = 'https://api.easee.cloud/api/';
     private $_modifiedChargers = [];
 
@@ -107,6 +108,50 @@ class EaseeCharger_account {
 		log::add("EaseeCharger","error", sprintf(__("Pas de token valid pour l'account %s",__FILE__),$account->getName()));
 	    }
 	}
+    }
+
+    private static function mapCmd($cmd) {
+	if (!isset(self::$_mapping)) {
+	    $mappingFile = __DIR__ . '/../../core/config/mapping.ini';
+	    if (! file_exists($mappingFile)) {
+		throw new Exception (sprintf(__("Le fichier %s est introuvable",__FILE__), $mappingFile));
+	    }
+	    $mapping = parse_ini_file($mappingFile,true);
+	    if ($mapping == false) {
+		throw new Exception (sprintf(__('Erreur lors de la lecture de %s',__FILE__),$mappingFile));
+	    }
+	    self::$_mapping = $mapping['API'];
+	}
+	if (isset (self::$_mapping[$cmd])) {
+	    $logicalIds = explode(',', self::$_mapping[$cmd]);
+	} else {
+	    $logicalIds = [];
+	}
+	return $logicalIds;
+    }
+
+    private static function transforms($logicalId, $value) {
+	if (!isset(self::$_transforms)) {
+	    $transformsFile = __DIR__ . '/../../core/config/transforms.ini';
+	    if (! file_exists($transformsFile)) {
+		throw new Exception (sprintf(__("Le fichier %s est introuvable",__FILE__), $transformsFile));
+	    }
+	    $transforms = parse_ini_file($transformsFile,true);
+	    if ($transforms == false) {
+		throw new Exception (sprintf(__('Erreur lors de la lecture de %s',__FILE__),$transformsFile));
+	    }
+	    self::$_transforms = $transforms;
+	}
+	if (!isset(self::$_transforms[$logicalId])) {
+	    return $value;
+	}
+	if (isset(self::$_transforms[$logicalId][$value])) {
+	    return self::$_transforms[$logicalId][$value];
+	}
+	if (isset(self::$_transforms[$logicalId][$value])) {
+	    return self::$_transforms[$logicalId][$value];
+	}
+	return $value;
     }
 
     /*     * ********************************************************************** */
@@ -383,38 +428,6 @@ class EaseeCharger_account {
 	return;
     }
 
-    protected function getMapping() {
-	if (isset($this->_mapping)) {
-	    return $this->_mapping;
-	}
-	$mappingFile = __DIR__ . '/../../core/config/mapping.ini';
-	if (! file_exists($mappingFile)) {
-	    throw new Exception (sprintf(__("Le fichier %s est introuvable",__FILE__), $mappingFile));
-	}
-	$mapping = parse_ini_file($mappingFile,true);
-	if ($mapping == false) {
-	    throw new Exception (sprintf(__('Erreur lors de la lecture de %s',__FILE__),$mappingFile));
-	}
-	$this->_mapping = $mapping['API'];
-	return $this->_mapping;
-    }
-
-    protected function getTransforms() {
-	if (isset($this->_transforms)) {
-	    return $this->_mapping;
-	}
-	$transformsFile = __DIR__ . '/../../core/config/transforms.ini';
-	if (! file_exists($transformsFile)) {
-	    throw new Exception (sprintf(__("Le fichier %s est introuvable",__FILE__), $transformsFile));
-	}
-	$transforms = parse_ini_file($transformsFile,true);
-	if ($transforms == false) {
-	    throw new Exception (sprintf(__('Erreur lors de la lecture de %s',__FILE__),$transformsFile));
-	}
-	$this->_transforms = $transforms;
-	return $this->_transforms;
-    }
-
     /*
      * token
      */
@@ -501,22 +514,14 @@ class EaseeCharger_account {
 	$serial = $charger->getSerial();
 	$path = 'chargers/' . $serial . '/state';
 	$response = $this->sendRequest($path);
-	if (!isset($this->_mapping)) {
-	    $this->getMapping();
-	}
-	if (!isset($this->_transforms)) {
-	    $this->getTransforms();
-	}
 	foreach ($response as $key => $value) {
-	    if (! array_key_exists($key, $this->_mapping)) {
+	    $logicalIds = $this->mapCmd($key);
+	    if (count($logicalIds) == 0) {
 		log::add('EaseeCharger','debug',"│   " . sprintf(__('Pas de traitemment pour %s (value: %s)',__FILE__),$key, $value));
 		continue;
 	    }
-	    foreach (explode(',', $this->_mapping[$key]) as $logicalId) {
-		$finalValue = $value;
-		if (array_key_exists($logicalId, $this->_transforms)) {
-		    $finalValue = $this->_transforms[$logicalId][$value];
-		}
+	    foreach ($logicalIds as $logicalId) {
+		$finalValue = $this->transforms($logicalId,$value);
 		log::add("EaseeCharger","debug",sprintf("│   " . "%s value: %s => %s, value: %s", $key, $value, $logicalId, $finalValue));
 		$charger->checkAndUpdateCmd($logicalId,$finalValue);
 	    }
