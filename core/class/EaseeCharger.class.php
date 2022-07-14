@@ -219,15 +219,15 @@ class EaseeCharger extends eqLogic {
 		    'cable_lock' => [
 			'template' => 'cable_lock',
 			'replace' => [
-			    '#_icon_on_#' => '<i class=\'icon_green icon jeedom-lock-ferme\'><</i>',
+			    '#_icon_on_#' => '<i class=\'icon_green icon jeedom-lock-ferme\'></i>',
 			    '#_icon_off_#' => '<i class=\'icon_orange icon jeedom-lock-ouvert\'></i>'
 			]
 		    ],
 		    'paused' => [
 			'template' => 'tmplicon',
 			'replace' => [
-			    '#_icon_off_#' => '<i class=\'icon fas fa-play\'></i>',
-			    '#_icon_on_#' => '<i class=\'icon fas fa-pause\'></i>'
+			    '#_icon_on_#' => '<i class=\'icon fas fa-play\'></i>',
+			    '#_icon_off_#' => '<i class=\'icon fas fa-pause\'></i>'
 			]
 		    ]
 		]
@@ -428,6 +428,14 @@ class EaseeCharger extends eqLogic {
 		    }
 		    $cmd->setOrder($config['order']);
 		    $needSave = true;
+		}
+	    }
+
+	    // returnAfterDisplay
+	    // ------------------
+	    if (isset($config['returnAfterDisplay'])) {
+		if ($cmd->getDisplay('forceReturnLineAfter') != $config['returnAfterDisplay']) {
+		    $cmd->setDisplay('forceReturnLineAfter', $config['returnAfterDisplay']);
 		}
 	    }
 

@@ -148,8 +148,8 @@ class EaseeCharger_account {
 	if (isset(self::$_transforms[$logicalId][$value])) {
 	    return self::$_transforms[$logicalId][$value];
 	}
-	if (isset(self::$_transforms[$logicalId][$value])) {
-	    return self::$_transforms[$logicalId][$value];
+	if (isset(self::$_transforms[$logicalId]['default'])) {
+	    return self::$_transforms[$logicalId]['default'];
 	}
 	return $value;
     }
