@@ -15,6 +15,7 @@
 #
 
 import logging
+import time
 
 class Account():
 
@@ -51,9 +52,10 @@ class Account():
     # ====== Méthodes d'instance =======
     # ==================================
 
-    def __init__(self, name, accessToken, expiresAt, expiresIn):
+    def __init__(self, name, accessToken, refreshToken, expiresAt, expiresIn):
         self._name = name
         self._accessToken = accessToken
+        self._refreshToken = refreshToken
         self._expiresAt = expiresAt
         self._lifetime = expiresIn
         self._accounts[name] = self
@@ -73,6 +75,32 @@ class Account():
         self._expiresAt = expiresAt
         return self
 
+    def getTime2renew(self):
+        return self._expiresAt - self._lifetime/2
+    
+    def refreshToken(self):
+        if time.time() > self.getTime2renew():
+            url = "https://api.easee.cloud/api/accounts/refresh_token"
+            headers = {
+                    "Accept": "application/json",
+                    "Content-Type": "application/*+json",
+                    "Authorization": f"Bearer {self._accessToken}"
+                    }
+            payload = {
+                    "accessToken": self._accessToken,
+                    "refreshToken": self._refreshToken
+                    }
+            try:
+                response = requests.post(url, data=json.dumps(payload), headers=headers)
+            except Exception as error:
+                self.log_warning("Error refreshing Token: " + str(error))
+            if response.status_code != requests.codes.of:
+                self.log_warning("Error refreshing Token: return code " + str(response.status_code))
+                return
+            self.log_info(response.text)
+
+            print(response.text)
+
     # ======== getter / setter =========
     # ==================================
 
@@ -87,6 +115,3 @@ class Account():
 
     def getName(self):
         return self._name
-
-    def getTime2renew(self):
-        return self._expiresAt - self._lifetime/2

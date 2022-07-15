@@ -143,13 +143,13 @@ def logStatus():
 #...............................................................................
 # Ajout d'un account
 #===============================================================================
-def start_account(name, accessToken, expiresAt, expiresIn):
+def start_account(name, accessToken, refreshToken, expiresAt, expiresIn):
     account = Account.byName(name)
     if account:
         logging.warning(f"Account < {name} > is already defined")
         return
     logging.info(f"Starting account < {name} >")
-    account = Account(name, accessToken, expiresAt, expiresIn)
+    account = Account(name, accessToken, refreshToken, expiresAt, expiresIn)
     if account:
         jeedom_com.send_change_immediate({
             'object' : 'account',
@@ -227,7 +227,7 @@ def read_socket():
                 return
 
         if message['cmd'] == 'startAccount':
-            start_account(message['account'],message['accessToken'],message['expiresAt'],message['expiresIn'])
+            start_account(message['account'],message['accessToken'],message['refreshToken'],message['expiresAt'],message['expiresIn'])
         elif message['cmd'] == 'stopAccount':
             stop_account(message['account'])
         elif message['cmd'] == 'startCharger':
@@ -250,7 +250,10 @@ def handler(signum=None, frame=None):
         return
     if signum == signal.SIGALRM:
         logging.debug("ALARM")
-        signal.alarm(30)
+        logStatus()
+        for account in Account.all():
+            account.refreshToken()
+        signal.alarm(1800)
         return
     logging.debug("Signal %i caught, exiting..." % int(signum))
     shutdown()

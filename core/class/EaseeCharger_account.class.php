@@ -250,6 +250,7 @@ class EaseeCharger_account {
 	    'cmd' => 'startAccount',
 	    'account' => $this->getName(),
 	    'accessToken' => $token['accessToken'],
+	    'refreshToken' => $token['refreshToken'],
 	    'expiresAt' => $token['expiresAt'],
 	    'expiresIn' => $token['expiresIn']
 	];
@@ -326,6 +327,9 @@ class EaseeCharger_account {
 		}
 		if ( isset($data2log['accessToken'])) {
 		    $data2log['accessToken'] = "**********";
+		}
+		if ( isset($data2log['refreshToken'])) {
+		    $data2log['refreshToken'] = "**********";
 		}
 		if ( isset($data2log['refreshToken'])) {
 		    $data2log['refreshToken'] = "**********";

@@ -226,8 +226,8 @@ class EaseeCharger extends eqLogic {
 		    'paused' => [
 			'template' => 'tmplicon',
 			'replace' => [
-			    '#_icon_on_#' => '<i class=\'icon fas fa-play\'></i>',
-			    '#_icon_off_#' => '<i class=\'icon fas fa-pause\'></i>'
+			    '#_icon_on_#' => '<i class=\'icon fas fa-play fa-border\' style=\'font-size:15px;margin-top:20px\'></i>',
+			    '#_icon_off_#' => '<i class=\'icon fas fa-pause fa-border\' style=\'font-size:15px;margin-top:20px\'></i>'
 			]
 		    ]
 		]
