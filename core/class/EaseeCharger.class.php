@@ -568,7 +568,9 @@ class EaseeCharger extends eqLogic {
 	    $cmd = $this->getCmd(null,$logicalId);
 	    $this->configureCmd($cmd,$config,true);
 	}
-	$this->refresh();
+	if ($this->getIsEnable()) {
+	    $this->refresh();
+	}
     }
 
     public function getAccount() {

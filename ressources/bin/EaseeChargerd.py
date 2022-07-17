@@ -253,8 +253,7 @@ def handler(signum=None, frame=None):
         logStatus()
         return
     if signum == signal.SIGALRM:
-        #signal.alarm(1800)
-        signal.alarm(120)
+        signal.alarm(3600)
         logging.debug("ALARM")
         logStatus()
         for account in Account.all():
