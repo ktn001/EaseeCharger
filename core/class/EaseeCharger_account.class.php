@@ -441,7 +441,6 @@ class EaseeCharger_account {
 	if (array_key_exists('refreshToken',$_token)) {
 	    $_token['refreshToken'] = utils::encrypt($_token['refreshToken']);
 	}
-	$_token['expiresIn'] = 180;
 	$_token['expiresAt'] = time() + $_token['expiresIn'];
 	$lifetime = isset($_token['expiresIn']) ? $_token['expiresIn'] : 192800;
 	cache::set('EaseeCharger_account:'. $this->getName(), $_token, $lifetime);

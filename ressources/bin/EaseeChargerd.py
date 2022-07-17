@@ -19,10 +19,14 @@ import sys
 import traceback
 import json
 import argparse
+import datetime
+
+libDir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
+sys.path.append (libDir)
+
 from jeedom import *
 from account import Account
 from charger import Charger
-from datetime import datetime
 
 _logLevel = 'error'
 _extendedDebug = False
@@ -32,7 +36,7 @@ _pidFile = '/tmp/jeedom/EaseeCharger/daemon.pid'
 _socketPort = -1
 _socketHost = 'localhost'
 _secureLog = False
-_startTime = datetime.fromtimestamp(time.time())
+_startTime = datetime.datetime.fromtimestamp(time.time())
 
 _commands = {
     'startAccount' : [
@@ -121,9 +125,9 @@ def logStatus():
     logging.info (f"│   - Started at : {_startTime}")
     logging.info ("│ Accounts:")
     for account in Account.all():
-        expiresAt = datetime.fromtimestamp(account.getExpiresAt())
+        expiresAt = datetime.datetime.fromtimestamp(account.getExpiresAt())
         lifetime = account.getLifetime()
-        time2renew = datetime.fromtimestamp(account.getTime2renew())
+        time2renew = datetime.datetime.fromtimestamp(account.getTime2renew())
         logging.info (f"│ - {account.getName()}")
         logging.info (f"│   - Token expires at {expiresAt}")
         logging.info (f"│   - Lifetime: {lifetime}")

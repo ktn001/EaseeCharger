@@ -98,7 +98,6 @@ class Account():
                 tok = json.loads(response.text)
                 self.setAccessToken(tok['accessToken'])
                 self.setRefreshToken(tok['refreshToken'])
-                tok['expiresIn'] = 250
                 self.setExpiresAt(time.time() + tok['expiresIn'])
                 self.setLifetime(tok['expiresIn'])
     
