@@ -96,13 +96,12 @@ class Charger():
 
     def __del__(self):
         self.log_debug (f"del charger {self._name}")
-        if self._id in self._chargers:
-            del self._chargers[self._id]
+        self.connection.close()
 
     def remove(self):
         self.log_debug (f"remove charger {self._name}")
-        if self._id in self._chargers:
-            del self._chargers[self._id]
+        self._state = "closing"
+        self.connection.stop()
 
     def getToken(self):
         return self.getAccount().getAccessToken()
@@ -156,7 +155,9 @@ class Charger():
 
     def on_close(self):
         self._state = 'disconnected'
-        self.log_debug(f'Closing connection {self.getSerial()}')
+        self.log_debug(f'Closed connection {self.getSerial()}')
+        if self._id in self._chargers:
+            del self._chargers[self._id]
 
     def on_reconnect(self):
         self.log_warning(f'reconnecting {self.getSerial()}')

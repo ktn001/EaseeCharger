@@ -55,30 +55,25 @@ class Account():
     # ==================================
 
     def __init__(self, name, accessToken, refreshToken, expiresAt, expiresIn):
-        self._name = name
-        self._accessToken = accessToken
-        self._refreshToken = refreshToken
-        self._expiresAt = expiresAt
-        self._lifetime = expiresIn
+        self.setName(name)
+        self.setAccessToken(accessToken)
+        self.setRefreshToken(refreshToken)
+        self.setExpiresAt(expiresAt)
+        self.setLifetime(expiresIn)
         self._accounts[name] = self
 
     def __del__(self):
-        self.log_debug (f"del account {self._name}")
-        if self._name in self._accounts:
-            del self._accounts[self._name]
+        self.log_debug (f"del account {self.getName()}")
+        if self.getName() in self._accounts:
+            del self._accounts[self.getName()]
 
     def remove(self):
-        self.log_debug (f"remove account {self._name}")
-        if self._name in self._accounts:
-            del self._accounts[self._name]
-
-    def setAccessToken(self, accessToken, expiresAt):
-        self._accessToken = accessToken
-        self._expiresAt = expiresAt
-        return self
+        self.log_debug (f"remove account {self.getName()}")
+        if self.getName() in self._accounts:
+            del self._accounts[self.getName()]
 
     def getTime2renew(self):
-        return self._expiresAt - self._lifetime/2
+        return self.getExpiresAt() - self.getLifetime()/2
     
     def refreshToken(self):
         self.log_debug("'refreshToken' is called")
@@ -91,8 +86,8 @@ class Account():
                     "Authorization": f"Bearer {self._accessToken}"
                     }
             payload = {
-                    "accessToken": self._accessToken,
-                    "refreshToken": self._refreshToken
+                    "accessToken": self.getAccessToken(),
+                    "refreshToken": self.getRefreshToken()
                     }
             try:
                 response = requests.post(url, data=json.dumps(payload), headers=headers)
@@ -100,22 +95,56 @@ class Account():
                     self.log_warning("Error refreshing Token: return code " + str(response.status_code))
                     return
                 self.log_info(response.text)
+                tok = json.loads(response.text)
+                self.setAccessToken(tok['accessToken'])
+                self.setRefreshToken(tok['refreshToken'])
+                tok['expiresIn'] = 250
+                self.setExpiresAt(time.time() + tok['expiresIn'])
+                self.setLifetime(tok['expiresIn'])
     
-                print(response.text)
             except Exception as error:
                 self.log_warning("Error refreshing Token: " + str(error))
 
     # ======== getter / setter =========
     # ==================================
 
+    # AccessToken
+    #
     def getAccessToken(self):
         return self._accessToken
 
+    def setAccessToken(self, accessToken):
+        self._accessToken = accessToken
+
+    # ExpiresAt
+    #
     def getExpiresAt(self):
         return self._expiresAt
 
+    def setExpiresAt(self, expiresAt):
+        self._expiresAt = expiresAt
+
+    # Lifetime
+    #
     def getLifetime(self):
         return self._lifetime
 
+    def setLifetime(self, expiresIn):
+        self._lifetime = expiresIn
+
+    # Name
+    #
     def getName(self):
         return self._name
+
+    def setName(self,name):
+        self._name = name
+
+    # RefreshToken
+    #
+    def getRefreshToken(self):
+        return self._refreshToken
+
+    def setRefreshToken(self, refreshToken):
+        self._refreshToken = refreshToken
+
