@@ -249,11 +249,12 @@ def handler(signum=None, frame=None):
         logStatus()
         return
     if signum == signal.SIGALRM:
+        #signal.alarm(1800)
+        signal.alarm(120)
         logging.debug("ALARM")
         logStatus()
         for account in Account.all():
             account.refreshToken()
-        signal.alarm(1800)
         return
     logging.debug("Signal %i caught, exiting..." % int(signum))
     shutdown()

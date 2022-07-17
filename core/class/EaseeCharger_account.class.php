@@ -294,7 +294,6 @@ class EaseeCharger_account {
 		$token = [
 		    'accessToken' => $result['accessToken'],
 		    'expiresIn' => $result['expiresIn'],
-		    'expiresAt' => time() + $result['expiresIn'],
 		    'refreshToken' => $result['refreshToken']
 		];
 		$this->setToken($token);
@@ -442,6 +441,8 @@ class EaseeCharger_account {
 	if (array_key_exists('refreshToken',$_token)) {
 	    $_token['refreshToken'] = utils::encrypt($_token['refreshToken']);
 	}
+	$_token['expiresIn'] = 180;
+	$_token['expiresAt'] = time() + $_token['expiresIn'];
 	$lifetime = isset($_token['expiresIn']) ? $_token['expiresIn'] : 192800;
 	cache::set('EaseeCharger_account:'. $this->getName(), $_token, $lifetime);
 	return $this;
@@ -472,6 +473,9 @@ class EaseeCharger_account {
 	$token['accessToken'] = utils::decrypt($token['accessToken']);
 	$token['refreshToken'] = utils::decrypt($token['refreshToken']);
 	if (!isset($token['expiresAt']) || $token['expiresAt'] < time()) {
+	    if ($retrying) {
+		return "";
+	    }
 	    log::add("EaseeCharger","debug","   Token et refresh token expirés => testLogin");
 	    if (!$this->checkLogin()) {
 		return "";
@@ -490,7 +494,6 @@ class EaseeCharger_account {
 		$token = [
 		    'accessToken' => $result['accessToken'],
 		    'expiresIn' => $result['expiresIn'],
-		    'expiresAt' => time() + $result['expiresIn'],
 		    'refreshToken' => $result['refreshToken']
 		];
 		$this->setToken($token);

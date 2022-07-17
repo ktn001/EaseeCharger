@@ -16,6 +16,8 @@
 
 import logging
 import time
+import requests
+import json
 
 class Account():
 
@@ -79,7 +81,9 @@ class Account():
         return self._expiresAt - self._lifetime/2
     
     def refreshToken(self):
+        self.log_debug("'refreshToken' is called")
         if time.time() > self.getTime2renew():
+            self.log_debug("Token need a refresh")
             url = "https://api.easee.cloud/api/accounts/refresh_token"
             headers = {
                     "Accept": "application/json",
@@ -92,14 +96,14 @@ class Account():
                     }
             try:
                 response = requests.post(url, data=json.dumps(payload), headers=headers)
+                if response.status_code != requests.codes['ok']:
+                    self.log_warning("Error refreshing Token: return code " + str(response.status_code))
+                    return
+                self.log_info(response.text)
+    
+                print(response.text)
             except Exception as error:
                 self.log_warning("Error refreshing Token: " + str(error))
-            if response.status_code != requests.codes.of:
-                self.log_warning("Error refreshing Token: return code " + str(response.status_code))
-                return
-            self.log_info(response.text)
-
-            print(response.text)
 
     # ======== getter / setter =========
     # ==================================
