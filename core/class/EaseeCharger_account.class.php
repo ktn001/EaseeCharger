@@ -496,7 +496,13 @@ class EaseeCharger_account {
 		    'refreshToken' => $result['refreshToken']
 		];
 		$this->setToken($token);
-		log::add("EaseeCharger","info",sprintf(__("Token renouvelé. Valable jusqu'à %s",__FILE__),date('d/m/Y H:i:s', $token['expiresAt'])));
+	    	$token = $this->getToken(true);
+		if ($token != '') {
+		    log::add("EaseeCharger","info",sprintf(__("Token renouvelé. Valable jusqu'à %s",__FILE__),date('d/m/Y H:i:s', $token['expiresAt'])));
+		} else {
+		    log::add("EaseeCharger","error",__("Erreur lors du renouvellement du token"));
+		}
+		return $token;
 	    }
 	}
 	return $token;
