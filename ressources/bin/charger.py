@@ -17,6 +17,7 @@
 import logging
 import os
 import configparser
+from signalrcore.hub.errors import UnAuthorizedHubError
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from jeedom import *
 
@@ -93,6 +94,7 @@ class Charger():
         self._state = 'initialized'
         self._chargers[id] = self
         self._nbRestart = 0
+        self._connection = None
 
     def __del__(self):
         self.log_debug (f"del charger {self._name}")
@@ -128,7 +130,7 @@ class Charger():
         url = "https://api.easee.cloud/hubs/chargers"
         options = {'access_token_factory': self.getToken}
 
-        self.connection = HubConnectionBuilder()\
+        self._connection = HubConnectionBuilder()\
                 .with_url(url,options)\
                 .configure_logging(logLevel)\
                 .with_automatic_reconnect({
@@ -137,20 +139,26 @@ class Charger():
                     'interval_reconnect': 5,
                     'max_attemps': 5
                     }).build()
-        self.connection.on_open(lambda: self.on_open())
-        self.connection.on_close(lambda: self.on_close())
-        self.connection.on_reconnect(lambda: self.on_reconnect())
-        self.connection.on_error(lambda data: self.on_error(data))
-        self.connection.on('ProductUpdate', self.on_Update)
-        self.connection.on('ChargerUpdate', self.on_Update)
-        self.connection.on('CommandResponse', self.on_CommandResponse)
-        self._state = 'connecting'
-        self.connection.start()
-        return
+        self._connection.on_open(lambda: self.on_open())
+        self._connection.on_close(lambda: self.on_close())
+        self._connection.on_reconnect(lambda: self.on_reconnect())
+        self._connection.on_error(lambda data: self.on_error(data))
+        self._connection.on('ProductUpdate', self.on_Update)
+        self._connection.on('ChargerUpdate', self.on_Update)
+        self._connection.on('CommandResponse', self.on_CommandResponse)
+        try:
+            self._state = 'connecting'
+            self._connection.start()
+            return True
+        except UnAuthorizedHubError as error:
+            self._state = 'error'
+            self.log_error("login Error")
+            self._connection = None
+            return False
 
     def on_open(self):
         self.log_debug(f'openning connection {self.getSerial()}')
-        self.connection.send("SubscribeWithCurrentState", [self.getSerial(), True])
+        self._connection.send("SubscribeWithCurrentState", [self.getSerial(), True])
         self._state = 'connected'
         return
 
