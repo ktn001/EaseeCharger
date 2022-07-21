@@ -29,6 +29,7 @@ from socketserver import (TCPServer, StreamRequestHandler)
 import signal
 import unicodedata
 
+logger = logging.getLogger('EaseeChargerd')
 # ------------------------------------------------------------------------------
 
 class jeedom_com():
@@ -40,7 +41,7 @@ class jeedom_com():
         self.changes = {}
         if cycle > 0 :
             self.send_changes_async()
-        logging.debug('Init request module v%s' % (str(requests.__version__),))
+        logger.debug('Init request module v%s' % (str(requests.__version__),))
 
     def send_changes_async(self):
         try:
@@ -51,7 +52,7 @@ class jeedom_com():
             start_time = datetime.datetime.now()
             changes = self.changes
             self.changes = {}
-            logging.info('Send to jeedom : '+str(changes))
+            logger.info('Send to jeedom : '+str(changes))
             i=0
             while i < self.retry:
                 try:
@@ -59,10 +60,10 @@ class jeedom_com():
                     if r.status_code == requests.codes.ok:
                         break
                 except Exception as error:
-                    logging.error('Error on send request to jeedom ' + str(error)+' retry : '+str(i)+'/'+str(self.retry))
+                    logger.error('Error on send request to jeedom ' + str(error)+' retry : '+str(i)+'/'+str(self.retry))
                 i = i + 1
             if r.status_code != requests.codes.ok:
-                logging.error('Error on send request to jeedom, return code %s' % (str(r.status_code),))
+                logger.error('Error on send request to jeedom, return code %s' % (str(r.status_code),))
             dt = datetime.datetime.now() - start_time
             ms = (dt.days * 24 * 60 * 60 + dt.seconds) * 1000 + dt.microseconds / 1000.0
             timer_duration = self.cycle - ms
@@ -73,7 +74,7 @@ class jeedom_com():
             resend_changes = threading.Timer(timer_duration, self.send_changes_async)
             resend_changes.start()
         except Exception as error:
-            logging.error('Critical error on  send_changes_async %s' % (str(error),))
+            logger.error('Critical error on  send_changes_async %s' % (str(error),))
             resend_changes = threading.Timer(self.cycle, self.send_changes_async)
             resend_changes.start()
 
@@ -101,7 +102,7 @@ class jeedom_com():
         threading.Thread( target=self.thread_change,args=(change,)).start()
 
     def thread_change(self,change):
-        logging.info('Send to jeedom :  %s' % (str(change),))
+        logger.info('Send to jeedom :  %s' % (str(change),))
         i=0
         while i < self.retry:
             try:
@@ -109,7 +110,7 @@ class jeedom_com():
                 if r.status_code == requests.codes.ok:
                     break
             except Exception as error:
-                logging.error('Error on send request to jeedom ' + str(error)+' retry : '+str(i)+'/'+str(self.retry))
+                logger.error('Error on send request to jeedom ' + str(error)+' retry : '+str(i)+'/'+str(self.retry))
             i = i + 1
 
     def set_change(self,changes):
@@ -131,11 +132,11 @@ class jeedom_com():
         try:
             response = requests.get(self.url + '?apikey=' + self.apikey, verify=False)
             if response.status_code != requests.codes.ok:
-                logging.error('Callback error: %s %s. Please check your network configuration page'% (response.status_code, response.reason,))
-                logging.error(response.text)
+                logger.error('Callback error: %s %s. Please check your network configuration page'% (response.status_code, response.reason,))
+                logger.error(response.text)
                 return False
         except Exception as e:
-            logging.error('Callback result as a unknown error: %s. Please check your network configuration page'% (e.message,))
+            logger.error('Callback result as a unknown error: %s. Please check your network configuration page'% (e.message,))
             return False
         return True
 
@@ -161,7 +162,7 @@ class jeedom_utils():
     def set_logLevel(level = 'error', extendedDebug = False):
         jeedom_utils._logLevel = level
         jeedom_utils._extendedDebug = extendedDebug
-        FORMAT = '[%(asctime)-15s][%(levelname)s] : %(message)s'
+        FORMAT = '[%(asctime)-15s][%(levelname)s] : %(name)-23s %(message)s'
         logging.basicConfig(level=jeedom_utils.convert_log_level(level),format=FORMAT, datefmt="%Y-%m-%d %H:%M:%S")
 
     @staticmethod
@@ -207,7 +208,7 @@ class jeedom_utils():
     @staticmethod
     def write_pid(path):
         pid = str(os.getpid())
-        logging.debug("Writing PID " + pid + " to " + str(path))
+        logger.debug("Writing PID " + pid + " to " + str(path))
         fh = open(path, 'w')
         fh.write("%s\n" % pid)
         fh.close()
@@ -228,12 +229,12 @@ JEEDOM_SOCKET_MESSAGE = Queue()
 class jeedom_socket_handler(StreamRequestHandler):
     def handle(self):
         global JEEDOM_SOCKET_MESSAGE
-        logging.debug("Client connected from [%s:%d]" % self.client_address)
+        logger.debug("Client connected from [%s:%d]" % self.client_address)
         lg = self.rfile.readline()
         JEEDOM_SOCKET_MESSAGE.put(lg)
-        logging.debug("Message read from socket")
+        logger.debug("Message read from socket")
         self.netAdapterClientConnected = False
-        logging.debug("Client disconnected from [%s:%d]" % self.client_address)
+        logger.debug("Client disconnected from [%s:%d]" % self.client_address)
 
 class jeedom_socket():
 
@@ -245,16 +246,16 @@ class jeedom_socket():
     def open(self):
         self.netAdapter = TCPServer((self.address, self.port), jeedom_socket_handler)
         if self.netAdapter:
-            logging.debug("Socket interface started")
+            logger.debug("Socket interface started")
             threading.Thread(target=self.loopNetServer, args=()).start()
         else:
-            logging.debug("Cannot start socket interface")
+            logger.debug("Cannot start socket interface")
 
     def loopNetServer(self):
-        logging.debug("LoopNetServer Thread started")
-        logging.debug("Listening on: [%s:%d]" % (self.address, self.port))
+        logger.debug("LoopNetServer Thread started")
+        logger.debug("Listening on: [%s:%d]" % (self.address, self.port))
         self.netAdapter.serve_forever()
-        logging.debug("LoopNetServer Thread stopped")
+        logger.debug("LoopNetServer Thread stopped")
 
     def close(self):
         self.netAdapter.shutdown()

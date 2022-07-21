@@ -18,6 +18,7 @@ import logging
 import os
 import configparser
 from signalrcore.hub_connection_builder import HubConnectionBuilder
+import signalrcore.helpers
 from jeedom import *
 
 class Charger():
@@ -28,6 +29,7 @@ class Charger():
     _mapping.read(os.path.dirname(__file__) + '/../../core/config/mapping.ini')
     _transforms = configparser.ConfigParser()
     _transforms.read(os.path.dirname(__file__) + '/../../core/config/transforms.ini')
+    logger = logging.getLogger('CHARGER')
 
     # ======= Methodes statiques =======
     # ==================================
@@ -45,14 +47,14 @@ class Charger():
     @classmethod
     def set_jeedom_com(cls,jeedom_com):
         cls._jeedom_com = jeedom_com
-        
+
     @classmethod
     def logicalIds(cls,cmdId):
         if cmdId not in cls._mapping['signalR']:
             return []
         cmdApi = cls._mapping['signalR'][cmdId]
         if cmdApi not in cls._mapping['API']:
-            cls.log_warning(f'{cmdApi} not in API commands')
+            cls.logger.warning(f'{cmdApi} not in API commands')
             return []
         logicalIds = cls._mapping['API'][cmdApi].split(',')
         return logicalIds
@@ -66,23 +68,6 @@ class Charger():
         if 'default' in cls._transforms[logicalId]:
             return cls._transforms[logicalId]['default']
         return value
-
-    # ====== Methodes de logging ======
-    # =================================
-
-    def log_debug(self,txt):
-        logging.debug(f'[charger][{self._serial}]   {txt}')
-
-    def log_info(self,txt):
-        logging.info(f'[charger][{self._serial}]   {txt}')
-
-    def log_warning(self,txt):
-        logging.warning(f'[charger][{self._serial}]   {txt}')
-
-    def log_error(self,txt):
-        logging.error(f'[charger][{self._serial}]   {txt}')
-
-    # ====== Methodes d'instance ======
     # =================================
 
     def __init__(self, id, name, serial, account):
@@ -93,13 +78,14 @@ class Charger():
         self._state = 'initialized'
         self._chargers[id] = self
         self._nbRestart = 0
+        self.logger = logging.getLogger(f'[{account.getName()}][{serial}]');
 
     def __del__(self):
-        self.log_debug (f"del charger {self._name}")
+        self.logger.debug (f"del charger {self._name}")
         self.connection.close()
 
     def remove(self):
-        self.log_debug (f"remove charger {self._name}")
+        self.logger.debug (f"remove charger {self._name}")
         self._state = "closing"
         self.connection.stop()
 
@@ -107,20 +93,6 @@ class Charger():
         return self.getAccount().getAccessToken()
 
     def run(self):
-        logLevel = jeedom_utils.get_logLevel()
-        extendedDebug = jeedom_utils.get_extendedDebug()
-
-        if logLevel == 'error':
-            logLevel = logging.ERROR
-        elif logLevel =='warning':
-            logLevel = logging.WARNING
-        elif logLevel == 'info':
-            logLevel = logging.INFO
-        elif logLevel == 'debug':
-            if extendedDebug:
-                logLevel= logging.DEBUG
-            else:
-                logLevel = logging.INFO
 
         self._lastMessage = None
         self._nbRestart = 0
@@ -129,13 +101,16 @@ class Charger():
 
         self.connection = HubConnectionBuilder()\
                 .with_url(url,options)\
-                .configure_logging(logLevel)\
                 .with_automatic_reconnect({
                     'type': 'raw',
                     'keep_alive_interval': 10,
                     'interval_reconnect': 5,
                     'max_attemps': 5
                     }).build()
+        logLevel = jeedom_utils.get_logLevel()
+        extendedDebug = jeedom_utils.get_extendedDebug()
+        if logLevel == 'debug' and not extendedDebug:
+            signalrcore.helpers.Helpers.get_logger().setLevel(logging.INFO)
         self.connection.on_open(lambda: self.on_open())
         self.connection.on_close(lambda: self.on_close())
         self.connection.on_reconnect(lambda: self.on_reconnect())
@@ -147,25 +122,30 @@ class Charger():
         self.connection.start()
         return
 
+    def is_running(self):
+        if self.connection == None:
+            return False
+        return self.connection.transport.is_running()
+
     def on_open(self):
-        self.log_debug(f'openning connection {self.getSerial()}')
+        self.logger.debug(f'openning connection {self.getSerial()}')
         self.connection.send("SubscribeWithCurrentState", [self.getSerial(), True])
         self._state = 'connected'
         return
 
     def on_close(self):
         self._state = 'disconnected'
-        self.log_debug(f'Closed connection {self.getSerial()}')
+        self.logger.debug(f'Closed connection {self.getSerial()}')
         if self._id in self._chargers:
             del self._chargers[self._id]
 
     def on_reconnect(self):
-        self.log_warning(f'reconnecting {self.getSerial()}')
-        self._nbRestart += 1 
+        self.logger.warning(f'reconnecting {self.getSerial()}')
+        self._nbRestart += 1
 
     def on_error(self,data):
-        self.log_error(data.error)
-        self.log_error(data)
+        self.logger.error(data.error)
+        self.logger.error(data)
 
     def on_Update(self,messages):
         for message in messages:
@@ -173,12 +153,12 @@ class Charger():
                 continue
             self._lastMessage = message
             cmdId = str(message['id'])
-            self.log_debug(f'Processing command {cmdId}, value: {message["value"]}')
+            self.logger.debug(f'Processing command {cmdId}, value: {message["value"]}')
             if cmdId not in self._mapping['signalR']:
                 continue
             for logicalId in self.logicalIds(cmdId):
                 value = self.transforms(logicalId,message['value'])
-                self.log_debug(f"  - {logicalId} : {value}")
+                self.logger.debug(f"  - {logicalId} : {value}")
                 self._jeedom_com.send_change_immediate({
                     'object' : 'cmd',
                     'charger' : self.getId(),

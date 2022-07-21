@@ -21,6 +21,7 @@ import json
 
 class Account():
 
+    logger = logging.getLogger('ACCOUNT')
     _accounts = {}
 
     # ======= Méthodes statiques =======
@@ -36,21 +37,6 @@ class Account():
             return __class__._accounts[name]
         return None
 
-    # ====== Méthodes de logging =======
-    # ==================================
-
-    def log_debug(self,txt):
-        logging.debug(f'[account][{self._name}] {txt}')
-
-    def log_info(self,txt):
-        logging.info(f'[account][{self._name}] {txt}')
-
-    def log_warning(self,txt):
-        logging.warning(f'[account][{self._name}] {txt}')
-
-    def log_error(self,txt):
-        logging.error(f'[account][{self._name}] {txt}')
-
     # ====== Méthodes d'instance =======
     # ==================================
 
@@ -61,14 +47,15 @@ class Account():
         self.setExpiresAt(expiresAt)
         self.setLifetime(expiresIn)
         self._accounts[name] = self
+        self.logger = logging.getLogger(f'[{name}]')
 
     def __del__(self):
-        self.log_debug (f"del account {self.getName()}")
+        self.logger.debug (f"del account {self.getName()}")
         if self.getName() in self._accounts:
             del self._accounts[self.getName()]
 
     def remove(self):
-        self.log_debug (f"remove account {self.getName()}")
+        self.logger.debug (f"remove account {self.getName()}")
         if self.getName() in self._accounts:
             del self._accounts[self.getName()]
 
@@ -76,9 +63,9 @@ class Account():
         return self.getExpiresAt() - self.getLifetime()/2
     
     def refreshToken(self):
-        self.log_debug("'refreshToken' is called")
+        self.logger.debug("'refreshToken' is called")
         if time.time() > self.getTime2renew():
-            self.log_debug("Token need a refresh")
+            self.logger.debug("Token need a refresh")
             url = "https://api.easee.cloud/api/accounts/refresh_token"
             headers = {
                     "Accept": "application/json",
@@ -92,9 +79,9 @@ class Account():
             try:
                 response = requests.post(url, data=json.dumps(payload), headers=headers)
                 if response.status_code != requests.codes['ok']:
-                    self.log_warning("Error refreshing Token: return code " + str(response.status_code))
+                    self.logger.warning("Error refreshing Token: return code " + str(response.status_code))
                     return
-                self.log_info(response.text)
+                self.logger.info(response.text)
                 tok = json.loads(response.text)
                 self.setAccessToken(tok['accessToken'])
                 self.setRefreshToken(tok['refreshToken'])
@@ -102,7 +89,7 @@ class Account():
                 self.setLifetime(tok['expiresIn'])
     
             except Exception as error:
-                self.log_warning("Error refreshing Token: " + str(error))
+                self.logger.warning("Error refreshing Token: " + str(error))
 
     # ======== getter / setter =========
     # ==================================

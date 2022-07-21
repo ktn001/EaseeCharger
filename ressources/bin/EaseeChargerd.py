@@ -27,7 +27,7 @@ sys.path.append (libDir)
 from jeedom import *
 from account import Account
 from charger import Charger
-
+logger = logging.getLogger('EaseeChargerd')
 _logLevel = 'error'
 _extendedDebug = False
 _callback = ''
@@ -101,18 +101,18 @@ def options():
 
     jeedom_utils.set_logLevel(_logLevel, _extendedDebug)
 
-    logging.info('Start daemon')
-    logging.info('Log level: ' + _logLevel)
+    logger.info('Start daemon')
+    logger.info('Log level: ' + _logLevel)
     if _logLevel == 'debug':
-        logging.info('extendedDebug: ' + str(_extendedDebug))
-    logging.info('callback: ' + _callback)
+        logger.info('extendedDebug: ' + str(_extendedDebug))
+    logger.info('callback: ' + _callback)
     if _secureLog:
-        logging.debug('Apikey: **********')
+        logger.debug('Apikey: **********')
     else:
-        logging.debug('Apikey: ' + _apiKey)
-    logging.info('Socket Port: ' + str(_socketPort))
-    logging.info('Socket Host: ' + _socketHost)
-    logging.info('PID file: ' + _pidFile)
+        logger.debug('Apikey: ' + _apiKey)
+    logger.info('Socket Port: ' + str(_socketPort))
+    logger.info('Socket Host: ' + _socketHost)
+    logger.info('PID file: ' + _pidFile)
 
 #===============================================================================
 # logStatus
@@ -120,27 +120,28 @@ def options():
 # Log l'état interne du daemon
 #===============================================================================
 def logStatus():
-    logging.info ("┌── Daemon state: ──────────────────────────────────────────")
-    logging.info ("│ Daemon:")
-    logging.info (f"│   - Started at : {_startTime}")
-    logging.info ("│ Accounts:")
+    logger.info ("┌── Daemon state: ──────────────────────────────────────────")
+    logger.info ("│ Daemon:")
+    logger.info (f"│   - Started at : {_startTime}")
+    logger.info ("│ Accounts:")
     for account in Account.all():
         expiresAt = datetime.datetime.fromtimestamp(account.getExpiresAt())
         lifetime = account.getLifetime()
         time2renew = datetime.datetime.fromtimestamp(account.getTime2renew())
-        logging.info (f"│ - {account.getName()}")
-        logging.info (f"│   - Token expires at {expiresAt}")
-        logging.info (f"│   - Lifetime: {lifetime}")
-        logging.info (f"│   - Time to renew: {time2renew}")
-    logging.info ("│ Chargers:")
+        logger.info (f"│ - {account.getName()}")
+        logger.info (f"│   - Token expires at {expiresAt}")
+        logger.info (f"│   - Lifetime: {lifetime}")
+        logger.info (f"│   - Time to renew: {time2renew}")
+    logger.info ("│ Chargers:")
     for charger in Charger.all():
-        logging.info (f"│ - {charger.getName()}")
-        logging.info (f"│   - Serial:     {charger.getSerial()}")
+        logger.info (f"│ - {charger.getName()}")
+        logger.info (f"│   - Serial:          {charger.getSerial()}")
         accountName = charger.getAccount().getName()
-        logging.info (f"│   - Account:    {accountName}")
-        logging.info (f"│   - State:      {charger.getState()}")
-        logging.info (f"│   - Nb Restart: {charger.getNbRestart()}")
-    logging.info ("└──────────────────────────────────────────────────────────")
+        logger.info (f"│   - Account:         {accountName}")
+        logger.info (f"│   - State:           {charger.getState()}")
+        logger.info (f"│   - Cloud Connected: {charger.is_running()}")
+        logger.info (f"│   - Nb Restart:      {charger.getNbRestart()}")
+    logger.info ("└──────────────────────────────────────────────────────────")
 
 #===============================================================================
 # start_account
@@ -150,9 +151,9 @@ def logStatus():
 def start_account(name, accessToken, refreshToken, expiresAt, expiresIn):
     account = Account.byName(name)
     if account:
-        logging.warning(f"Account < {name} > is already defined")
+        logger.warning(f"Account < {name} > is already defined")
         return
-    logging.info(f"Starting account < {name} >")
+    logger.info(f"Starting account < {name} >")
     account = Account(name, accessToken, refreshToken, expiresAt, expiresIn)
     if account:
         jeedom_com.send_change_immediate({
@@ -180,9 +181,9 @@ def stop_account(name):
 def start_charger(id, name, serial, accountName):
     charger = Charger.byId(id)
     if charger:
-        logging.warning(f"Charger {id} is already running")
+        logger.warning(f"Charger {id} is already running")
         return
-    logging.info(f"Starting charger {name} (id: {id}) ")
+    logger.info(f"Starting charger {name} (id: {id}) ")
     account = Account.byName(accountName)
     charger = Charger(id, name, serial, account)
     charger.run()
@@ -215,19 +216,19 @@ def read_socket():
                 message2log['accessToken'] = '**********'
             if 'apikey' in message2log.keys():
                 message2log['apikey'] = '**********'
-        logging.info(f"Message received from Jeedom: {message2log}")
+        logger.info(f"Message received from Jeedom: {message2log}")
 
         if 'cmd' not in message:
-            logging.warning("'cmd' is not in message")
+            logger.warning("'cmd' is not in message")
             return
 
         if message['cmd'] not in _commands:
-            logging.warning(f"Unknow command {message['cmd']} in message")
+            logger.warning(f"Unknow command {message['cmd']} in message")
             return
 
         for arg in _commands[message['cmd']]:
             if arg not in message:
-                logging.error(f"Arg {arg} is missing for cmd {message['cmd']}")
+                logger.error(f"Arg {arg} is missing for cmd {message['cmd']}")
                 return
 
         if message['cmd'] == 'startAccount':
@@ -254,12 +255,12 @@ def handler(signum=None, frame=None):
         return
     if signum == signal.SIGALRM:
         signal.alarm(3600)
-        logging.debug("ALARM")
+        logger.debug("ALARM")
         logStatus()
         for account in Account.all():
             account.refreshToken()
         return
-    logging.debug("Signal %i caught, exiting..." % int(signum))
+    logger.debug("Signal %i caught, exiting..." % int(signum))
     shutdown()
 
 #===============================================================================
@@ -268,19 +269,19 @@ def handler(signum=None, frame=None):
 # Procédure d'arrêt du daemon
 #===============================================================================
 def shutdown():
-    logging.debug("Shutdown...")
+    logger.debug("Shutdown...")
     try:
         jeedom_socket.close()
     except:
         pass
     for charger in list(Charger.all()):
         charger.remove()
-    logging.debug("Removing PID file " + _pidFile)
+    logger.debug("Removing PID file " + _pidFile)
     try:
         os.remove(_pidFile)
     except:
         pass
-    logging.debug("Exit 0")
+    logger.debug("Exit 0")
     sys.stdout.flush()
     os._exit(0)
 
@@ -309,7 +310,7 @@ try:
     # Configuration du canal pour l'envoi de messages a Jeedom
     jeedom_com = jeedom_com(apikey = _apiKey, url=_callback)
     if (not jeedom_com.test()):
-        logging.error('Network communication issue. Unable to send messages to Jeedom')
+        logger.error('Network communication issue. Unable to send messages to Jeedom')
         shutdown();
     Charger.set_jeedom_com(jeedom_com)
 
@@ -334,7 +335,7 @@ try:
         shutdown()
 
 except Exception as e:
-    logging.error('Fatal error: ' + str(e))
-    logging.info(traceback.format_exc())
+    logger.error('Fatal error: ' + str(e))
+    logger.info(traceback.format_exc())
     shutdown();
 
