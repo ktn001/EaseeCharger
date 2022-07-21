@@ -17,6 +17,7 @@
 import logging
 import os
 import configparser
+from signalrcore.hub.errors import UnAuthorizedHubError
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 import signalrcore.helpers
 from jeedom import *
@@ -79,6 +80,7 @@ class Charger():
         self._chargers[id] = self
         self._nbRestart = 0
         self.logger = logging.getLogger(f'[{account.getName()}][{serial}]');
+        self.connection = None
 
     def __del__(self):
         self.logger.debug (f"del charger {self._name}")
@@ -121,6 +123,15 @@ class Charger():
         self._state = 'connecting'
         self.connection.start()
         return
+        try:
+            self._state = 'connecting'
+            self.connection.start()
+            return True
+        except UnAuthorizedHubError as error:
+            self._state = 'error'
+            self.log_error("login Error")
+            self.connection = None
+            return False
 
     def is_running(self):
         if self.connection == None:
