@@ -145,6 +145,9 @@ class Charger():
         return
 
     def on_close(self):
+        if self._state != "closing":
+            self.logger.debug(f"on_close called but state is {self._state}")
+            return
         self._state = 'disconnected'
         self.logger.debug(f'Closed connection {self.getSerial()}')
         if self._id in self._chargers:
