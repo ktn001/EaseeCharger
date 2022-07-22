@@ -24,6 +24,7 @@ import datetime
 libDir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
 sys.path.append (libDir)
 
+import logfilter
 from jeedom import *
 from account import Account
 from charger import Charger
