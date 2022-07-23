@@ -18,6 +18,7 @@ import logging
 import time
 import requests
 import json
+from logfilter import *
 
 class Account():
 
@@ -48,6 +49,9 @@ class Account():
         self.setLifetime(expiresIn)
         self._accounts[name] = self
         self.logger = logging.getLogger(f'[{name}]')
+        self.logger.addFilter(logFilter())
+        logFilter.add_sensible(accessToken)
+        logFilter.add_sensible(refreshToken)
 
     def __del__(self):
         self.logger.debug (f"del account {self.getName()}")

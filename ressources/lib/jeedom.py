@@ -30,6 +30,7 @@ import signal
 import unicodedata
 
 logger = logging.getLogger('EaseeChargerd')
+
 # ------------------------------------------------------------------------------
 
 class jeedom_com():

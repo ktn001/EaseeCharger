@@ -24,19 +24,19 @@ import datetime
 libDir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
 sys.path.append (libDir)
 
-import logfilter
+from logfilter import *
 from jeedom import *
 from account import Account
 from charger import Charger
 logger = logging.getLogger('EaseeChargerd')
+logger.addFilter(logFilter())
 _logLevel = 'error'
 _extendedDebug = False
 _callback = ''
-_apiKey = ''
+apiKey = ''
 _pidFile = '/tmp/jeedom/EaseeCharger/daemon.pid'
 _socketPort = -1
 _socketHost = 'localhost'
-_secureLog = False
 _startTime = datetime.datetime.fromtimestamp(time.time())
 
 _commands = {
@@ -69,10 +69,9 @@ def options():
     global _logLevel
     global _extendedDebug
     global _callback
-    global _apiKey
+    global apiKey
     global _pidFile
     global _socketPort
-    global _secureLog
 
     parser = argparse.ArgumentParser( description="EaseeCharger daemon for Jeedom's plugin")
     parser.add_argument("-l", "--loglevel", help="Log level for the daemon", type=str)
@@ -87,18 +86,21 @@ def options():
         if args.loglevel == 'extendedDebug':
             _logLevel = 'debug'
             _extendedDebug = True
+            logFilter.set_quietDebug(False)
         else:
             _logLevel = args.loglevel
             _extendedDebug = False
+            logFilter.set_quietDebug(True)
     if args.callback:
         _callback = args.callback
     if args.apikey:
-        _apiKey = args.apikey
+        apiKey = args.apikey
+        logFilter.add_sensible(apiKey)
     if args.pid:
         _pidFile = args.pid
     if args.socketport:
         _socketPort = int(args.socketport)
-    _secureLog = args.secureLog
+    logFilter.set_secure(args.secureLog)
 
     jeedom_utils.set_logLevel(_logLevel, _extendedDebug)
 
@@ -107,10 +109,7 @@ def options():
     if _logLevel == 'debug':
         logger.info('extendedDebug: ' + str(_extendedDebug))
     logger.info('callback: ' + _callback)
-    if _secureLog:
-        logger.debug('Apikey: **********')
-    else:
-        logger.debug('Apikey: ' + _apiKey)
+    logger.info('Apikey: ' + apiKey)
     logger.info('Socket Port: ' + str(_socketPort))
     logger.info('Socket Host: ' + _socketHost)
     logger.info('PID file: ' + _pidFile)
@@ -211,19 +210,14 @@ def read_socket():
     if not JEEDOM_SOCKET_MESSAGE.empty():
         # jeedom_com a reçu un message qu'il a mis en queue. On le récupère ici
         message = json.loads(JEEDOM_SOCKET_MESSAGE.get().decode())
-        message2log = dict(message)
-        if _secureLog:
-            if 'accessToken' in message2log.keys():
-                message2log['accessToken'] = '**********'
-            if 'apikey' in message2log.keys():
-                message2log['apikey'] = '**********'
-        logger.info(f"Message received from Jeedom: {message2log}")
 
         if 'cmd' not in message:
+            logger.info(f"Message received from Jeedom: {message}")
             logger.warning("'cmd' is not in message")
             return
 
         if message['cmd'] not in _commands:
+            logger.info(f"Message received from Jeedom: {message}")
             logger.warning(f"Unknow command {message['cmd']} in message")
             return
 
@@ -233,6 +227,9 @@ def read_socket():
                 return
 
         if message['cmd'] == 'startAccount':
+            logFilter.add_sensible(message['accessToken'])
+            logFilter.add_sensible(message['refreshToken'])
+            logger.info(f"Message received from Jeedom: {message}")
             start_account(message['account'],message['accessToken'],message['refreshToken'],message['expiresAt'],message['expiresIn'])
         elif message['cmd'] == 'stopAccount':
             stop_account(message['account'])
@@ -309,7 +306,7 @@ try:
     jeedom_utils.write_pid(_pidFile)
 
     # Configuration du canal pour l'envoi de messages a Jeedom
-    jeedom_com = jeedom_com(apikey = _apiKey, url=_callback)
+    jeedom_com = jeedom_com(apikey = apiKey, url=_callback)
     if (not jeedom_com.test()):
         logger.error('Network communication issue. Unable to send messages to Jeedom')
         shutdown();

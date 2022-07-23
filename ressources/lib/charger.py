@@ -19,8 +19,9 @@ import os
 import configparser
 from signalrcore.hub.errors import UnAuthorizedHubError
 from signalrcore.hub_connection_builder import HubConnectionBuilder
-import signalrcore.helpers
+from logfilter import *
 from jeedom import *
+
 
 class Charger():
 
@@ -31,6 +32,7 @@ class Charger():
     _transforms = configparser.ConfigParser()
     _transforms.read(os.path.dirname(__file__) + '/../../core/config/transforms.ini')
     logger = logging.getLogger('CHARGER')
+    logger.addFilter(logFilter())
 
     # ======= Methodes statiques =======
     # ==================================
@@ -80,6 +82,10 @@ class Charger():
         self._chargers[id] = self
         self._nbRestart = 0
         self.logger = logging.getLogger(f'[{account.getName()}][{serial}]');
+        filters = self.logger.filters
+        for lf in filters:
+            self.logger.removeFilter(lf)
+        self.logger.addFilter(logFilter())
         self.connection = None
 
     def __del__(self):
@@ -109,10 +115,6 @@ class Charger():
                     'interval_reconnect': 5,
                     'max_attemps': 5
                     }).build()
-        logLevel = jeedom_utils.get_logLevel()
-        extendedDebug = jeedom_utils.get_extendedDebug()
-        if logLevel == 'debug' and not extendedDebug:
-            signalrcore.helpers.Helpers.get_logger().setLevel(logging.INFO)
         self.connection.on_open(lambda: self.on_open())
         self.connection.on_close(lambda: self.on_close())
         self.connection.on_reconnect(lambda: self.on_reconnect())
