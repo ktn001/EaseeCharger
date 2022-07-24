@@ -23,19 +23,19 @@ from logfilter import *
 class Account():
 
     logger = logging.getLogger('ACCOUNT')
-    _accounts = {}
+    accounts = {}
 
     # ======= Méthodes statiques =======
     # ==================================
 
     @staticmethod
     def all():
-        return __class__._accounts.values()
+        return __class__.accounts.values()
 
     @staticmethod
     def byName(name):
-        if name in __class__._accounts:
-            return __class__._accounts[name]
+        if name in __class__.accounts:
+            return __class__.accounts[name]
         return None
 
     # ====== Méthodes d'instance =======
@@ -47,7 +47,7 @@ class Account():
         self.setRefreshToken(refreshToken)
         self.setExpiresAt(expiresAt)
         self.setLifetime(expiresIn)
-        self._accounts[name] = self
+        self.accounts[name] = self
         self.logger = logging.getLogger(f'[{name}]')
         self.logger.addFilter(logFilter())
         logFilter.add_sensible(accessToken)
@@ -55,13 +55,13 @@ class Account():
 
     def __del__(self):
         self.logger.debug (f"del account {self.getName()}")
-        if self.getName() in self._accounts:
-            del self._accounts[self.getName()]
+        if self.getName() in self.accounts:
+            del self.accounts[self.getName()]
 
     def remove(self):
         self.logger.debug (f"remove account {self.getName()}")
-        if self.getName() in self._accounts:
-            del self._accounts[self.getName()]
+        if self.getName() in self.accounts:
+            del self.accounts[self.getName()]
 
     def getTime2renew(self):
         return self.getExpiresAt() - self.getLifetime()/2
@@ -74,7 +74,7 @@ class Account():
             headers = {
                     "Accept": "application/json",
                     "Content-Type": "application/*+json",
-                    "Authorization": f"Bearer {self._accessToken}"
+                    "Authorization": f"Bearer {self.getAccessToken()}"
                     }
             payload = {
                     "accessToken": self.getAccessToken(),
@@ -100,40 +100,40 @@ class Account():
     # AccessToken
     #
     def getAccessToken(self):
-        return self._accessToken
+        return self.accessToken
 
     def setAccessToken(self, accessToken):
-        self._accessToken = accessToken
+        self.accessToken = accessToken
 
     # ExpiresAt
     #
     def getExpiresAt(self):
-        return self._expiresAt
+        return self.expiresAt
 
     def setExpiresAt(self, expiresAt):
-        self._expiresAt = expiresAt
+        self.expiresAt = expiresAt
 
     # Lifetime
     #
     def getLifetime(self):
-        return self._lifetime
+        return self.lifetime
 
     def setLifetime(self, expiresIn):
-        self._lifetime = expiresIn
+        self.lifetime = expiresIn
 
     # Name
     #
     def getName(self):
-        return self._name
+        return self.name
 
     def setName(self,name):
-        self._name = name
+        self.name = name
 
     # RefreshToken
     #
     def getRefreshToken(self):
-        return self._refreshToken
+        return self.refreshToken
 
     def setRefreshToken(self, refreshToken):
-        self._refreshToken = refreshToken
+        self.refreshToken = refreshToken
 

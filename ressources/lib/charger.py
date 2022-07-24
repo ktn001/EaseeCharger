@@ -25,12 +25,11 @@ from jeedom import *
 
 class Charger():
 
-    _chargers = {}
-    _translate = None
-    _mapping = configparser.ConfigParser()
-    _mapping.read(os.path.dirname(__file__) + '/../../core/config/mapping.ini')
-    _transforms = configparser.ConfigParser()
-    _transforms.read(os.path.dirname(__file__) + '/../../core/config/transforms.ini')
+    chargers = {}
+    mapping = configparser.ConfigParser()
+    mapping.read(os.path.dirname(__file__) + '/../../core/config/mapping.ini')
+    transforms = configparser.ConfigParser()
+    transforms.read(os.path.dirname(__file__) + '/../../core/config/transforms.ini')
     logger = logging.getLogger('CHARGER')
     logger.addFilter(logFilter())
 
@@ -39,48 +38,48 @@ class Charger():
 
     @classmethod
     def all(cls):
-        return cls._chargers.values()
+        return cls.chargers.values()
 
     @classmethod
     def byId(cls,id):
-        if id in cls._chargers:
-            return cls._chargers[id]
+        if id in cls.chargers:
+            return cls.chargers[id]
         return None
 
     @classmethod
     def set_jeedom_com(cls,jeedom_com):
-        cls._jeedom_com = jeedom_com
+        cls.jeedom_com = jeedom_com
 
     @classmethod
     def logicalIds(cls,cmdId):
-        if cmdId not in cls._mapping['signalR']:
+        if cmdId not in cls.mapping['signalR']:
             return []
-        cmdApi = cls._mapping['signalR'][cmdId]
-        if cmdApi not in cls._mapping['API']:
+        cmdApi = cls.mapping['signalR'][cmdId]
+        if cmdApi not in cls.mapping['API']:
             cls.logger.warning(f'{cmdApi} not in API commands')
             return []
-        logicalIds = cls._mapping['API'][cmdApi].split(',')
+        logicalIds = cls.mapping['API'][cmdApi].split(',')
         return logicalIds
 
     @classmethod
     def transforms(cls,logicalId,value):
-        if logicalId not in cls._transforms:
+        if logicalId not in cls.transforms:
             return value
-        if value in cls._transforms[logicalId]:
-            return cls._transforms[logicalId][value]
-        if 'default' in cls._transforms[logicalId]:
-            return cls._transforms[logicalId]['default']
+        if value in cls.transforms[logicalId]:
+            return cls.transforms[logicalId][value]
+        if 'default' in cls.transforms[logicalId]:
+            return cls.transforms[logicalId]['default']
         return value
     # =================================
 
     def __init__(self, id, name, serial, account):
-        self._id = id
-        self._name = name
-        self._serial = serial
-        self._account = account
-        self._state = 'initialized'
-        self._chargers[id] = self
-        self._nbRestart = 0
+        self.id = id
+        self.name = name
+        self.serial = serial
+        self.account = account
+        self.state = 'initialized'
+        self.chargers[id] = self
+        self.nbRestart = 0
         self.logger = logging.getLogger(f'[{account.getName()}][{serial}]');
         filters = self.logger.filters
         for lf in filters:
@@ -89,12 +88,12 @@ class Charger():
         self.connection = None
 
     def __del__(self):
-        self.logger.debug (f"del charger {self._name}")
+        self.logger.debug (f"del charger {self.name}")
         self.connection.close()
 
     def remove(self):
-        self.logger.debug (f"remove charger {self._name}")
-        self._state = "closing"
+        self.logger.debug (f"remove charger {self.name}")
+        self.state = "closing"
         self.connection.stop()
 
     def getToken(self):
@@ -102,8 +101,8 @@ class Charger():
 
     def run(self):
 
-        self._lastMessage = None
-        self._nbRestart = 0
+        self.lastMessage = None
+        self.nbRestart = 0
         url = "https://api.easee.cloud/hubs/chargers"
         options = {'access_token_factory': self.getToken}
 
@@ -122,15 +121,15 @@ class Charger():
         self.connection.on('ProductUpdate', self.on_Update)
         self.connection.on('ChargerUpdate', self.on_Update)
         self.connection.on('CommandResponse', self.on_CommandResponse)
-        self._state = 'connecting'
+        self.state = 'connecting'
         self.connection.start()
         return
         try:
-            self._state = 'connecting'
+            self.state = 'connecting'
             self.connection.start()
             return True
         except UnAuthorizedHubError as error:
-            self._state = 'error'
+            self.state = 'error'
             self.log_error("login Error")
             self.connection = None
             return False
@@ -143,21 +142,21 @@ class Charger():
     def on_open(self):
         self.logger.debug(f'openning connection {self.getSerial()}')
         self.connection.send("SubscribeWithCurrentState", [self.getSerial(), True])
-        self._state = 'connected'
+        self.state = 'connected'
         return
 
     def on_close(self):
-        if self._state != "closing":
-            self.logger.debug(f"on_close called but state is {self._state}")
+        if self.state != "closing":
+            self.logger.debug(f"on_close called but state is {self.state}")
             return
-        self._state = 'disconnected'
+        self.state = 'disconnected'
         self.logger.debug(f'Closed connection {self.getSerial()}')
-        if self._id in self._chargers:
-            del self._chargers[self._id]
+        if self.id in self.chargers:
+            del self.chargers[self.id]
 
     def on_reconnect(self):
         self.logger.warning(f'reconnecting {self.getSerial()}')
-        self._nbRestart += 1
+        self.nbRestart += 1
 
     def on_error(self,data):
         self.logger.error(data.error)
@@ -165,17 +164,17 @@ class Charger():
 
     def on_Update(self,messages):
         for message in messages:
-            if message == self._lastMessage:
+            if message == self.lastMessage:
                 continue
-            self._lastMessage = message
+            self.lastMessage = message
             cmdId = str(message['id'])
             self.logger.debug(f'Processing command {cmdId}, value: {message["value"]}')
-            if cmdId not in self._mapping['signalR']:
+            if cmdId not in self.mapping['signalR']:
                 continue
             for logicalId in self.logicalIds(cmdId):
                 value = self.transforms(logicalId,message['value'])
                 self.logger.debug(f"  - {logicalId} : {value}")
-                self._jeedom_com.send_change_immediate({
+                self.jeedom_com.send_change_immediate({
                     'object' : 'cmd',
                     'charger' : self.getId(),
                     'logicalId' : logicalId,
@@ -189,19 +188,19 @@ class Charger():
     # =================================
 
     def getAccount(self):
-        return (self._account)
+        return (self.account)
 
     def getId(self):
-        return (self._id)
+        return (self.id)
 
     def getName(self):
-        return (self._name)
+        return (self.name)
 
     def getNbRestart(self):
-        return (self._nbRestart)
+        return (self.nbRestart)
 
     def getSerial(self):
-        return (self._serial)
+        return (self.serial)
 
     def getState(self):
-        return self._state
+        return self.state
