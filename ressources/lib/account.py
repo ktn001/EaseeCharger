@@ -85,7 +85,6 @@ class Account():
                 if response.status_code != requests.codes['ok']:
                     self.logger.warning("Error refreshing Token: return code " + str(response.status_code))
                     return
-                self.logger.info(response.text)
                 tok = json.loads(response.text)
                 self.setAccessToken(tok['accessToken'])
                 self.setRefreshToken(tok['refreshToken'])

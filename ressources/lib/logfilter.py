@@ -36,6 +36,10 @@ class logFilter(logging.Filter):
         cls.secure = secure
 
     @classmethod
+    def get_quietDebug(cls):
+        return cls.quietDebug
+
+    @classmethod
     def set_quietDebug(cls, quiet):
         cls.quietDebug = quiet
 

@@ -146,7 +146,6 @@ class jeedom_com():
 class jeedom_utils():
 
     _logLevel = 'error'
-    _extendedDebug = False
 
     @staticmethod
     def convert_log_level(level = 'error'):
@@ -160,19 +159,14 @@ class jeedom_utils():
         return LEVELS.get(level, logging.CRITICAL)
 
     @staticmethod
-    def set_logLevel(level = 'error', extendedDebug = False):
+    def set_logLevel(level = 'error'):
         jeedom_utils._logLevel = level
-        jeedom_utils._extendedDebug = extendedDebug
         FORMAT = '[%(asctime)-15s][%(levelname)s] : %(name)-23s %(message)s'
         logging.basicConfig(level=jeedom_utils.convert_log_level(level),format=FORMAT, datefmt="%Y-%m-%d %H:%M:%S")
 
     @staticmethod
     def get_logLevel():
         return jeedom_utils._logLevel
-
-    @staticmethod
-    def get_extendedDebug():
-        return jeedom_utils._extendedDebug
 
     @staticmethod
     def stripped(str):

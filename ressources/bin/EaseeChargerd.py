@@ -30,14 +30,13 @@ from account import Account
 from charger import Charger
 logger = logging.getLogger('EaseeChargerd')
 logger.addFilter(logFilter())
-_logLevel = 'error'
-_extendedDebug = False
-_callback = ''
+logLevel = 'error'
+callback = ''
 apiKey = ''
-_pidFile = '/tmp/jeedom/EaseeCharger/daemon.pid'
-_socketPort = -1
-_socketHost = 'localhost'
-_startTime = datetime.datetime.fromtimestamp(time.time())
+pidFile = '/tmp/jeedom/EaseeCharger/daemon.pid'
+socketPort = -1
+socketHost = 'localhost'
+startTime = datetime.datetime.fromtimestamp(time.time())
 
 _commands = {
     'startAccount' : [
@@ -66,12 +65,11 @@ _commands = {
 # Prise en compte des options de la ligne de commande
 #===============================================================================
 def options():
-    global _logLevel
-    global _extendedDebug
-    global _callback
+    global logLevel
+    global callback
     global apiKey
-    global _pidFile
-    global _socketPort
+    global pidFile
+    global socketPort
 
     parser = argparse.ArgumentParser( description="EaseeCharger daemon for Jeedom's plugin")
     parser.add_argument("-l", "--loglevel", help="Log level for the daemon", type=str)
@@ -84,35 +82,33 @@ def options():
 
     if args.loglevel:
         if args.loglevel == 'extendedDebug':
-            _logLevel = 'debug'
-            _extendedDebug = True
+            logLevel = 'debug'
             logFilter.set_quietDebug(False)
         else:
-            _logLevel = args.loglevel
-            _extendedDebug = False
+            logLevel = args.loglevel
             logFilter.set_quietDebug(True)
     if args.callback:
-        _callback = args.callback
+        callback = args.callback
     if args.apikey:
         apiKey = args.apikey
         logFilter.add_sensible(apiKey)
     if args.pid:
-        _pidFile = args.pid
+        pidFile = args.pid
     if args.socketport:
-        _socketPort = int(args.socketport)
+        socketPort = int(args.socketport)
     logFilter.set_secure(args.secureLog)
 
-    jeedom_utils.set_logLevel(_logLevel, _extendedDebug)
+    jeedom_utils.set_logLevel(logLevel)
 
     logger.info('Start daemon')
-    logger.info('Log level: ' + _logLevel)
-    if _logLevel == 'debug':
-        logger.info('extendedDebug: ' + str(_extendedDebug))
-    logger.info('callback: ' + _callback)
+    logger.info('Log level: ' + logLevel)
+    if logLevel == 'debug':
+        logger.info('extendedDebug: ' + str(not logFilter.get_quietDebug()))
+    logger.info('callback: ' + callback)
     logger.info('Apikey: ' + apiKey)
-    logger.info('Socket Port: ' + str(_socketPort))
-    logger.info('Socket Host: ' + _socketHost)
-    logger.info('PID file: ' + _pidFile)
+    logger.info('Socket Port: ' + str(socketPort))
+    logger.info('Socket Host: ' + socketHost)
+    logger.info('PID file: ' + pidFile)
 
 #===============================================================================
 # logStatus
@@ -122,7 +118,7 @@ def options():
 def logStatus():
     logger.info ("┌── Daemon state: ──────────────────────────────────────────")
     logger.info ("│ Daemon:")
-    logger.info (f"│   - Started at : {_startTime}")
+    logger.info (f"│   - Started at : {startTime}")
     logger.info ("│ Accounts:")
     for account in Account.all():
         expiresAt = datetime.datetime.fromtimestamp(account.getExpiresAt())
@@ -274,9 +270,9 @@ def shutdown():
         pass
     for charger in list(Charger.all()):
         charger.remove()
-    logger.debug("Removing PID file " + _pidFile)
+    logger.debug("Removing PID file " + pidFile)
     try:
-        os.remove(_pidFile)
+        os.remove(pidFile)
     except:
         pass
     logger.debug("Exit 0")
@@ -303,17 +299,17 @@ signal.signal(signal.SIGUSR1, handler)
 signal.signal(signal.SIGALRM, handler)
 
 try:
-    jeedom_utils.write_pid(_pidFile)
+    jeedom_utils.write_pid(pidFile)
 
     # Configuration du canal pour l'envoi de messages a Jeedom
-    jeedom_com = jeedom_com(apikey = apiKey, url=_callback)
+    jeedom_com = jeedom_com(apikey = apiKey, url=callback)
     if (not jeedom_com.test()):
         logger.error('Network communication issue. Unable to send messages to Jeedom')
         shutdown();
     Charger.set_jeedom_com(jeedom_com)
 
     # Réception des message de jeedom qui seont mis en queue dans JEEDOM_SOCKET_MESSAGE
-    jeedom_socket = jeedom_socket(port=_socketPort,address=_socketHost)
+    jeedom_socket = jeedom_socket(port=socketPort,address=socketHost)
     jeedom_socket.open()
 
     signal.alarm(10)
