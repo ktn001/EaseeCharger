@@ -1,0 +1,14 @@
+public enum OutputPhaseType {
+	UNASSIGNED = 0, // Unassigned
+	P1_T2_T3_TN = 10, // 1-phase (N+L1)
+	P1_T2_T3_IT = 11, // 1-phase (L1+L2)
+	P1_T2_T4_TN = 12, // 1-phase (N+L2)
+	P1_T2_T4_IT = 13, // 1-phase (L1+L3)
+	P1_T2_T5_TN = 14, // 1-phase (N+L3)
+	P1_T3_T4_IT = 15, // 1-phase (L2+L3)
+	P2_T2_T3_T4_TN = 20, // 2-phases on TN (N+L1, N+L2)
+	P2_T2_T4_T5_TN = 21, // 2-phases on TN (N+L2, N+L3)
+	P2_T2_T3_T4_IT = 22, // 2-phases on IT (L1+L2, L2+L3)
+	P3_T2_T3_T4_T5_TN = 30 // 3-phases (N+L1, N+L2, N+L3)
+}
+

@@ -1,0 +1,2 @@
+public enum ChargerColorType { Black = 1, Red = 2, Blue = 3, White = 4, Anthracite = 5 }
+

@@ -1,0 +1,85 @@
+/// <summary>
+/// Charger is disabled.
+/// </summary>
+ LED = 0
+
+/// <summary>
+/// Charger is updating.
+/// </summary>
+LED = 1, 2, 3, 4, 5, 6, 7, 8
+
+/// <summary>
+/// Charger is updating.
+/// </summary>
+ LED = 9, 10, 11, 12, 13, 14, 15
+
+/// <summary>
+/// Charger is faulty.
+/// </summary>
+ LED = 16, 17
+
+/// <summary>
+/// Standby Master.
+/// </summary>
+ LED = 18
+
+/// <summary>
+/// Standby Secondary.
+/// </summary>
+ LED = 19
+
+/// <summary>
+/// Secondary unit searching for master.
+/// </summary>
+ LED = 20
+
+/// <summary>
+/// Smart mode (Not charging).
+/// </summary>
+ LED = 21
+
+/// <summary>
+/// Smart mode (Charging).
+/// </summary>
+ LED = 22 
+
+/// <summary>
+/// Normal mode (Not charging).
+/// </summary>
+ LED = 23
+
+/// <summary>
+/// Normal mode (Charging).
+/// </summary>
+ LED = 24
+
+/// <summary>
+/// Waiting for authorization.
+/// </summary>
+ LED = 25
+
+/// <summary>
+/// Verifying with backend.
+/// </summary>
+ LED = 26
+
+/// <summary>
+/// Check configuration (Backplate chip defect)
+/// </summary>
+ LED = 27
+
+/// <summary>
+/// Pairing RFID Keys
+/// </summary>
+ LED = 29
+
+/// <summary>
+/// Self test mode.
+/// </summary>
+ LED = 43
+
+/// <summary>
+/// Self test mode.
+/// </summary>
+ LED = 44
+

@@ -1,0 +1,8 @@
+public enum PhaseMode {
+	Ignore,
+	no phase mode reported = 0,
+	Locked to 1-phase = 1,
+	Auto phase mode= 2,
+	Locked to 3-phase= 3
+}
+

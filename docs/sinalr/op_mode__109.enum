@@ -1,0 +1,30 @@
+/// <summary>
+/// No car connected.
+/// </summary>
+Disconnected = 1,
+
+/// <summary>
+/// Car connected, charger is waiting for load balancer or remote authorization. SuspendedEVSE.
+/// </summary>
+AwaitingStart = 2,
+
+/// <summary>
+/// Charging.
+/// </summary>
+Charging = 3,
+
+/// <summary>
+/// Car has paused/stopped charging.
+/// </summary>
+Completed = 4,
+
+/// <summary>
+/// Error in charger.
+/// </summary>
+Error = 5,
+
+/// <summary>
+/// Charger is waiting for car to take energy. SuspendedEV.
+/// </summary>
+ReadyToCharge = 6
+

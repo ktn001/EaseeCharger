@@ -1,0 +1,15 @@
+/// <summary>
+/// Always allow charging if offline.
+/// </summary>s
+Always = 0,
+
+/// <summary>
+/// Only allow charging if token is whitelisted in the local token cache.
+/// </summary>s
+IfWhitelisted = 1,
+
+/// <summary>
+/// Never allow charging if offline.
+/// </summary>s
+Never = 2
+

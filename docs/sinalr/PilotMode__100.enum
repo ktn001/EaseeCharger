@@ -1,0 +1,25 @@
+/// <summary>
+/// Car disconnected
+/// </summary>
+ PilotMode = A
+
+/// <summary>
+/// Car connected
+/// </summary>
+ PilotMode = B
+
+/// <summary>
+/// Car charging
+/// </summary>
+ PilotMode = C
+
+/// <summary>
+///Car needs ventilation
+/// </summary>
+ PilotMode = D
+
+/// <summary>
+///Fault detected (LED goes Red and charging stops)
+/// </summary>
+ PilotMode = F
+

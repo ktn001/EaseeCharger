@@ -1,0 +1,170 @@
+/// <summary>
+/// Charger is OK, use main charger status
+/// </summary>
+ Charger Fine = 0
+
+/// <summary>
+/// Max circuit current too low, adjust power circuit up.
+/// </summary>
+ Loadbalancing = 1
+
+/// <summary>
+/// Max dynamic circuit current too low (Partner Loadbalancing)
+/// </summary>
+ Loadbalancing = 2
+
+/// <summary>
+/// Max dynamic offline fallback circuit current too low.
+/// </summary>
+ Loadbalancing = 3
+
+/// <summary>
+/// Circuit fuse too low.
+/// </summary>
+ Loadbalancing = 4
+
+/// <summary>
+/// Waiting in queue.
+/// </summary>
+ Loadbalancing = 5
+
+/// <summary>
+/// Waiting in fully charged queue (Assumes a connected EV uses delated charging, EV Charging complete.
+/// </summary>
+ Loadbalancing = 6
+
+/// <summary>
+/// illegal grid type (Error - Fault in automatic grid type detection)
+/// </summary>
+ Error = 7
+
+/// <summary>
+/// primary unit has not received current request from secondary unit (car)
+/// </summary>
+ Error = 8
+
+/// <summary>
+/// Master communication lost (Error)
+/// </summary>
+ Error = 9
+
+/// <summary>
+/// No current from equalizer to low.
+/// </summary>
+ Error = 10
+
+/// <summary>
+/// No current, phase not connected.
+/// </summary>
+ Error = 11
+
+/// <summary>
+/// Current limited by circuit fuse.
+/// </summary>
+ Error = 25
+
+/// <summary>
+/// Current limited by circuit max current.
+/// </summary>
+ Error = 26
+
+/// <summary>
+/// Current limited by dynamic circuit current.
+/// </summary>
+ Error = 27
+
+/// <summary>
+/// Current limited by equalizer.
+/// </summary>
+ Error = 28
+
+/// <summary>
+/// Current limited by circuit load balancing.
+/// </summary>
+ Error = 29
+
+/// <summary>
+/// Current limited by offline settings.
+/// </summary>
+ Error = 30
+
+/// <summary>
+/// Secondary unit not requesting current (No car connected)
+/// </summary>
+ Load balancing circuit = 50
+
+/// <summary>
+/// Max charger current too low.
+/// </summary>
+ Load balancing circuit = 51
+
+/// <summary>
+/// Max Dynamic charger current too low
+/// </summary>
+ Load balancing circuit = 52
+
+/// <summary>
+/// Charger disabled.
+/// </summary>
+ Informational = 53
+
+/// <summary>
+/// Pending scheduled charging
+/// </summary>
+ Waiting = 54
+
+/// <summary>
+/// Pending authorization
+/// </summary>
+ Waiting = 55
+
+/// <summary>
+/// Charger in error state.
+/// </summary>
+ Error = 56
+
+/// <summary>
+/// Erratic EV
+/// </summary>
+ Error = 57
+
+/// <summary>
+/// Current limited by cable rating.
+/// </summary>
+ Cable = 75
+
+/// <summary>
+/// Current limited by schedule.
+/// </summary>
+ Schedule = 76
+
+/// <summary>
+/// Current limited by charger max current.
+/// </summary>
+ Charger Limit = 77
+
+/// <summary>
+/// Current limited by dynamic charger current.
+/// </summary>
+ Charger Limit = 78
+
+/// <summary>
+/// Current limited by car not charging.
+/// </summary>
+ Car Limit = 79
+
+/// <summary>
+/// Current limited by local adjustment.
+/// </summary>
+ ??? = 80
+
+/// <summary>
+/// Current limited by car.
+/// </summary>
+ Car Limit = 81
+
+/// <summary>
+/// Max Dynamic charger current too low
+/// </summary>
+ UndefinedError = 100
+

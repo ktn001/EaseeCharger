@@ -1,0 +1,11 @@
+public enum PairingResultCode {
+	Success = 0,
+	WrongAccountType = 1,
+	TooManyAttempts = 2,
+	AlreadyPairedWithPartner = 3,
+	IncorrectPIN = 4,
+	AlreadyPairedWithUser = 5,
+	NotPairedWithPartner = 6,
+	NotPairedWithUser = 7
+}
+
