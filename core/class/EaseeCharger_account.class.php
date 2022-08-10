@@ -366,7 +366,7 @@ class EaseeCharger_account {
 
 	$curl = curl_init();
 	if ($curl === false) {
-	    throw new Exception (__("Erreur lors l'initialisation de CURL",__FILE__));
+	    throw new Exception (__("└─Erreur lors l'initialisation de CURL",__FILE__));
 	}
 	curl_setopt_array($curl, [
 	    CURLOPT_URL => $this->_site . $path,
@@ -384,12 +384,12 @@ class EaseeCharger_account {
 	$response = curl_exec($curl);
 	if ($response === false) {
 	    curl_close($curl);
-	    throw new Exception (__("Erreur lors de la requête CURL",__FILE__));
+	    throw new Exception (sprintf(__("└─Erreur lor de la requête CURL %d: %s",__FILE__),curl_errno($surl),curl_error($curl)));
 	}
 
 	if (curl_errno($curl)) {
 	    curl_close($curl);
-	    throw new Exception (sprintf(__("Erreur CURL %d: %s",__FILE__),curl_errno($surl),curl_error($curl)));
+	    throw new Exception (sprintf(__("└─Erreur CURL %d: %s",__FILE__),curl_errno($surl),curl_error($curl)));
 	}
 
 	$httpCode = curl_getinfo($curl,CURLINFO_HTTP_CODE);
