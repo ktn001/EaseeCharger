@@ -69,7 +69,6 @@ class logFilter(logging.Filter):
             for pattern in cls.pattern_to_drop:
                 if re.search(pattern,record.msg):
                     return False
-        record.msg = "+++++ " + record.msg
         return True
 
 signalrcore.helpers.Helpers.get_logger().addFilter(logFilter())
