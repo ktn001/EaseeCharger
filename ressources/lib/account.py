@@ -100,40 +100,40 @@ class Account():
     # AccessToken
     #
     def getAccessToken(self):
-        return self.accessToken
+        return self._accessToken
 
     def setAccessToken(self, accessToken):
-        self.accessToken = accessToken
+        self._accessToken = accessToken
 
     # ExpiresAt
     #
     def getExpiresAt(self):
-        return self.expiresAt
+        return self._expiresAt
 
     def setExpiresAt(self, expiresAt):
-        self.expiresAt = expiresAt
+        self._expiresAt = expiresAt
 
     # Lifetime
     #
     def getLifetime(self):
-        return self.lifetime
+        return self._lifetime
 
     def setLifetime(self, expiresIn):
-        self.lifetime = expiresIn
+        self._lifetime = expiresIn
 
     # Name
     #
     def getName(self):
-        return self.name
+        return self._name
 
     def setName(self,name):
-        self.name = name
+        self._name = name
 
     # RefreshToken
     #
     def getRefreshToken(self):
-        return self.refreshToken
+        return self._refreshToken
 
     def setRefreshToken(self, refreshToken):
-        self.refreshToken = refreshToken
+        self._refreshToken = refreshToken
 

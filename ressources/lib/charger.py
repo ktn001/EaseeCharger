@@ -62,7 +62,7 @@ class Charger():
         return logicalIds
 
     @classmethod
-    def transforms(cls,logicalId,value):
+    def value_for_logicalId(cls,logicalId,value):
         if logicalId not in cls.transforms:
             return value
         if value in cls.transforms[logicalId]:
@@ -172,7 +172,7 @@ class Charger():
             if cmdId not in self.mapping['signalR']:
                 continue
             for logicalId in self.logicalIds(cmdId):
-                value = self.transforms(logicalId,message['value'])
+                value = self.value_for_logicalId(logicalId,message['value'])
                 self.logger.debug(f"  - {logicalId} : {value}")
                 self.jeedom_com.send_change_immediate({
                     'object' : 'cmd',
