@@ -54,7 +54,7 @@ class logFilter(logging.Filter):
             return True
         if cls.secure:
             for word in cls.sensibles:
-                if (hasattr(record.msg,'replace'):
+                if (hasattr(record.msg,'replace')):
                     record.msg = record.msg.replace(word, "**********")
                 if (hasattr(record,'args')):
                     list_args = list(record.args)
