@@ -54,13 +54,14 @@ class logFilter(logging.Filter):
             return True
         if cls.secure:
             for word in cls.sensibles:
-                record.msg = record.msg.replace(word, "%%%%%%%%%%")
+                if (hasattr(record.msg,'replace'):
+                    record.msg = record.msg.replace(word, "**********")
                 if (hasattr(record,'args')):
                     list_args = list(record.args)
                     for i in range(len(list_args)):
                         if not isinstance(list_args[i], str):
                             continue
-                        list_args[i] = list_args[i].replace(word, "%%%%%%%%%%")
+                        list_args[i] = list_args[i].replace(word, "**********")
                     record.args = tuple(list_args)
         if record.levelno == logging.DEBUG and cls.quietDebug:
             for msg in cls.message_to_drop:
