@@ -7,7 +7,7 @@
     <div class="texte" margin-top="5px"></div>
   </div>
   <template>
-	  <div>notexte : 1 {{Cache le texte}}</div>
+	  <div>notext : 1 {{Cache le texte}}</div>
 	  <div>noimage : 1 {{Cache l'image}}</div>
   </template>
   <script>
@@ -29,7 +29,7 @@
 	} else {
 	  cmd.find('.image').empty().append('<img src="/plugins/EaseeCharger/desktop/img/vehicle/compact_' + _options.display_value + '.png" width="120px"/>')
 	}
-	if ('#notexte#' == '1') {
+	if ('#notext#' == '1') {
 	  cmd.find('.texte').empty()
 	} else {
 	  cmd.find('.texte').empty().append('<b>' + texte[_options.display_value] + '</b>')
