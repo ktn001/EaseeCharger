@@ -526,11 +526,7 @@ class EaseeCharger extends eqLogic {
 		$cmdValue = $this->getCmd(null, $config['value']);
 		$value = "";
 		if (is_object($cmdValue)) {
-		    if ($cmd->getType() == 'info') {
 			$value = '#' . $cmdValue->getId() . '#';
-		    } else {
-			$value = $cmdValue->getId();
-		    }
 		}
 		if ($cmd->getValue(i) != $value) {
 		    $cmd->setValue($value);

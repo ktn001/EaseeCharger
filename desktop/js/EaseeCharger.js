@@ -245,7 +245,7 @@ function editAccount(name) {
  * Action du bouton d'ajout d'un compte
  */
 $('.accountAction[data-action=add').off('click').on('click',function () {
-	bootbox.prompt('{{Nom de du compte}}', function(result) {
+	bootbox.prompt('{{Nom du compte}}', function(result) {
 		if (result !== null) {
 			$.ajax({
 				type: 'POST',
@@ -387,57 +387,18 @@ function addCmdToTable(_cmd) {
 	tr += '<td>';
 	tr += '  <a class="cmdAction btn btn-default btn-sm" data-l1key="chooseIcon"><i class="fas fa-flag"></i> {{Icône}}</a>';
 	tr += '  <span class="cmdAttr" data-l1key="display" data-l2key="icon" style="margin-left : 10px;"></span>';
-	tr += '  <select class="cmdAttr form-control input-sm" data-l1key="value" style="display : none;margin-top : 5px;" title="{{Commande information liée}}">';
-	tr += '	<option value="">{{Aucune}}</option>';
-	tr += '  </select>';
+	if (_cmd.type == 'action') {
+		tr += '  <input class="cmdAttr form-control input-sm" data-l1key="value" disabled style="margin-top:5px" title="{{Commande information liée}}">';
+	}
 	tr += '</td>';
 	tr += '<td>';
-	tr += '<input class="cmdAttr form-control input-sm" data-l1key="type" style="width:120px; margin-bottom:3px" disabled>';
-	tr += '<input class="cmdAttr form-control input-sm" data-l1key="subType" style="width:120px; margin-top:5px" disabled>';
+	tr += '<input class="cmdAttr form-control input-sm" data-l1key="type" style="width:100%; margin-bottom:3px" disabled>';
+	tr += '<input class="cmdAttr form-control input-sm" data-l1key="subType" style="width:100%; margin-top:5px" disabled>';
 	tr += '</td>';
 	tr += '<td>';
 	if (_cmd.type == 'info') {
-		if (_cmd.configuration.hasOwnProperty('source')) {
-			source = _cmd.configuration.source
-			if (source == 'calcul') {
-				tr += '<textarea class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="calcul" style="height:35px"></textarea>';
-				tr += '<a class="btn btn-default listEquipementInfo btn-xs" data-input="calcul" style="width:100%;margin-top:5px"><i class="fas fa-list-alt"></i> {{Rechercher équipement}}</a>'
-			} else  if (source == 'info') {
-				tr += '<div class="input-group" style="margin-bottom:5px">';
-				tr += '  <input type="text" class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="calcul"></input>'
-				tr += '   <span class="input-group-btn">';
-				tr += '	<a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="calcul">';
-				tr += '	  <i class="fas fa-list-alt"></i>';
-				tr += '	</a>';
-				tr += '  </span>';
-				tr += '</div>';
-			}
-		} else if (!isStandard) {
-			tr += '<textarea class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="calcul" style="height:35px"></textarea>';
-			tr += '<a class="btn btn-default listEquipementInfo btn-xs" data-input="calcul" style="width:100%;margin-top:5px"><i class="fas fa-list-alt"></i> {{Rechercher équipement}}</a>'
-		}
-	} else if (_cmd.type == 'action') {
-		if (_cmd.configuration.hasOwnProperty('destination')) {
-			destination = _cmd.configuration.destination
-			if (destination == 'cmd') {
-				tr += '<div class="input-group" style="margin-bottom:5px">';
-				tr += '  <input type="text" class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="destId"></input>'
-				tr += '   <span class="input-group-btn">';
-				tr += '	<a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="destId">';
-				tr += '	  <i class="fas fa-list-alt"></i>';
-				tr += '	</a>';
-				tr += '  </span>';
-				tr += '</div>';
-			}
-		} else if (!isStandard) {
-			tr += '<div class="input-group" style="margin-bottom:5px">';
-			tr += '  <input type="text" class="cmdAttr form-control input-sm" data-l1key="configuration" data-l2key="destId"></input>'
-			tr += '   <span class="input-group-btn">';
-			tr += '	<a class="btn btn-default btn-sm listEquipementAction roundedRight" data-input="destId">';
-			tr += '	  <i class="fas fa-list-alt"></i>';
-			tr += '	</a>';
-			tr += '  </span>';
-			tr += '</div>';
+		if (_cmd.configuration.hasOwnProperty('calcul')) {
+			tr += '<textarea class="cmdAttr form-control input-sm" disabled data-l1key="configuration" data-l2key="calcul" style="height:35px"></textarea>';
 		}
 	}
 	tr += '</td>';
@@ -463,23 +424,19 @@ function addCmdToTable(_cmd) {
 	tr += '</tr>';
 	$('#table_cmd tbody').append(tr);
 	tr = $('#table_cmd tbody tr').last();
-	if (isStandard){
-		tr.find('.cmdAttr[data-l1key=unite]:visible').prop('disabled',true);
-		tr.find('.cmdAttr[data-l1key=configuration][data-l2key=minValue]:visible').prop('disabled',true);
-		tr.find('.cmdAttr[data-l1key=configuration][data-l2key=maxValue]:visible').prop('disabled',true);
-	}
-	jeedom.eqLogic.buildSelectCmd({
-		id:  $('.eqLogicAttr[data-l1key=id]').value(),
-		filter: {type: 'info'},
-		error: function (error) {
-			$.fn.showAlert({message: error.message, level: 'danger'});
-		},
-		success: function (result) {
-			tr.find('.cmdAttr[data-l1key=value]').append(result);
-			tr.setValues(_cmd, '.cmdAttr');
-			jeedom.cmd.changeType(tr, init(_cmd.subType));
-		}
-	});
+//	jeedom.eqLogic.buildSelectCmd({
+//		id:  $('.eqLogicAttr[data-l1key=id]').value(),
+//		filter: {type: 'info'},
+//		error: function (error) {
+//			$.fn.showAlert({message: error.message, level: 'danger'});
+//		},
+//		success: function (result) {
+//			tr.find('.cmdAttr[data-l1key=value]').append(result);
+//			tr.setValues(_cmd, '.cmdAttr');
+//			jeedom.cmd.changeType(tr, init(_cmd.subType));
+//		}
+//	});
+	tr.setValues(_cmd, '.cmdAttr');
 }
 
 function prePrintEqLogic (id) {

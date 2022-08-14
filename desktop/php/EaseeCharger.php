@@ -209,7 +209,7 @@ sendVarToJS('eqType', $plugin->getId());
 			<!-- Partie droite de l'onglet "Équipement" -->
 			<div class="col-lg-6">
 			    <!-- Informations des chargeurs -->
-			    <legend><i class="fas fa-info"></i> {{Informations}}</legend>
+			    <legend><i class="fas fa-palette"></i> {{Couleur}}</legend>
 			    <div class="form-group">
 				<div class="text-center">
 				    <img id="charger_icon_visu" src="/plugins/EaseeCharger/desktop/img/charger.png" style="max-width:160px;"/>
@@ -232,7 +232,6 @@ sendVarToJS('eqType', $plugin->getId());
 	    <!-- Onglet des commandes d'un chargeur -->
 	    <!-- ================================== -->
 	    <div role="tabpanel" class="tab-pane" id="commandtab">
-		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="add" style="margin-top:5px;"><i class="fas fa-plus-circle"></i> {{Ajouter une commande}}</a>
 		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="createMissing" style="margin-top:5px;"><i class="fas fa-magic"></i> {{Recréer les commandes manquantes}}</a>
 		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="reconfigure" style="margin-top:5px;"><i class="fas fa-redo"></i> {{Reconfigurer les commandes}}</a>
 		<br/><br/>
@@ -243,10 +242,10 @@ sendVarToJS('eqType', $plugin->getId());
 				<th class="hidden-xs" style="min-width:50px;width:70px"> ID</th>
 				<th style="min-width:200px;width:240px">{{Nom}}</br>Logical_Id</th>
 				<th style="min-width:200px;width:240px">{{Icône}}</br>{{valeur retour}}</th>
-				<th style="width:130px">{{Type}}</br>{{Sous-type}}</th>
+				<th style="width:80px">{{Type}}</br>{{Sous-type}}</th>
 				<th>{{Valeur}}</th>
-				<th style="min-width:260px;width:310px">{{Options}}</th>
-				<th style="min-width:80px;width:200px">{{Action}}</th>
+				<th style="min-width:260px;width:280px">{{Options}}</th>
+				<th style="min-width:80px;width:140px">{{Action}}</th>
 			    </tr>
 			</thead>
 			<tbody>

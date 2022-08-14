@@ -2,10 +2,10 @@
 	"id" : "EaseeCharger",
 	"name" : "Chargeur Easee",
 	"description" : {
-		"fr_FR": "Plugin pour les stations de charge de véhicules électriques"
+		"fr_FR": "Plugin pour les chargeurs de véhicules électriques *Easee*"
 	},
 	"utilization" : {
-		"fr_FR": "Seuls les chargeurs <easee> sont actuallement utilisables dans ce plusgin.<BR/>D'autres type de chargeurs pourront être inégrés à l'avenir"
+		"fr_FR": "Fonctionalités très basiqueis pour le moment. Le plugin est en cours d'évolution"
 	},
 	"licence" : "GNU",
 	"author" : "ktn",
