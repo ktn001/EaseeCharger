@@ -14,10 +14,10 @@
 	"hasDependency" : true,
 	"hasOwnDeamon" : true,
 	"maxDependancyInstallTime" : 10,
-	"changelog" : "https://ktn001.github.io/EaseeCharger/#language#/changelog.html",
-	"documentation" : "https://ktn001.github.io/EaseeCharger/#language#/index.html",
-	"changelog_beta" : "https://ktn001.github.io/EaseeCharger/beta/#language#/changelog.html",
-	"documentation_beta" : "https://ktn001.github.io/EaseeCharger/beta/#language#/index.html",
+	"changelog" : "https://ktn001.github.io/#language#/EaseeCharger/changelog.html",
+	"documentation" : "https://ktn001.github.io/#language#/EaseeCharger/index.html",
+	"changelog_beta" : "https://ktn001.github.io/#language#/EaseeCharger/changelog.html",
+	"documentation_beta" : "https://ktn001.github.io/#language#/EaseeCharger/index.html",
 	"language" : ["fr_FR"],
 	"compatibility" : ["miniplus","smart","rpi","docker","diy","mobile","v4"]
 }
