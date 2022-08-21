@@ -17,6 +17,7 @@
 import logging
 import os
 import configparser
+import threading
 from signalrcore.hub.errors import UnAuthorizedHubError
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from logfilter import *
@@ -100,7 +101,6 @@ class Charger():
         return self.getAccount().getAccessToken()
 
     def run(self):
-
         self.lastMessage = None
         self.nbRestart = 0
         url = "https://api.easee.cloud/hubs/chargers"
@@ -115,24 +115,33 @@ class Charger():
                     'max_attemps': 5
                     }).build()
         self.connection.on_open(lambda: self.on_open())
-        self.connection.on_close(lambda: self.on_close())
+        self.connection.on_close(self.on_close)
         self.connection.on_reconnect(lambda: self.on_reconnect())
         self.connection.on_error(lambda data: self.on_error(data))
         self.connection.on('ProductUpdate', self.on_Update)
         self.connection.on('ChargerUpdate', self.on_Update)
         self.connection.on('CommandResponse', self.on_CommandResponse)
-        self.state = 'connecting'
-        self.connection.start()
-        return
         try:
             self.state = 'connecting'
             self.connection.start()
+            self.watcher = threading.Thread(target=self.watch_connection)
+            self.watcher.start()
             return True
         except UnAuthorizedHubError as error:
             self.state = 'error'
-            self.log_error("login Error")
+            self.logger._error("login Error")
             self.connection = None
             return False
+
+    def watch_connection (self):
+        while 1:
+            if self.state == 'closing' or self.state == 'disconnected':
+                return
+            if self.state == 'connected':
+                if not self.connection.transport.is_running():
+                    self.logger.warning("Le watcher redémarre la connection")
+                    self.connection.start()
+            time.sleep (5)
 
     def is_running(self):
         if self.connection == None:
