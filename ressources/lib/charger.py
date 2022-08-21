@@ -80,7 +80,8 @@ class Charger():
         self.account = account
         self.state = 'initialized'
         self.chargers[id] = self
-        self.nbRestart = 0
+        self.nbSignalrRestart = 0
+        self.nbWatcherRestart = 0
         self.logger = logging.getLogger(f'[{account.getName()}][{serial}]');
         filters = self.logger.filters
         for lf in filters:
@@ -102,7 +103,8 @@ class Charger():
 
     def run(self):
         self.lastMessage = None
-        self.nbRestart = 0
+        self.nbSignalrRestart = 0
+        self.nbWatcherRestart = 0
         url = "https://api.easee.cloud/hubs/chargers"
         options = {'access_token_factory': self.getToken}
 
@@ -138,9 +140,10 @@ class Charger():
             if self.state == 'closing' or self.state == 'disconnected':
                 return
             if self.state == 'connected':
-                if not self.connection.transport.is_running():
+                if not self.is_running():
                     self.logger.warning("Le watcher redémarre la connection")
                     self.connection.start()
+                    self.nbWatcherRestart += 1
             time.sleep (5)
 
     def is_running(self):
@@ -165,7 +168,7 @@ class Charger():
 
     def on_reconnect(self):
         self.logger.warning(f'reconnecting {self.getSerial()}')
-        self.nbRestart += 1
+        self.nbSignalrRestart += 1
 
     def on_error(self,data):
         self.logger.error(data.error)
@@ -205,8 +208,11 @@ class Charger():
     def getName(self):
         return (self.name)
 
-    def getNbRestart(self):
-        return (self.nbRestart)
+    def getNbSignalrRestart(self):
+        return (self.nbSignalrRestart)
+
+    def getNbWatcherRestart(self):
+        return (self.nbWatcherRestart)
 
     def getSerial(self):
         return (self.serial)

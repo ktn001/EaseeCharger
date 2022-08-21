@@ -136,7 +136,7 @@ def logStatus():
         logger.info (f"│   - Account:         {accountName}")
         logger.info (f"│   - State:           {charger.getState()}")
         logger.info (f"│   - Cloud Connected: {charger.is_running()}")
-        logger.info (f"│   - Nb Restart:      {charger.getNbRestart()}")
+        logger.info (f"│   - Nb Restart:      signalr: {charger.getNbSignalrRestart()}   watcher: {charger.getNbWatcherRestart()}")
     logger.info ("└──────────────────────────────────────────────────────────")
 
 #===============================================================================
