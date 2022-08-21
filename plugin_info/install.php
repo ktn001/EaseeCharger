@@ -22,7 +22,6 @@ require_once dirname(__FILE__) . '/../core/php/EaseeCharger.inc.php';
 // Fonction exécutée automatiquement après l'installation du plugin
 function EaseeCharger_install() {
 	log::add("EaseeCharger","info","Execution de EaseeCharger_install");
-	config::save('daemon::port', '34739', 'EaseeCharger');
 	config::save('api', config::genKey(), 'EaseeCharger');
 	config::save('api::EaseeCharger::mode', 'localhost');
 	config::save('api::EaseeCharger::restricted', '1');
