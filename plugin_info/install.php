@@ -25,11 +25,46 @@ function EaseeCharger_install() {
 	config::save('api', config::genKey(), 'EaseeCharger');
 	config::save('api::EaseeCharger::mode', 'localhost');
 	config::save('api::EaseeCharger::restricted', '1');
+	prepare_db();
 }
 
 // Fonction exécutée automatiquement après la mise à jour du plugin
 function EaseeCharger_update() {
 	log::add("EaseeCharger","info","Execution de EaseeCharger_update");
+	prepare_db();
+}
+
+function table_exists ($table) {
+	$result = DB::getConnection()->query('SHOW TABLES like "' . $table . '"')->fetch();
+	return is_array($result);
+}
+
+function prepare_db () {
+	$table_name = 'Easee_session';
+	$db = DB::getConnection();
+	if (!table_exists($table_name)) {
+		log::add("EaseeCharger","info","La table doit être créée");
+		$sql =    'CREATE TABLE ' . $table_name . '('
+			. '    id        INT         NOT NULL AUTO_INCREMENT,'
+			. '    chargerId            varchar(10) NOT NULL,'
+			. '    energy               FLOAT       NOT NULL,'
+			. '    start                INT         NOT NULL,'
+			. '    end                  INT         NOT NULL,'
+                        . '    sessionId            INT         NOT NULL,'
+			. '    duration             INT         NOT NULL,'
+			. '    energyTrasnfertStart INT         NOT NULL,'
+			. '    energyTrasnfertEnd   INT         NOT NULL,'
+			. '    prixKwh              FLOAT       NOT NULL,'
+			. '    prix                 FLOAT       NOT NULL,'
+			. '  PRIMARY KEY(id),'
+			. '  UNIQUE KEY (chargerId, sessionId)'
+			. ')';
+		if ($db->exec($sql) === false) {
+			log::add("EaseeCharger","error","Error creating table '" . $table_name . "':  " . $db->errorInfo()[2]);
+		}
+		config::save('DB::version',1,'EaseeCharger');
+	}
+
 }
 
 ?>
