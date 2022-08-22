@@ -17,7 +17,7 @@
  */
 
 /* * *************************** Includes ********************************* */
-require_once __DIR__  . '/../../../../core/php/core.inc.php';
+require_once __DIR__  . '/../php/EaseeCharger.inc.php';
 
 class EaseeCharger extends eqLogic {
 
@@ -355,6 +355,9 @@ class EaseeCharger extends eqLogic {
 	}
     }
 
+    public function getLastSession() {
+    }
+
     /*
      * Path de l'image du chargeur
      */
@@ -647,4 +650,3 @@ class EaseeChargerCmd extends cmd {
     }
 }
 
-require_once __DIR__  . '/Easee_account.class.php';

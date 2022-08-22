@@ -16,6 +16,8 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once __DIR__  . '/../php/EaseeCharger.inc.php';
+
 class Easee_account {
 
     private static $_mapping = null;
@@ -529,6 +531,9 @@ class Easee_account {
 	foreach ($response as $key => $value) {
 	    $logicalIds = $this->mapCmd($key);
 	    if (count($logicalIds) == 0) {
+		if (is_array($value)) {
+		    $value = print_r($value, true);
+		}
 		log::add('EaseeCharger','debug',"│   " . sprintf(__('Pas de traitemment pour %s (value: %s)',__FILE__),$key, $value));
 		continue;
 	    }
@@ -576,6 +581,28 @@ class Easee_account {
 	$serial = $cmd->getEqLogic()->getSerial();
 	$path = 'chargers/' . $serial . '/commands/resume_charging';
 	$this->sendrequest($path, 'POST');
+    }
+
+    public function execute_getLatestSession($cmd) {
+	$charger = $cmd->getEqLogic();
+	$serial = $charger->getSerial();
+	$path = 'chargers/' . $serial . '/sessions/latest';
+	$response = $this->sendRequest($path);
+	foreach ($response as $key => $value) {
+	    log::add("EaseeCharger","debug","│  - " . $key . ": " . $value);
+	}
+	$session = new Easee_session();
+	$session->setChargerId($response['chargerId']);
+	$session->setEnergy($response['sessionEnergy']);
+	$session->setStart($response['sessionStart']);
+	$session->setEnd($response['sessionEnd']);
+	$session->setSessionId($response['sessionId']);
+	$session->setDuration($response['chargeDurationInSeconds']);
+	$session->setEnergyTransferStart($response['firstEnergyTransferPeriodStart']);
+	$session->setEnergyTransferEnd($response['lastEnergyTransferPeriodEnd']);
+	$session->setPrixKwh($response['pricePrKwhIncludingVat']);
+	$session->setPrix($response['costIncludingVat']);
+	$session->save();
     }
 
     /*     * ********************** Getteur Setteur *************************** */
