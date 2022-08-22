@@ -16,7 +16,7 @@ try {
 				log::add("EaseeCharger","warning",__("Le nom du compte démarré n'est pas fourni",__FILE__));
 				return;
 			}
-			$account = EaseeCharger_account::byName($payload['account']);
+			$account = Easee_account::byName($payload['account']);
 			if (!is_object($account)) {
 				log::add("EaseeCharger","error",sprintf(__("Le compte %s est introuvable",__FILE__),$payload['account']));
 				return;

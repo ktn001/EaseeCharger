@@ -16,7 +16,7 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class EaseeCharger_account {
+class Easee_account {
 
     private static $_mapping = null;
     private static $_transforms = null;
@@ -443,7 +443,7 @@ class EaseeCharger_account {
 	}
 	$_token['expiresAt'] = time() + $_token['expiresIn'];
 	$lifetime = isset($_token['expiresIn']) ? $_token['expiresIn'] : 192800;
-	cache::set('EaseeCharger_account:'. $this->getName(), $_token, $lifetime);
+	cache::set('Easee_account:'. $this->getName(), $_token, $lifetime);
 	return $this;
     }
 
@@ -453,7 +453,7 @@ class EaseeCharger_account {
 	} else {
 	    log::add("EaseeCharger","debug","getToken....");
 	}
-	$cache = cache::byKey('EaseeCharger_account:' . $this->getName());
+	$cache = cache::byKey('Easee_account:' . $this->getName());
 	if (!is_object($cache)) {
 	    log::add("EaseeCharger","debug","   Pas de token en cache.");
 	    if ($retrying) {

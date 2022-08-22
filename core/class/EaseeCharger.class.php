@@ -201,7 +201,7 @@ class EaseeCharger extends eqLogic {
      */
     public static function daemon_started() {
 	log::add("EaseeCharger","info",__("Le daemon est démarré",__FILE__));
-	$accounts = EaseeCharger_account::all(true);
+	$accounts = Easee_account::all(true);
 	foreach ($accounts as $account) {
 	    $account->start_account_on_daemon();
 	}
@@ -254,7 +254,7 @@ class EaseeCharger extends eqLogic {
     /*     * ************************ Les crons **************************** */
 
     public static function cronHourly() {
-	EaseeCharger_account::cronHourly();
+	Easee_account::cronHourly();
     }
 
     //========================================================================
@@ -570,7 +570,7 @@ class EaseeCharger extends eqLogic {
     }
 
     public function getAccount() {
-	return EaseeCharger_account::byName($this->getaccountName());
+	return Easee_account::byName($this->getaccountName());
     }
 
     //========================================================================
@@ -647,4 +647,4 @@ class EaseeChargerCmd extends cmd {
     }
 }
 
-require_once __DIR__  . '/EaseeCharger_account.class.php';
+require_once __DIR__  . '/Easee_account.class.php';

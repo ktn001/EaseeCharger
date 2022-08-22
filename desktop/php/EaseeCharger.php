@@ -4,7 +4,7 @@ if (!isConnect('admin')) {
 }
 //  Déclaration des variables obligatoires
 $plugin = plugin::byId('EaseeCharger');
-$accounts = EaseeCharger_account::all();
+$accounts = Easee_account::all();
 $chargers = eqLogic::byType($plugin->getId());
 
 // Déclaration de variables pour javasctipt

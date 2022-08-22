@@ -19,6 +19,7 @@
 try {
 	require_once __DIR__ . '/../../../../core/php/core.inc.php';
 	require_once __DIR__ . '/../php/EaseeCharger.inc.php';
+	require_once __DIR__ . '/../class/Easee_account.class.php';
 
 	include_file('core', 'authentification', 'php');
 
@@ -33,7 +34,7 @@ try {
 		try {
 			$name = init('name');
 			log::add("EaseeCharger", "debug", sprintf (__('Création de compte %s',__FILE__),$name));
-			EaseeCharger_account::create($name);
+			Easee_account::create($name);
 			ajax::success();
 		} catch (Exception $e){
 			ajax::error(displayException($e), $e->getCode());
@@ -45,7 +46,7 @@ try {
 		if ($name == '') {
 			throw new Exception(__("Le nom de l'account n'est pas défini",__FILE__));
 		}
-		$account = EaseeCharger_account::byName($name);
+		$account = Easee_account::byName($name);
 		if (!is_object($account)) {
 			throw new Exception(sprintf(__("Le compte %s est introuvable",__FILE__),$name));
 		}
@@ -58,11 +59,11 @@ try {
 			throw new Exception(__("Pas de données pour la sauvegarde du compte",__FILE__));
 		}
 		$data = json_decode($data,true);
-		$account = EaseeCharger_account::byName($data['name']);
+		$account = Easee_account::byName($data['name']);
 		utils::a2o($account,$data);
 		$account->save();
 		$return = array();
-		$return['account'] = utils::o2a(EaseeCharger_account::byName($data['name']));
+		$return['account'] = utils::o2a(Easee_account::byName($data['name']));
 		$return['modifiedChargers'] = $account->getModifiedChargers();
 		ajax::success(json_encode($return));
 	}
@@ -72,7 +73,7 @@ try {
 		if ($name == '') {
 			throw new Exception(__("Le nom du compte à supprimer n'est pas défini",__FILE__));
 		}
-		$account = EaseeCharger_account::byName($name);
+		$account = Easee_account::byName($name);
 		if (!is_object($account)){
 			throw new Exception(sprintf(__("Le compte à supprimer (%s) est intouvable",__FILE__),$name));
 		}
