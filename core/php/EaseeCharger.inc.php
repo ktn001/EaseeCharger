@@ -22,3 +22,7 @@ require_once __DIR__  . '/../../../../core/php/core.inc.php';
  * Fichier d’inclusion si vous avez plusieurs fichiers de class ou 3rdParty à inclure
  *
  */
+
+require_once __DIR__ . '/../class/Easee_session.class.php';
+require_once __DIR__ . '/../class/EaseeCharger.class.php';
+require_once __DIR__ . '/../class/Easee_account.class.php';
