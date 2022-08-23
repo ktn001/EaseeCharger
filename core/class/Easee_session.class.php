@@ -4,20 +4,59 @@ require_once __DIR__ . '/../php/EaseeCharger.inc.php';
 
 class Easee_session {
 
-	protected $id;
-	protected $chargerId;
-	protected $energy;
-	protected $start;
-	protected $end;
-	protected $sessionId;
-	protected $duration;
-	protected $energyTransferStart;
-	protected $energyTransferEnd;
-	protected $prixKwh;
-	protected $prix;
+	private $id;
+	private $chargerId;
+	private $energy;
+	private $start;
+	private $end;
+	private $sessionId;
+	private $duration;
+	private $energyTransferStart;
+	private $energyTransferEnd;
+	private $prixKwh;
+	private $prix;
 
+	public function byId($_id) {
+		$value = array(
+			'id' => $_id,
+		);
+		$sql = 'SELECT ' . DB::buildField(__CLASS__) . '
+			FROM Easee_session
+			WHERE id=:id';
+		return DB::Prepare($sql, $value, DB::FETCH_TYPE_ROW, PDO::FETCH_CLASS, __CLASS__);
+	}
+
+	public function byChargerIdAndSessionId($_chargerId, $_sessionId) {
+		$value = array(
+			'chargerId' => $_chargerId,
+			'sessionId' => $_sessionId,
+		);
+		$sql = 'SELECT ' . DB::buildField(__CLASS__) . '
+			FROM Easee_session
+			WHERE chargerId=:chargerId
+			  AND sessionId=:sessionId';
+		return DB::Prepare($sql, $value, DB::FETCH_TYPE_ROW, PDO::FETCH_CLASS, __CLASS__);
+	}
 
 	public function save() {
+		if (!$this->id) {
+			$existingSession = $this::byChargerIdAndSessionId($this->chargerId,$this->sessionId);
+			if (is_object($existingSession)) {
+				$egal = true;
+				log::add("EaseeCharger","debug",sprintf(__("Une session id %s pour le chageur %s a été trouvée", __FILE__), $this->sessionId, $this->chargerId));
+				foreach (['start', 'end', 'duration', 'energyTransferStart', 'energyTransferEnd', 'energy', 'prixKwh', 'prix'] as $var) {
+					if ((string)$existingSession->$var != (string)$this->$var) {
+						$egal = false;
+						log::add("EaseeCharger","debug",sprintf(__("  %s diffère ", __FILE__),$var) . $existingSession->$var . ' => ' . $this->$var);
+					}
+				}
+				if ($egal) {
+					return;
+				} else {
+					$this->id = $existingSession->id;
+				}
+			}
+		}
 		DB::save($this);
 	}
 
@@ -59,8 +98,7 @@ class Easee_session {
 	}
 
 	public function setStart($_start) {
-		$this->start = $_start;
-		$this->start = 1;
+		$this->start = date("Y-m-d H:i:s", strtotime($_start));
 		return $this;
 	}
 
@@ -69,8 +107,7 @@ class Easee_session {
 	}
 
 	public function setEnd($_end) {
-		$this->end = $_end;
-		$this->end = 2;
+		$this->end = date("Y-m-d H:i:s", strtotime($_end));
 		return $this;
 	}
 
@@ -97,8 +134,7 @@ class Easee_session {
 	}
 
 	public function setEnergyTransferStart($_energyTransferStart) {
-		$this->energyTransferStart = $_energyTransferStart;
-		$this->energyTransferStart = 3;
+		$this->energyTransferStart = date("Y-m-d H:i:s", strtotime($_energyTransferStart));
 		return $this;
 	}
 
@@ -107,8 +143,7 @@ class Easee_session {
 	}
 
 	public function setEnergyTransferEnd($_energyTransferEnd) {
-		$this->energyTransferEnd = $_energyTransferEnd;
-		$this->energyTransferEnd = 4;
+		$this->energyTransferEnd = date("Y-m-d H:i:s", strtotime($_energyTransferEnd));
 		return $this;
 	}
 
