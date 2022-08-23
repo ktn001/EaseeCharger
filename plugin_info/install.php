@@ -54,7 +54,7 @@ function prepare_db () {
 			. '    duration            INT         NOT NULL,'
 			. '    energyTransferStart INT         NOT NULL,'
 			. '    energyTransferEnd   INT         NOT NULL,'
-			. '    prixKwh             FLOAT       NOT NULL,'
+			. '    prixKwh             REAL        NOT NULL,'
 			. '    prix                FLOAT       NOT NULL,'
 			. '  PRIMARY KEY(id),'
 			. '  UNIQUE KEY (chargerId, sessionId)'
