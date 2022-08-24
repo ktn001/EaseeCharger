@@ -421,7 +421,7 @@ class EaseeCharger extends eqLogic {
 		    log::add("EaseeCharger","debug",$config['order']);
 		    foreach ($this->getCmd() as $c) {
 			if ($c->getOrder() >= $config['order']) {
-			    if ($odlsOrder == 0 || $c->getOrder < $oldOrder) {
+			    if ($oldOrder == 0 || $c->getOrder < $oldOrder) {
 				$c->setOrder($c->getOrder()+1);
 				$c->save();
 			    }
@@ -530,15 +530,32 @@ class EaseeCharger extends eqLogic {
 		if (is_object($cmdValue)) {
 			$value = '#' . $cmdValue->getId() . '#';
 		}
-		if ($cmd->getValue(i) != $value) {
+		if ($cmd->getValue() != $value) {
 		    $cmd->setValue($value);
 		    $needSave = true;
 		}
 	    }
 
-	    log::add("EaseeCharger","debug",print_r($config,true));
-	    if (isset($config['actiononchange'])) {
-		log::add("EaseeCharger","debug","XXXXXXXXXXXXXXXXXXx actionOnChange");
+	    if (isset($config['actionOnChange'])) {
+		$actionCmd = $this->getCmd('action',$config['actionOnChange']);
+		if (!is_object($actionCmd)) {
+		    throw new Exception (sprintf(__("cmd '%s': La commande '%s' pour actionOnChange est introuvable", __FILE__),$cmd->getLogicalId(),$config['actionOnChange']));
+		}
+		$actionCheckCmd = array (
+		    array(
+			'cmd' => '#' . $actionCmd->getId() . '#',
+			'options' => array(
+			    'background' => 1,
+			    'enable' => 1,
+			),
+			'type' => 'action'
+		    )
+		);
+		$cmd->setConfiguration('actionCheckCmd', $actionCheckCmd);
+		$cmd->setConfiguration('jeedomCheckCmdOperator', '!=');
+		$cmd->setConfiguration('jeedomCheckCmdTest', '#');
+		$cmd->setConfiguration('jeedomCheckCmdTime', '');
+		$needSave = true;
 	    }
 	    if ($needSave) {
 		$cmd->save();
@@ -586,8 +603,8 @@ class EaseeCharger extends eqLogic {
 
 	foreach ($cmdConfigs as $logicalId => $config) {
 	    if ($update or in_array($logicalId, $createdCmds)) {
-	    	$cmd = $this->getCmd(null,$logicalId);
-	    	$this->configureCmd($cmd,$config,true);
+		$cmd = $this->getCmd(null,$logicalId);
+		$this->configureCmd($cmd,$config,true);
 	    }
 	}
 
