@@ -95,11 +95,11 @@ try {
 		try {
 			$option = array();
 			if (init('action') == 'createCmds') {
-				$options["createOnly"] = true;
+				$mode = "createOnly";
 			} elseif (init('action') == 'updateCmds')  {
-				$options["updateOnly"] = true;
+				$mode = "updateOnly";
 			}
-			$charger->createCmds($options);
+			$charger->createCmds($mode);
 			ajax::success();
 		} catch (Exception $e){
 			ajax::error(displayException($e), $e->getCode());

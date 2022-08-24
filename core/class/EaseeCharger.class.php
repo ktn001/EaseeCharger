@@ -417,7 +417,6 @@ class EaseeCharger extends eqLogic {
 		    log::add("EaseeCharger","debug","========================");
 		    log::add("EaseeCharger","debug",$config['order']);
 		    foreach ($this->getCmd() as $c) {
-			log::add("EaseeCharger","debug","c: " . $c->getLogicalId() . " o: " . $c->getOrder());
 			if ($c->getOrder() >= $config['order']) {
 			    if ($odlsOrder == 0 || $c->getOrder < $oldOrder) {
 				$c->setOrder($c->getOrder()+1);
@@ -533,32 +532,57 @@ class EaseeCharger extends eqLogic {
 		    $needSave = true;
 		}
 	    }
+
+	    log::add("EaseeCharger","debug",print_r($config,true));
+	    if (isset($config['actiononchange'])) {
+		log::add("EaseeCharger","debug","XXXXXXXXXXXXXXXXXXx actionOnChange");
+	    }
 	    if ($needSave) {
 		$cmd->save();
 	    }
 	}
     }
 
-    public function createCmds() {
+    public function createCmds( $mode = "") {
+	if (!in_array($mode, array('','createOnly','updateOnly'))) {
+	    throw new Exception(sprintf(__("%s: Le mode %s n'est pas traité",__FILE__),'createCmds',print_r($mode,true)));
+	}
+	$create = true;
+	$update = true;
+	if ($mode == 'createOnly') {
+	    $update = false;
+	}
+	if ($mode == 'updateOnly') {
+	    $create = false;
+	}
 	$cfgFile = realpath (__DIR__ . '/../config/cmd.config.ini');
 	log::add("EaseeCharger","debug",sprintf(__("Lecture du fichier %s ...",__FILE__),$cfgFile));
 	$cmdConfigs = parse_ini_file($cfgFile,true,INI_SCANNER_RAW);
 	$createdCmds = [];
+
 	foreach ($cmdConfigs as $logicalId => $config) {
+	    $created = false;
 	    $cmd = cmd::byEqLogicIdAndLogicalId($this->getId(),$logicalId);
-	    if (is_object($cmd)) {
-		log::add("EaseeCharger","debug",sprintf(__("%s existe déjà",__FILE__),$logicalId));
-		continue;
+	    if ($create) {
+		if (is_object($cmd)) {
+		    log::add("EaseeCharger","debug",sprintf(__("%s existe déjà",__FILE__),$logicalId));
+		    continue;
+		}
+		log::add("EaseeCharger","info",sprintf(__("Création de la commande %s...",__FILE__),$logicalId));
+		$cmd = new EaseeChargerCMD();
+		$cmd->setLogicalId($logicalId);
+		$this->configureCmd($cmd,$config);
+		$created = true;
+		$createdCmds[] = $logicalId;
 	    }
-	    log::add("EaseeCharger","info",sprintf(__("Création de la commande %s...",__FILE__),$logicalId));
-	    $cmd = new EaseeChargerCMD();
+	    if ($update or $created) {
+		    if (is_object
 	    $cmd->setLogicalId($logicalId);
 	    $this->configureCmd($cmd,$config);
-	    $createdCmds[] = $logicalId;
 	}
 
 	foreach ($cmdConfigs as $logicalId => $config) {
-	    if (!in_array($logicalId, $createdCmds)) {
+	    if ($mode='createOnly' and !in_array($logicalId, $createdCmds)) {
 		continue;
 	    }
 	    $cmd = $this->getCmd(null,$logicalId);
