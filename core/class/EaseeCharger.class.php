@@ -571,23 +571,23 @@ class EaseeCharger extends eqLogic {
 		log::add("EaseeCharger","info",sprintf(__("Création de la commande %s...",__FILE__),$logicalId));
 		$cmd = new EaseeChargerCMD();
 		$cmd->setLogicalId($logicalId);
-		$this->configureCmd($cmd,$config);
 		$created = true;
 		$createdCmds[] = $logicalId;
 	    }
 	    if ($update or $created) {
-		    if (is_object
-	    $cmd->setLogicalId($logicalId);
-	    $this->configureCmd($cmd,$config);
+		if (is_object($cmd)) {
+		    $this->configureCmd($cmd,$config);
+		}
+	    }
 	}
 
 	foreach ($cmdConfigs as $logicalId => $config) {
-	    if ($mode='createOnly' and !in_array($logicalId, $createdCmds)) {
-		continue;
+	    if ($update or in_array($logicalId, $createdCmds)) {
+	    	$cmd = $this->getCmd(null,$logicalId);
+	    	$this->configureCmd($cmd,$config,true);
 	    }
-	    $cmd = $this->getCmd(null,$logicalId);
-	    $this->configureCmd($cmd,$config,true);
 	}
+
 	if ($this->getIsEnable()) {
 	    $this->refresh();
 	}
