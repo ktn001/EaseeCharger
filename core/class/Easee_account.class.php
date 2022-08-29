@@ -309,7 +309,7 @@ class Easee_account {
     /*
      * Envoi d'une requête API au cloud Easee
      */
-    private function sendRequest($path, $data = '', $accessToken='' ) {
+    public function sendRequest($path, $data = '', $accessToken='' ) {
 	log::add("EaseeCharger","info","┌─" .__("Easee: envoi d'une requête au cloud", __FILE__));
 
 	$method = $data == '' ? 'GET' : 'POST';
@@ -591,17 +591,7 @@ class Easee_account {
 	foreach ($response as $key => $value) {
 	    log::add("EaseeCharger","debug","│  - " . $key . ": " . $value);
 	}
-	$session = new Easee_session();
-	$session->setChargerId($response['chargerId']);
-	$session->setEnergy($response['sessionEnergy']);
-	$session->setStart($response['sessionStart']);
-	$session->setEnd($response['sessionEnd']);
-	$session->setSessionId($response['sessionId']);
-	$session->setDuration($response['chargeDurationInSeconds']);
-	$session->setEnergyTransferStart($response['firstEnergyTransferPeriodStart']);
-	$session->setEnergyTransferEnd($response['lastEnergyTransferPeriodEnd']);
-	$session->setPrixKwh($response['pricePrKwhIncludingVat']);
-	$session->setPrix($response['costIncludingVat']);
+	$session = Easee_session::fromEaseeArray($response);
 	$session->save();
     }
 

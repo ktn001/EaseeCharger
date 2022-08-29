@@ -355,7 +355,18 @@ class EaseeCharger extends eqLogic {
 	}
     }
 
-    public function getLastSession() {
+    public function loadSessions() {
+	    $account = $this->getAccount();
+	    $serial = $this->getSerial();
+	    $from='2000-01-01';
+	    $to='2023-01-01';
+	    $path = sprintf('sessions/charger/%s/sessions/%s/%s',$serial,$from,$to);
+	    $response = $account->sendRequest($path);
+	    foreach ($response as $session_array) {
+		    $session_array['chargerId'] = $serial;
+		    $session = Easee_session::fromEaseeArray($session_array);
+		    $session->save();
+	    }
     }
 
     /*
@@ -417,8 +428,6 @@ class EaseeCharger extends eqLogic {
 	    if (isset($config['order'])) {
 		$oldOrder = $cmd->getOrder();
 		if ($oldOrder != $config['order']) {
-		    log::add("EaseeCharger","debug","========================");
-		    log::add("EaseeCharger","debug",$config['order']);
 		    foreach ($this->getCmd() as $c) {
 			if ($c->getOrder() >= $config['order']) {
 			    if ($oldOrder == 0 || $c->getOrder < $oldOrder) {

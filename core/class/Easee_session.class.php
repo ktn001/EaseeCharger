@@ -15,8 +15,26 @@ class Easee_session {
 	private $energyTransferEnd;
 	private $prixKwh;
 	private $prix;
+	private static $_easeeArrayMaping = array (
+		'chargerId' => 'setChargerId',
+		'sessionEnergy' => 'setEnergy',
+		'kiloWattHours' => 'setEnergy',
+		'sessionStart' => 'setStart',
+		'carConnected' => 'setStart',
+		'sessionEnd' => 'setEnd',
+		'carDisconnected' => 'setEnd',
+		'sessionId' => 'setSessionId',
+		'id' => 'setSessionId',
+		'chargeDurationInSeconds' => 'setDuration',
+		'actualDurationSeconds' => 'setDuration',
+		'firstEnergyTransferPeriodStart' => 'setEnergyTransferStart',
+		'firstEnergyTransferPeriodStarted' => 'setEnergyTransferStart',
+		'lastEnergyTransferPeriodEnd' => 'setEnergyTransferEnd',
+		'pricePrKwhIncludingVat' => 'setPrixKwh',
+		'costIncludingVat' => 'setPrix',
+	);
 
-	public function byId($_id) {
+	public static function byId($_id) {
 		$value = array(
 			'id' => $_id,
 		);
@@ -26,7 +44,7 @@ class Easee_session {
 		return DB::Prepare($sql, $value, DB::FETCH_TYPE_ROW, PDO::FETCH_CLASS, __CLASS__);
 	}
 
-	public function byChargerIdAndSessionId($_chargerId, $_sessionId) {
+	public static function byChargerIdAndSessionId($_chargerId, $_sessionId) {
 		$value = array(
 			'chargerId' => $_chargerId,
 			'sessionId' => $_sessionId,
@@ -36,6 +54,35 @@ class Easee_session {
 			WHERE chargerId=:chargerId
 			  AND sessionId=:sessionId';
 		return DB::Prepare($sql, $value, DB::FETCH_TYPE_ROW, PDO::FETCH_CLASS, __CLASS__);
+	}
+
+	public static function fromEaseeArray ($_easeeArray) {
+		if (!is_array($_easeeArray)) {
+			throw new Exception (__("$_easeeArray n'est pas un tableau",__FILE__));
+		}
+		if (!array_key_exists('chargerId',$_easeeArray)) {
+			log::add("EaseeCharger","debug","fromEaseeArray: chargerId " . __("introuvable dans ",__FILE__) . print_r($_easeeArray,true));
+			throw new Exception ("chargerId " . __("non défini", __FILE__));
+		}
+		if (!(array_key_exists('sessionId',$_easeeArray) or array_key_exists('id',$_easeeArray))) {
+			log::add("EaseeCharger","debug","fromEaseeArray: sessionId " . __("introuvable dans ",__FILE__) . print_r($_easeeArray,true));
+			throw new Exception ("sessionId " . __("non défini", __FILE__));
+		}
+		$sessionId = array_key_exists('sessionId',$_easeeArray) ? $_easeeArray['chargerId'] : $_easeeArray['id'];
+		$session = self::byChargerIdAndSessionId($_easeeArray['chargerId'],$sessionId);
+		if (!is_object($session)){
+			$session = new Easee_session();
+		}
+		foreach(self::$_easeeArrayMaping as $key => $function) {
+			if (array_key_exists($key, $_easeeArray)) {
+				$session->$function($_easeeArray[$key]);
+			}
+		}
+		return $session;
+	}
+
+	public function getTableName() {
+		return 'Easee_session';
 	}
 
 	public function save() {
@@ -60,9 +107,6 @@ class Easee_session {
 		DB::save($this);
 	}
 
-	public function getTableName() {
-		return 'Easee_session';
-	}
 
 	/*    * *******************Getteur Setteur********************** */
 

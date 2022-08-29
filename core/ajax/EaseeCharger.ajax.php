@@ -19,7 +19,6 @@
 try {
 	require_once __DIR__ . '/../../../../core/php/core.inc.php';
 	require_once __DIR__ . '/../php/EaseeCharger.inc.php';
-	require_once __DIR__ . '/../class/Easee_account.class.php';
 
 	include_file('core', 'authentification', 'php');
 
@@ -106,6 +105,16 @@ try {
 		}
 	}
 		
+	if ($action == 'loadSessions') {
+		$id = init('id');
+		$charger = EaseeCharger::byId($id);
+		if (!is_object($charger)){
+			throw new Exception(sprintf(__("Chargeur %s introuvable.",__FILE__),$id));
+		}
+		$charger->loadSessions();
+		ajax::success();
+	}
+
 	throw new Exception(__("Aucune méthode correspondante à : ", __FILE__) . init('action'));
 
 	/*     * *********Catch exeption*************** */
@@ -113,3 +122,4 @@ try {
 	ajax::error(displayException($e), $e->getCode());
 }
 
+?>

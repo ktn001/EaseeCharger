@@ -204,6 +204,28 @@ sendVarToJS('eqType', $plugin->getId());
 				    <input type="text" class="eqLogicAttr form-control" data-l1key="configuration" data-l2key="serial"/>
 				</div>
 			    </div>
+
+			    <legend><i class="fas fa-bolt"></i> {{Historique des charges}}</legend>
+
+			    <div class='form-group'>
+				<label class="col-sm-3 control-label">{{Rétention}}</label>
+				<span class="col-sm-7">
+				    <input type="number" class="eqLogicAttr form-control" style="width:7ch; display:inline" data-l1key="configuration" data-l2key="retention"/>
+				    <select class="eqLogicAttr form-control" style="width:15ch; display:inline" data-l1key="configuration" data-l2key="retentionUnit">
+			    		<option class='form-group' value="m">{{mois}}</options>
+			    		<option class='form-group' value="y">{{années}}</options>
+				    </select>
+				</span>
+			    </div>
+			    <div class='form-group'>
+				<label class="col-sm-3 control-label">{{Sessions}}</label>
+				<div class="col-sm-7">
+				    <a id="bt_loadSessions" class="btn btn-danger btn-sm ">
+					<i class="fas fa-sync"></i> {{Charger l'historique}}
+				    </a>
+				</div>
+			    </div>
+
 			</div> <!-- Partie gauche de l'onglet "Equipements" -->
 
 			<!-- Partie droite de l'onglet "Équipement" -->

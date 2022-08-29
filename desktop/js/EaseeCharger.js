@@ -279,6 +279,31 @@ $('.eqLogicThumbnailContainer[data-type=account]').delegate('.accountDisplayCard
 })
 
 /*
+ * Chargement de l'historique des sessions charge
+ */
+$('#bt_loadSessions').off('click').on('click',function() {
+	$.ajax({
+		type: 'POST',
+		url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
+		data: {
+			action: 'loadSessions',
+			id: $('.eqLogicAttr[data-l1key=id]').value(),
+		},
+		dataType : 'json',
+		global : false,
+		error: function (request, status, error) {
+			handleAjaxError(request, status, error)
+		},
+		success: function (data) {
+			if (data.state != 'ok') {
+				$.fn.showAlert({message: data.result, level:'danger'});
+				return
+			}
+		}
+	})
+});
+
+/*
  * Action sur modification d'image d'un chargeur
  */
 $('#selectChargerImg').on('change',function(){

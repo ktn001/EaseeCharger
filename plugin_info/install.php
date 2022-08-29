@@ -50,9 +50,9 @@ function prepare_db () {
                         . '    sessionId           INT         NOT NULL,'
 			. '    start               DATETIME    NOT NULL,'
 			. '    end                 DATETIME    NOT NULL,'
-			. '    duration            INT         NOT NULL,'
-			. '    energyTransferStart DATETIME    NOT NULL,'
-			. '    energyTransferEnd   DATETIME    NOT NULL,'
+			. '    duration            INT,'
+			. '    energyTransferStart DATETIME,'
+			. '    energyTransferEnd   DATETIME,'
 			. '    energy              REAL       NOT NULL,'
 			. '    prixKwh             REAL        NOT NULL,'
 			. '    prix                REAL       NOT NULL,'
@@ -64,7 +64,6 @@ function prepare_db () {
 		}
 		config::save('DB::version',1,'EaseeCharger');
 	}
-
 }
 
 ?>
