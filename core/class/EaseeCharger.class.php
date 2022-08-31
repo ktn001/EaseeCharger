@@ -237,12 +237,12 @@ class EaseeCharger extends eqLogic {
 		    'etat' => [
 			'template' => 'etat',
 			'replace' => [
-			    '#texte_1#' =>  '{{Débranché}}',
-			    '#texte_2#' =>  '{{En attente}}',
-			    '#texte_3#' =>  '{{Recharge}}',
-			    '#texte_4#' =>  '{{Terminé}}',
-			    '#texte_5#' =>  '{{Erreur}}',
-			    '#texte_6#' =>  '{{Prêt}}'
+			    '#texte_1#' => '{{Débranché}}',
+			    '#texte_2#' => '{{En attente}}',
+			    '#texte_3#' => '{{Recharge}}',
+			    '#texte_4#' => '{{Terminé}}',
+			    '#texte_5#' => '{{Erreur}}',
+			    '#texte_6#' => '{{Prêt}}'
 			]
 		    ]
 		]
@@ -255,6 +255,13 @@ class EaseeCharger extends eqLogic {
 
     public static function cronHourly() {
 	Easee_account::cronHourly();
+    }
+
+    public static function cronDaily() {
+	$chargers = self::all(true);
+	foreach ($chargers as $charger) {
+	    $charger->purgeSession();
+	}
     }
 
     //========================================================================
@@ -356,17 +363,30 @@ class EaseeCharger extends eqLogic {
     }
 
     public function loadSessions() {
-	    $account = $this->getAccount();
-	    $serial = $this->getSerial();
-	    $from='2000-01-01';
-	    $to='2023-01-01';
-	    $path = sprintf('sessions/charger/%s/sessions/%s/%s',$serial,$from,$to);
-	    $response = $account->sendRequest($path);
-	    foreach ($response as $session_array) {
-		    $session_array['chargerId'] = $serial;
-		    $session = Easee_session::fromEaseeArray($session_array);
-		    $session->save();
-	    }
+	if ($this->getIsEnable() == 0) {
+	    return;
+	}
+	$account = $this->getAccount();
+	$serial = $this->getSerial();
+	$from='2000-01-01';
+	$to='2023-01-01';
+	$path = sprintf('sessions/charger/%s/sessions/%s/%s',$serial,$from,$to);
+	$response = $account->sendRequest($path);
+	foreach ($response as $session_array) {
+	    $session_array['chargerId'] = $serial;
+	    $session = Easee_session::fromEaseeArray($session_array);
+	    $session->save();
+	}
+    }
+
+    public function purgeSessions() {
+	$retention = $this->getConfiguration('retention');
+	if ($retention == '' or $retention == 0) {
+	    return;
+	}
+	$retentionUnit = $this->getConfiguration('retentionUnit');
+	$serial = $this->getConfiguration('serial');
+	Easee_session::purge($serial,$retention,$retentionUnit);
     }
 
     /*

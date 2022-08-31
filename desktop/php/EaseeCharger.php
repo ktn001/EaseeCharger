@@ -208,20 +208,28 @@ sendVarToJS('eqType', $plugin->getId());
 			    <legend><i class="fas fa-bolt"></i> {{Historique des charges}}</legend>
 
 			    <div class='form-group'>
-				<label class="col-sm-3 control-label">{{Rétention}}</label>
-				<span class="col-sm-7">
+				<label class="col-sm-3 control-label">
+				    {{Rétention}}
+				    <sup><i class="fas fa-question-circle" title="{{Pas d'expiration si vide ou 0}}"></i></sup>
+				</label>
+				<div class="col-sm-7">
 				    <input type="number" class="eqLogicAttr form-control" style="width:7ch; display:inline" data-l1key="configuration" data-l2key="retention"/>
 				    <select class="eqLogicAttr form-control" style="width:15ch; display:inline" data-l1key="configuration" data-l2key="retentionUnit">
-			    		<option class='form-group' value="m">{{mois}}</options>
-			    		<option class='form-group' value="y">{{années}}</options>
+					<option class='form-group' value="days">{{jours}}</options>
+					<option class='form-group' value="weeks">{{semaines}}</options>
+					<option class='form-group' value="months">{{mois}}</options>
+					<option class='form-group' value="years">{{années}}</options>
 				    </select>
-				</span>
+				</div>
 			    </div>
 			    <div class='form-group'>
 				<label class="col-sm-3 control-label">{{Sessions}}</label>
 				<div class="col-sm-7">
-				    <a id="bt_loadSessions" class="btn btn-danger btn-sm ">
+				    <a id="bt_loadSessions" class="btn btn-success btn-sm ">
 					<i class="fas fa-sync"></i> {{Charger l'historique}}
+				    </a>
+				    <a id="bt_purgeSessions" class="btn btn-danger btn-sm ">
+					<i class="fas fa-broom"></i> {{Purger l'historique}}
 				    </a>
 				</div>
 			    </div>

@@ -56,6 +56,17 @@ class Easee_session {
 		return DB::Prepare($sql, $value, DB::FETCH_TYPE_ROW, PDO::FETCH_CLASS, __CLASS__);
 	}
 
+	public static function byChargerId($_chargerId) {
+		$value = array(
+			'chargerId' => $_chargerId,
+		);
+		$sql = 'SELECT ' . DB::buildField(__CLASS__) . '
+			FROM Easee_session
+			WHERE chargerId=:chargerId
+			ORDER BY end';
+		return DB::Prepare($sql, $value, DB::FETCH_TYPE_ALL, PDO::FETCH_CLASS, __CLASS__);
+	}
+
 	public static function fromEaseeArray ($_easeeArray) {
 		if (!is_array($_easeeArray)) {
 			throw new Exception (__("$_easeeArray n'est pas un tableau",__FILE__));
@@ -68,7 +79,7 @@ class Easee_session {
 			log::add("EaseeCharger","debug","fromEaseeArray: sessionId " . __("introuvable dans ",__FILE__) . print_r($_easeeArray,true));
 			throw new Exception ("sessionId " . __("non défini", __FILE__));
 		}
-		$sessionId = array_key_exists('sessionId',$_easeeArray) ? $_easeeArray['chargerId'] : $_easeeArray['id'];
+		$sessionId = array_key_exists('sessionId',$_easeeArray) ? $_easeeArray['SessionId'] : $_easeeArray['id'];
 		$session = self::byChargerIdAndSessionId($_easeeArray['chargerId'],$sessionId);
 		if (!is_object($session)){
 			$session = new Easee_session();
@@ -79,6 +90,9 @@ class Easee_session {
 			}
 		}
 		return $session;
+	}
+
+	public static function purge ($chargerId, $retention, $retentionUnit = ''){
 	}
 
 	public function getTableName() {

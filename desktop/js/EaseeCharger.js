@@ -282,6 +282,7 @@ $('.eqLogicThumbnailContainer[data-type=account]').delegate('.accountDisplayCard
  * Chargement de l'historique des sessions charge
  */
 $('#bt_loadSessions').off('click').on('click',function() {
+	$.showLoading()
 	$.ajax({
 		type: 'POST',
 		url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
@@ -292,9 +293,11 @@ $('#bt_loadSessions').off('click').on('click',function() {
 		dataType : 'json',
 		global : false,
 		error: function (request, status, error) {
+			$.hideLoading()
 			handleAjaxError(request, status, error)
 		},
 		success: function (data) {
+			$.hideLoading()
 			if (data.state != 'ok') {
 				$.fn.showAlert({message: data.result, level:'danger'});
 				return
