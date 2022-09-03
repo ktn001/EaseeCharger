@@ -368,8 +368,8 @@ class EaseeCharger extends eqLogic {
 	}
 	$account = $this->getAccount();
 	$serial = $this->getSerial();
-	$from='2000-01-01';
-	$to='2023-01-01';
+	$from=$this->getExpirationDate();
+	$to=date('Y-m-d',strtotime('tomorrow'));
 	$path = sprintf('sessions/charger/%s/sessions/%s/%s',$serial,$from,$to);
 	$response = $account->sendRequest($path);
 	foreach ($response as $session_array) {
@@ -386,7 +386,7 @@ class EaseeCharger extends eqLogic {
 	}
 	$retentionUnit = $this->getConfiguration('retentionUnit');
 	$serial = $this->getConfiguration('serial');
-	Easee_session::purge($serial,$retention,$retentionUnit);
+	Easee_session::purge($serial,$this->getExpirationDate());
     }
 
     /*
@@ -646,6 +646,10 @@ class EaseeCharger extends eqLogic {
 	return Easee_account::byName($this->getaccountName());
     }
 
+    public function getExpirationDate() {
+	return date('Y-m-d', strtotime('-' . $this->getConfiguration('retention') . $this->getConfiguration('retentionUnit')));
+    }
+
     //========================================================================
     //=========================== GETTEUR SETTTEUR ===========================
     //========================================================================
@@ -661,6 +665,7 @@ class EaseeCharger extends eqLogic {
     public function getSerial() {
 	return $this->getConfiguration('serial');
     }
+
 }
 
 class EaseeChargerCmd extends cmd {
@@ -718,5 +723,6 @@ class EaseeChargerCmd extends cmd {
     public function getCollectTime() {
 	return DateTime::createFromFormat("Y-m-d H:i:s", $this->getCollectDate())->getTimeStamp();
     }
+
 }
 

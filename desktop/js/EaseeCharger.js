@@ -282,12 +282,48 @@ $('.eqLogicThumbnailContainer[data-type=account]').delegate('.accountDisplayCard
  * Chargement de l'historique des sessions charge
  */
 $('#bt_loadSessions').off('click').on('click',function() {
+	if (modifyWithoutSave) {
+		bootbox.alert("{{Veuillez d'abord sauvegarder vos modifications!}}")
+		return
+	}
 	$.showLoading()
 	$.ajax({
 		type: 'POST',
 		url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
 		data: {
 			action: 'loadSessions',
+			id: $('.eqLogicAttr[data-l1key=id]').value(),
+		},
+		dataType : 'json',
+		global : false,
+		error: function (request, status, error) {
+			$.hideLoading()
+			handleAjaxError(request, status, error)
+		},
+		success: function (data) {
+			$.hideLoading()
+			if (data.state != 'ok') {
+				$.fn.showAlert({message: data.result, level:'danger'});
+				return
+			}
+		}
+	})
+});
+
+/*
+ * Purge des seesion exprées
+ */
+$('#bt_purgeSessions').off('click').on('click',function() {
+	if (modifyWithoutSave) {
+		bootbox.alert("{{Veuillez d'abord sauvegarder vos modifications!}}")
+		return
+	}
+	$.showLoading()
+	$.ajax({
+		type: 'POST',
+		url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
+		data: {
+			action: 'purgeSessions',
 			id: $('.eqLogicAttr[data-l1key=id]').value(),
 		},
 		dataType : 'json',

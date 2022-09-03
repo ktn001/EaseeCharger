@@ -92,7 +92,16 @@ class Easee_session {
 		return $session;
 	}
 
-	public static function purge ($chargerId, $retention, $retentionUnit = ''){
+	public static function purge ($_chargerId, $_expirationDate){
+		$values = array (
+			'chargerId' => $_chargerId,
+			'dateExpiration' => $_expirationDate,
+		);
+		$sql = 'DELETE FROM Easee_session
+			WHERE chargerId=:chargerId
+			  AND end < :dateExpiration';
+		DB::Prepare($sql, $values, DB::FETCH_TYPE_ROW);
+
 	}
 
 	public function getTableName() {

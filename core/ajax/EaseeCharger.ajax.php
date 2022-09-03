@@ -115,6 +115,16 @@ try {
 		ajax::success();
 	}
 
+	if ($action == 'purgeSessions') {
+		$id = init('id');
+		$charger = EaseeCharger::byId($id);
+		if (!is_object($charger)){
+			throw new Exception(sprintf(__("Chargeur %s introuvable.",__FILE__),$id));
+		}
+		$charger->PurgeSessions();
+		ajax::success();
+	}
+
 	throw new Exception(__("Aucune méthode correspondante à : ", __FILE__) . init('action'));
 
 	/*     * *********Catch exeption*************** */
