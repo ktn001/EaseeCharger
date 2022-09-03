@@ -415,7 +415,7 @@ class Easee_account {
     public function execute ($cmd) {
 	$charger = $cmd->getEqLogic();
 	log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->getName() , $cmd->getLogicalId()));
-	log::add("EaseeCharger","debug","│ " . __("Chargeur",__FILE__) . sprintf(": %s (%s)", $charger->getName(), $charger->getSerial()));
+	log::add("EaseeCharger","debug","│ " . __("Chargeur",__FILE__) . sprintf(": %s (%s)", $charger->getName(), $charger->getLogicalId()));
 	if (! is_a($cmd, "EaseeChargerCmd")){
 	    throw new Exception (sprintf(__("└─La commande %s n'est pas une commande de type %s",__FILE__),$cmd->getId(), "EaseeChargerCmd"));
 	}
@@ -523,7 +523,7 @@ class Easee_account {
      */
     private function execute_refresh($cmd) {
 	$charger = $cmd->getEqLogic();
-	$serial = $charger->getSerial();
+	$serial = $charger->getLogicalId();
 	$path = 'chargers/' . $serial . '/state';
 	$response = $this->sendRequest($path);
 	foreach ($response as $key => $value) {
@@ -544,7 +544,7 @@ class Easee_account {
      * cable_lock
      */
     public function execute_cable_lock($cmd) {
-	$serial = $cmd->getEqLogic()->getSerial();
+	$serial = $cmd->getEqLogic()->getLogicalId();
 	$path = 'chargers/' . $serial . '/commands/lock_state';
 	$data = ['state' => 'true'];
 	$this->sendrequest($path, $data);
@@ -554,7 +554,7 @@ class Easee_account {
      * cable_unlock
      */
     public function execute_cable_unlock($cmd) {
-	$serial = $cmd->getEqLogic()->getSerial();
+	$serial = $cmd->getEqLogic()->getLogicalId();
 	$path = 'chargers/' . $serial . '/commands/lock_state';
 	$data = ['state' => 'false'];
 	$this->sendrequest($path, $data);
@@ -564,7 +564,7 @@ class Easee_account {
      * pause ON
      */
     public function execute_pause_ON($cmd) {
-	$serial = $cmd->getEqLogic()->getSerial();
+	$serial = $cmd->getEqLogic()->getLogicalId();
 	$path = 'chargers/' . $serial . '/commands/pause_charging';
 	$this->sendrequest($path, 'POST');
     }
@@ -573,7 +573,7 @@ class Easee_account {
      * pause OFF
      */
     public function execute_pause_OFF($cmd) {
-	$serial = $cmd->getEqLogic()->getSerial();
+	$serial = $cmd->getEqLogic()->getLogicalId();
 	$path = 'chargers/' . $serial . '/commands/resume_charging';
 	$this->sendrequest($path, 'POST');
     }

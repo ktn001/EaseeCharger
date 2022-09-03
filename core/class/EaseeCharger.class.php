@@ -46,10 +46,6 @@ class EaseeCharger extends eqLogic {
 	return $enabledChargers;
     }
 
-    public static function bySerial($serial) {
-	return self::byTypeAndSearchConfiguration(__CLASS__,'"serial":"'.$serial.'"');
-    }
-
     /*     * ********************** Gestion du daemon ************************* */
 
     /*
@@ -269,7 +265,7 @@ class EaseeCharger extends eqLogic {
 	$oldCharger = EaseeCharger::byId($this->getId());
 	if (is_object($oldCharger) && $oldCharger->getIsEnable() != 0) {
 	    $this->_wasEnable = 1;
-	    $this->_oldserial = $oldCharger->getSerial();
+	    $this->_oldLogicalId = $oldCharger->getLogicalId();
 	    $this->_oldHumanName = $oldCharger->getHumanName();
 	    $this->_oldAccountName = $oldCharger->getAccountName();
 	}
@@ -307,7 +303,7 @@ class EaseeCharger extends eqLogic {
 		if ($this->_wasEnable !=1) {
 		    $needDaemonRestart = true;
 		}
-		if ($this->getSerial() != $this->_oldserial) {
+		if ($this->getLogicalId() != $this->_oldLogicalId) {
 		    $needDaemonRestart = true;
 		}
 		if ($this->getHumanName() != $this->_oldHumanName) {
@@ -334,7 +330,7 @@ class EaseeCharger extends eqLogic {
 	$this->send2daemon([
 	    'cmd' => 'startCharger',
 	    'id' => $this->getId(),
-	    'serial' => $this->getSerial(),
+	    'serial' => $this->getLogicalId(),
 	    'name' => $this->getHumanName(),
 	    'account' => $this->getAccountName()
 	]);
@@ -609,9 +605,6 @@ class EaseeCharger extends eqLogic {
 	$this->setConfiguration('accountName',$_accountName);
     }
 
-    public function getSerial() {
-	return $this->getConfiguration('serial');
-    }
 }
 
 class EaseeChargerCmd extends cmd {
