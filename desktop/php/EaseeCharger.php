@@ -204,6 +204,15 @@ sendVarToJS('eqType', $plugin->getId());
 				    <input type="text" class="eqLogicAttr form-control" data-l1key="logicalId"/>
 				</div>
 			    </div>
+
+			    <!-- Choix du widget -->
+			    <div class='form-group'>
+				<label class="col-sm-3 control-label">{{Widget personnalisé}}</label>
+				<div class="col-sm-7">
+				    <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="widget_perso"/>
+				</div>
+			    </div>
+			   
 			</div> <!-- Partie gauche de l'onglet "Equipements" -->
 
 			<!-- Partie droite de l'onglet "Équipement" -->

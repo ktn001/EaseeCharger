@@ -1,0 +1,26 @@
+
+.widget_EaseeCharger>.cmds div {
+	border-color : red;
+	border-style : double;
+}
+
+.widget_EaseeCharger>.cmds span {
+	border-color : blue;
+	border-style : double;
+}
+
+.widget_EaseeCharger [data-signal_level=weak] {
+	color : #e86161;
+}
+
+.widget_EaseeCharger [data-signal_level=fair] {
+	color : #f2e751;
+}
+
+.widget_EaseeCharger [data-signal_level=good] {
+	color : #108efe;
+}
+
+.widget_EaseeCharger [data-signal_level=excellent] {
+	color : #42cc8a;
+}

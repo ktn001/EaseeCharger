@@ -1,0 +1,80 @@
+<div class="eqLogic eqLogic-widget allowResize #class# widget_EaseeCharger" data-eqType="#eqType#" data-eqLogic_id="#id#" data-eqLogic_uid="#uid#" data-version="#version#" data-translate_category="#translate_category#" data-category="#category#" data-tags="#tags#" style="width: #width#;height: #height#; #style#">
+	<center class="widget-name">
+		<span class="warning" title="#alert_name#">
+			<i class="#alert_icone#"></i>
+		</span>
+		<span class="cmd refresh pull-right cursor" data-cmd_id="#refresh_id#">
+			<i class="fas fa-sync"></i>
+		</span>
+		<span class="reportModeVisible">#name_display# <span class="object_name">#object_name#</span></span>
+		<a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
+	</center>
+	<div class=cmds>
+		<div>
+			<span class="cmd_widget wifiRSSI" data-cmd_id="#wifiRSSI_id#">
+				<i class="fas fa-wifi"></i> <span class='wifiRSSI_value'></span>
+			</span>
+			<span class="cmd_widget cellRSSI" data-cmd_id="#cellRSSI_id#">
+				<i class="fas fa-signal"></i> <span class='cellRSSI_value'></span>
+			</span>
+		</div>
+	</div>
+	#divGraphInfo#
+	<script>
+		if ('#refresh_id#' != '') {
+			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function() {
+				jeedom.cmd.execute({id: '#refresh_id#'})
+			})
+		} else {
+			$('.eqLogic[data-eqLogic_uid=#uid#]] .refresh').remove()
+		}
+
+		// wifiRSSI
+		jeedom.cmd.update['#wifiRSSI_id#'] = function(_options) {
+			if (_options.value == 0) {
+				$('.cmd_widget.wifiRSSI').hide();
+			} else {
+				$('.cmd_widget.wifiRSSI').show();
+			}
+			if      (_options.value < -70) { level = 'weak'; console.log('weak'); }
+			else if (_options.value < -60) { level = 'fair'; console.log('fair');}
+			else if (_options.value < -50) { level = 'good'; console.log('good'); }
+			else                           { level = 'excellent'; console.log('excellent'); }
+			$('.cmd_widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] i').attr('data-signal_level', level);
+			$('.cmd_widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value').text('(' + _options.display_value + ' #wifiRSSI_unite#)');
+			$('.cmd_widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
+		}
+		jeedom.cmd.update['#wifiRSSI_id#']({
+			display_value: '#wifiRSSI_state#',
+			value: '#wifiRSSI_state#',
+			valueDate: '#wifiRSSI_valueDate#',
+			collectDate: '#wifiRSSI_collectDate#',
+			alertLevel: '#wifiRSSI_alertLevel#'
+		})
+
+		// cellRSSI
+		jeedom.cmd.update['#cellRSSI_id#'] = function(_options) {
+			if (_options.value == 0) {
+				$('.cmd_widget.cellRSSI').hide();
+			} else {
+				$('.cmd_widget.cellRSSI').show();
+			}
+			if      (_options.value < -100){ level = 'weak'; console.log('weak'); }
+			else if (_options.value < -85) { level = 'fair'; console.log('fair');}
+			else if (_options.value < -70) { level = 'good'; console.log('good'); }
+			else                           { level = 'excellent'; console.log('excellent'); }
+			$('.cmd_widget.cellRSSI[data-cmd_id=#cellRSSI_id#]').find('i').attr('data-signal_level', level);
+			$('.cmd_widget.cellRSSI[data-cmd_id=#cellRSSI_id#] .cellRSSI_value').text('(' + _options.display_value + ' #cellRSSI_unite#)');
+		}
+		jeedom.cmd.update['#cellRSSI_id#']({
+			display_value: '#cellRSSI_state#',
+			value: '#cellRSSI_state#',
+			valueDate: '#cellRSSI_valueDate#',
+			collectDate: '#cellRSSI_collectDate#',
+			alertLevel: '#cellRSSI_alertLevel#'
+		})
+	</script>
+</div>
+
+<link href='plugins/EaseeCharger/core/template/dashboard/EaseeCharger_#theme#.css' rel='stylesheet'>
+od
