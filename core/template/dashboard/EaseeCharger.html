@@ -9,14 +9,34 @@
 		<span class="reportModeVisible">#name_display# <span class="object_name">#object_name#</span></span>
 		<a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
 	</center>
-	<div class=cmds>
+	<div class="cmds container-fluid">
 		<div>
-			<span class="cmd_widget wifiRSSI" data-cmd_id="#wifiRSSI_id#">
+		<div id='signal' class="col-sm-12">
+			<span class="cmd cmd_widget #history# wifiRSSI" data-cmd_id="#wifiRSSI_id#">
 				<i class="fas fa-wifi"></i> <span class='wifiRSSI_value'></span>
 			</span>
-			<span class="cmd_widget cellRSSI" data-cmd_id="#cellRSSI_id#">
+			<span class="cmd cmd_widget #history# cellRSSI" data-cmd_id="#cellRSSI_id#">
 				<i class="fas fa-signal"></i> <span class='cellRSSI_value'></span>
 			</span>
+		</div>
+		<div class="tile col-sm-12">
+			<div class='col-sm12 tile-title'>{{Charge}}</div>
+			<div>1</div>
+			<div>2</div>
+			<div>3</div>
+		</div>
+		<div class="tile col-sm-12">
+			<div class='col-sm12 tile-title'>{{Alimentation}}</div>
+			<div class="cmd cmd_widget #history# in_phase1 col-sm-4" data-cmd_id="#current_1_id#">
+				p2
+			</div>
+			<div class="cmd cmd_widget #history# in_phase2 col-sm-4" data-cmd_id="#current_2_id#">
+				p2
+			</div>
+			<div class="cmd cmd_widget #history# in_phase3 col-sm-4" data-cmd_id="#current_3_id#">
+				p2
+			</div>
+		</div>
 		</div>
 	</div>
 	#divGraphInfo#
@@ -30,6 +50,7 @@
 		}
 
 		// wifiRSSI
+		// ========
 		jeedom.cmd.update['#wifiRSSI_id#'] = function(_options) {
 			if (_options.value == 0) {
 				$('.cmd_widget.wifiRSSI').hide();
@@ -53,6 +74,7 @@
 		})
 
 		// cellRSSI
+		// ========
 		jeedom.cmd.update['#cellRSSI_id#'] = function(_options) {
 			if (_options.value == 0) {
 				$('.cmd_widget.cellRSSI').hide();

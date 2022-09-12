@@ -1,26 +1,40 @@
 
-.widget_EaseeCharger>.cmds div {
-	border-color : red;
-	border-style : double;
+.widget_EaseeCharger .container-fluid {
+	margin : 5px 10px 5px 0px !important;
+	padding : 5px 5px 5px 5px !important;
 }
 
-.widget_EaseeCharger>.cmds span {
-	border-color : blue;
-	border-style : double;
+.widget_EaseeCharger .tile {
+	margin : 5px 5px 5px 5px !important;
+	padding : 5px 5px 10px 5px !important;
+	background-color : rgb(var(--bg-color));
+	text-align : center;
+	margin : 5px;
+}
+
+.widget_EaseeCharger .tile-title  {
+	font-size : 1.2em;
+	font-weight : bold;
+}
+
+.widget_EaseeCharger #signal {
+	position: relative;
+	top: -10px;
+	right: 16px;
 }
 
 .widget_EaseeCharger [data-signal_level=weak] {
-	color : #e86161;
+	color : #e86161 !important;
 }
 
 .widget_EaseeCharger [data-signal_level=fair] {
-	color : #f2e751;
+	color : #f2e751 !important;
 }
 
 .widget_EaseeCharger [data-signal_level=good] {
-	color : #108efe;
+	color : #108efe !important;
 }
 
 .widget_EaseeCharger [data-signal_level=excellent] {
-	color : #42cc8a;
+	color : #42cc8a !important;
 }

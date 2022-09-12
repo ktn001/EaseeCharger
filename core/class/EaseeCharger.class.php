@@ -263,6 +263,7 @@ class EaseeCharger extends eqLogic {
 		}
 		$version = jeedom::versionAlias($_version);
 		$replace['#theme#'] = 'dark';
+		$replace['#history#'] = '';
 		foreach ($this->getCmd() as $cmd) {
 			$logicalId = $cmd->getLogicalId();
 			$replace['#' . $logicalId . "_id#"] = $cmd->getId();
@@ -272,6 +273,9 @@ class EaseeCharger extends eqLogic {
 				$replace['#' . $logicalId . '_valueDate#'] = $cmd->getValueDate();
 				$replace['#' . $logicalId . '_alertLevel#'] = $cmd->getCache('alertLevel', 'none');
 				$replace['#' . $logicalId . '_unite#'] = $cmd->getUnite();
+				if ($cmd->getIsHistorized() == 1) {
+					$replace['#history#'] = 'history cursor';
+				}
 			}
 		}
 		$template = template_replace($replace, getTemplate('core', $version, 'EaseeCharger', 'EaseeCharger'));
