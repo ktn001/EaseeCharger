@@ -262,19 +262,64 @@ class EaseeCharger extends eqLogic {
 			return $replace;
 		}
 		$version = jeedom::versionAlias($_version);
+
 		$replace['#theme#'] = 'dark';
-		$replace['#history#'] = '';
+		$replace['#version#'] = $_version;
+		$replace['#eqLogic_id#'] = $this->getId();
+
 		foreach ($this->getCmd() as $cmd) {
 			$logicalId = $cmd->getLogicalId();
 			$replace['#' . $logicalId . "_id#"] = $cmd->getId();
+			$replace['#' . $logicalId . "_name#"] = $cmd->getName();
+			$replace['#' . $logicalId . '_history#'] = '';
+			$replace['#' . $logicalId . '_hide_history#'] = 'hidden';
+			$replace['#' . $logicalId . '_unite#'] = $cmd->getUnite();
+			$replace['#' . $logicalId . '_minValue#'] = $cmd->getConfiguration('minValue', 0);
+			$replace['#' . $logicalId . '_maxValue#'] = $cmd->getConfiguration('maxValue', 100);
+			$replace['#' . $logicalId . '_uid#'] = $cmd->getId() . eqLogic::UIDDELIMITER . mt_rand() . eqLogic::UIDDELIMITER;
+			$replace['#' . $logicalId . '_generic_type#'] = $cmd->getGeneric_type();
+			$replace['#' . $logicalId . '_value_history#'] = '';
+
+			if ($cmd->getDisplay('showNameOn' . $_version, 1) == 0) {
+				$replace['#' . $logicalId . '_hide_name#'] = 'hiden';
+			} else {
+				$replace['#' . $logicalId . '_hide_name#'] = '';
+			}
+
+			if ($cmd->getDisplay('showIconAndName' . $_version, 0) == 1) {
+				$replace['#' . $logicalId . '_name_display#'] = $cmd->getDisplay('icon') . ' ' . $cmd->getName();
+			} else {
+				$replace['#' . $logicalId . '_name_display#'] = ($cmd->getDisplay('icon') != '') ? $cmd->getDisplay('icon') : $cmd->getName();
+			}
+
+
 			if ($cmd->getType() == 'info') {
 				$replace['#' . $logicalId . '_state#'] = $cmd->execCmd();
+				if ($cmd->getSubType() == 'binary' && $cmd->getDisplay('invertBinary') == 1) {
+					$replace['#' . $logicalId . '_state#'] = ($replace['#' . $logicalId . '_state#'] == 1) ? 0 : 1;
+				} else if ($cmd->getSubType() == 'numeric' && trim($replace['#' . $logicalId . '_state#']) === '') {
+					$replace['#' . $logicalId . '_state#'] = 0;
+				}
+				if ($cmd->getSubType() == 'numeric' && trim($replace['#' . $logicalId . '_unite#']) != '') {
+					if ($cmd->getConfiguration('historizeRound') !== '' && is_numeric($cmd->getConfiguration('historizeRound')) && $cmd->getConfiguration('historizeRound') >= 0) {
+						$round = $cmd->getConfiguration('historizeRound');
+					} else {
+						$round = 99;
+					}
+					$valueInfo = $cmd->autoValueArray($replace['#' . $logicalId . '_state#'], $round, $replace['#' . $logicalId . '_unite#']);
+					$replace['#' . $logicalId . '_state#'] = $valueInfo[0];
+					$replace['#' . $logicalId . '_unite#'] = $valueInfo[1];
+				}
+				if (method_exists($cmd, 'formatValueWidget')) {
+					$replace['#' . $logicalId . '_state#'] = $cmd->formatValueWidget($replace['#' . $logicalId . '_state#']);
+				}
+
+				$replace['#' . $logicalId . '_state#'] = str_replace(array("\'", "'", "\n"), array("'", "\'", '<br/>'), $replace['#' . $logicalId . '_state#']);
 				$replace['#' . $logicalId . '_collectDate#'] = $cmd->getCollectDate();
 				$replace['#' . $logicalId . '_valueDate#'] = $cmd->getValueDate();
 				$replace['#' . $logicalId . '_alertLevel#'] = $cmd->getCache('alertLevel', 'none');
-				$replace['#' . $logicalId . '_unite#'] = $cmd->getUnite();
 				if ($cmd->getIsHistorized() == 1) {
-					$replace['#history#'] = 'history cursor';
+					$replace['#' . $logicalId . '_history#'] = 'history cursor';
 				}
 			}
 		}

@@ -11,32 +11,41 @@
 	</center>
 	<div class="cmds container-fluid">
 		<div>
-		<div id='signal' class="col-sm-12">
-			<span class="cmd cmd_widget #history# wifiRSSI" data-cmd_id="#wifiRSSI_id#">
-				<i class="fas fa-wifi"></i> <span class='wifiRSSI_value'></span>
-			</span>
-			<span class="cmd cmd_widget #history# cellRSSI" data-cmd_id="#cellRSSI_id#">
-				<i class="fas fa-signal"></i> <span class='cellRSSI_value'></span>
-			</span>
-		</div>
-		<div class="tile col-sm-12">
-			<div class='col-sm12 tile-title'>{{Charge}}</div>
-			<div>1</div>
-			<div>2</div>
-			<div>3</div>
-		</div>
-		<div class="tile col-sm-12">
-			<div class='col-sm12 tile-title'>{{Alimentation}}</div>
-			<div class="cmd cmd_widget #history# in_phase1 col-sm-4" data-cmd_id="#current_1_id#">
-				p2
+			<div id='signal'>
+				<span class="cmd cmd_widget #wifiRSSI_history# wifiRSSI" data-cmd_id="#wifiRSSI_id#">
+					<i class="fas fa-wifi"></i> <span class='wifiRSSI_value'></span>
+				</span>
+				<span class="cmd cmd_widget #cellRSSI_history# cellRSSI" data-cmd_id="#cellRSSI_id#">
+					<i class="fas fa-signal"></i> <span class='cellRSSI_value'></span>
+				</span>
 			</div>
-			<div class="cmd cmd_widget #history# in_phase2 col-sm-4" data-cmd_id="#current_2_id#">
-				p2
+			<div class="tile col-sm-12">
+				<div class='col-sm12 tile-title'>{{Charge}}</div>
+				<div>1</div>
+				<div>2</div>
+				<div>3</div>
 			</div>
-			<div class="cmd cmd_widget #history# in_phase3 col-sm-4" data-cmd_id="#current_3_id#">
-				p2
+			<div class="tile col-sm-12">
+				<div class="col-sm12 tile-title">{{Alimentation}}</div>
+				<div class="cmd cmd_widget arcgauge #current_1_history# in_phase1 col-sm-4" data-cmd_id="#current_1_id#">
+					<div class="title #current_1_hide_name#">
+						<span class="cmdName">#current_1_name_display#</span>
+					</div>
+					<div class="content-sm phase">
+						<div class="gauge cursor #current_1_history#" data-cmd_id="#current_1_id#"></div>
+						<div class="gaugeValue" data-cmd_id="#current_1_id#"></div>
+					</div>
+					<div class="state phase current"><strong>#current_1_state#</strong> <strong>#current_1_unite#</strong></div>
+					<div class="cmdStats #current_1_hide_history#">
+					</div>
+				</div>
+				<div class="cmd cmd_widget #current_2_history# in_phase2 col-sm-4" data-cmd_id="#current_2_id#">
+					p2
+				</div>
+				<div class="cmd cmd_widget #current_3_history# in_phase3 col-sm-4" data-cmd_id="#current_3_id#">
+					p2
+				</div>
 			</div>
-		</div>
 		</div>
 	</div>
 	#divGraphInfo#
@@ -57,10 +66,10 @@
 			} else {
 				$('.cmd_widget.wifiRSSI').show();
 			}
-			if      (_options.value < -70) { level = 'weak'; console.log('weak'); }
-			else if (_options.value < -60) { level = 'fair'; console.log('fair');}
-			else if (_options.value < -50) { level = 'good'; console.log('good'); }
-			else                           { level = 'excellent'; console.log('excellent'); }
+			if      (_options.value < -70) { level = 'weak'; }
+			else if (_options.value < -60) { level = 'fair'; }
+			else if (_options.value < -50) { level = 'good'; }
+			else                           { level = 'excellent'; }
 			$('.cmd_widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] i').attr('data-signal_level', level);
 			$('.cmd_widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value').text('(' + _options.display_value + ' #wifiRSSI_unite#)');
 			$('.cmd_widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
@@ -81,12 +90,17 @@
 			} else {
 				$('.cmd_widget.cellRSSI').show();
 			}
-			if      (_options.value < -100){ level = 'weak'; console.log('weak'); }
-			else if (_options.value < -85) { level = 'fair'; console.log('fair');}
-			else if (_options.value < -70) { level = 'good'; console.log('good'); }
-			else                           { level = 'excellent'; console.log('excellent'); }
+			if      (_options.value < -100){
+				level = 'weak';
+			} else if (_options.value < -85) {
+				level = 'fair';s
+			} else if (_options.value < -70) {
+				level = 'good';s
+			} else {
+				level = 'excellent';
+			}
 			$('.cmd_widget.cellRSSI[data-cmd_id=#cellRSSI_id#]').find('i').attr('data-signal_level', level);
-			$('.cmd_widget.cellRSSI[data-cmd_id=#cellRSSI_id#] .cellRSSI_value').text('(' + _options.display_value + ' #cellRSSI_unite#)');
+			$('.cmd_widget.cellRSSI[data-cmd_id=#cellRSSI_id#] .cellRSSI_value').text('(' + _options.display_value + ' #cellRSSI_unite#)')
 		}
 		jeedom.cmd.update['#cellRSSI_id#']({
 			display_value: '#cellRSSI_state#',
@@ -95,8 +109,35 @@
 			collectDate: '#cellRSSI_collectDate#',
 			alertLevel: '#cellRSSI_alertLevel#'
 		})
+
+		// current_1
+		// =========
+		console.log("11111111111");
+		jeedom.cmd.update['#current_1_id#'] = function(_options) {
+			var cmd = $('.cmd[data-cmd_id=#current_1_id#]')
+			var minValue = ('#current_1_minValue#' == '') ? 0 : parseInt('#current_1_minValue#')
+			var maxValue = ('#current_1_maxValue#' == '') ? 100 : parseInt('#current_1_maxValue#')
+			_options.display_value = 14
+			if (_options.display_value >= maxValue) {
+				maxValue = _options.display_value
+				var angle = 0
+			} else if (_options.display_name <= minValue) {
+				minValue = _options.display_value
+				var angle = -180
+			} else {
+				var angle = (((_options.display_value - minValue) * 180) / (maxValue - minValue)) -180
+			}
+			console.log("ANGLE: " + angle)
+			cmd.find('.gaugeValue').css('transform', 'scale(0.94) rotate(' + angle + 'deg)')
+			cmd.find('.state strong').first().text(_options.display_value)
+		} 
+
+		if (is_numeric('#current_1_state#')) {
+			jeedom.cmd.update['#current_1_id#']({display_value: '#current_1_state#', valueDate: '#current_1_valueDate#', collectDate: '#current_1_collectDate#'})
+		} else {
+			$('.cmd[data-cmd_uid=#current_1_uid#] .gauge').append('<center><span class="label label-danger">#current_1_state#</span></center>')
+		}
 	</script>
 </div>
 
 <link href='plugins/EaseeCharger/core/template/dashboard/EaseeCharger_#theme#.css' rel='stylesheet'>
-od

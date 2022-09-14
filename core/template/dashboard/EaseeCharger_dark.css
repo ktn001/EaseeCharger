@@ -1,7 +1,15 @@
 
+.widget_EaseeCharger .cmds {
+	position : relative;
+}
+
 .widget_EaseeCharger .container-fluid {
 	margin : 5px 10px 5px 0px !important;
 	padding : 5px 5px 5px 5px !important;
+}
+
+.widget_EaseeCharger .tile:nth-child(2) {
+	margin-top : 10px !important;
 }
 
 .widget_EaseeCharger .tile {
@@ -18,9 +26,9 @@
 }
 
 .widget_EaseeCharger #signal {
-	position: relative;
-	top: -10px;
-	right: 16px;
+	position: absolute;
+	top: -5px;
+	left: 5px;
 }
 
 .widget_EaseeCharger [data-signal_level=weak] {
@@ -37,4 +45,9 @@
 
 .widget_EaseeCharger [data-signal_level=excellent] {
 	color : #42cc8a !important;
+}
+
+.widget_EaseeCharger .state.phase.current {
+	position : relative;
+	top : -15px;
 }
