@@ -27,6 +27,26 @@ class EaseeCharger extends eqLogic {
 
 	public static $_widgetPossibility = array(
 		'custom' => true,
+		'parameters' => array(
+			'hiddenSignal' => array(
+				'name' => '{{Ne pas afficher le signal de communication wifi ou cellulaire (0 ou 1)}}',
+				'allow_displayType' => true,
+				'default' => '0',
+				'type' => 'input',
+			),
+			'hiddenCable' => array(
+				'name' => '{{Ne pas afficher la tuile "Cable" (0 ou 1)}}',
+				'allow_displayType' => true,
+				'default' => '0',
+				'type' => 'input',
+			),
+			'hiddenAlimentation' => array(
+				'name' => '{{Ne pas afficher la tuile "Alimentation" (0 ou 1)}}',
+				'allow_displayType' => true,
+				'default' => '0',
+				'type' => 'input',
+			),
+		),
 	);
 
 	//========================================================================
@@ -266,6 +286,26 @@ class EaseeCharger extends eqLogic {
 		$replace['#theme#'] = 'dark';
 		$replace['#version#'] = $_version;
 		$replace['#eqLogic_id#'] = $this->getId();
+		$replace['#phase_1_title#'] = '{{Phase 1}}';
+		$replace['#phase_2_title#'] = '{{Phase 2}}';
+		$replace['#phase_3_title#'] = '{{Phase 3}}';
+
+		foreach (['#hiddenSignal#', '#hiddenCable#', '#hiddenAlimentation#'] as $param) {
+			if ($replace[$param] == 0) {
+				$replace[$param] = '';
+			} else {
+				$replace[$param] = 'hidden';
+			}
+		}
+
+		$replace['#status_texte_1#'] = '{{Débranché}}';
+		$replace['#status_texte_2#'] = '{{En attente}}';
+		$replace['#status_texte_3#'] = '{{Recharge}}';
+		$replace['#status_texte_4#'] = '{{Terminé}}';
+		$replace['#status_texte_5#'] = '{{Erreur}}';
+		$replace['#status_texte_6#'] = '{{Prêt}}';
+
+		$template = getTemplate('core', $version, 'EaseeCharger', 'EaseeCharger');
 
 		foreach ($this->getCmd() as $cmd) {
 			$logicalId = $cmd->getLogicalId();
@@ -281,7 +321,7 @@ class EaseeCharger extends eqLogic {
 			$replace['#' . $logicalId . '_value_history#'] = '';
 
 			if ($cmd->getDisplay('showNameOn' . $_version, 1) == 0) {
-				$replace['#' . $logicalId . '_hide_name#'] = 'hiden';
+				$replace['#' . $logicalId . '_hide_name#'] = 'hidden';
 			} else {
 				$replace['#' . $logicalId . '_hide_name#'] = '';
 			}
@@ -292,9 +332,22 @@ class EaseeCharger extends eqLogic {
 				$replace['#' . $logicalId . '_name_display#'] = ($cmd->getDisplay('icon') != '') ? $cmd->getDisplay('icon') : $cmd->getName();
 			}
 
-
 			if ($cmd->getType() == 'info') {
 				$replace['#' . $logicalId . '_state#'] = $cmd->execCmd();
+
+				if (in_array($logicalId, ['wifiRSSI', 'cellRSSI'])) {
+					if ($replace['#' . $logicalId . '_state#'] == 0) {
+						$replace['#' . $logicalId . '_hidden#'] = 'hidden';
+					} else {
+						$replace['#' . $logicalId . '_hidden#'] = '';
+					}
+				}
+
+				if ($logicalId == 'status') {
+					$replace['#status_image#'] = "/plugins/EaseeCharger/desktop/img/vehicle/compact_" . $replace['#status_state#'] . ".png";
+					$replace['#status_texte#'] = $replace['#status_texte_' . $replace['#status_state#'] . '#'];
+				}
+
 				if ($cmd->getSubType() == 'binary' && $cmd->getDisplay('invertBinary') == 1) {
 					$replace['#' . $logicalId . '_state#'] = ($replace['#' . $logicalId . '_state#'] == 1) ? 0 : 1;
 				} else if ($cmd->getSubType() == 'numeric' && trim($replace['#' . $logicalId . '_state#']) === '') {
@@ -320,10 +373,33 @@ class EaseeCharger extends eqLogic {
 				$replace['#' . $logicalId . '_alertLevel#'] = $cmd->getCache('alertLevel', 'none');
 				if ($cmd->getIsHistorized() == 1) {
 					$replace['#' . $logicalId . '_history#'] = 'history cursor';
+					if (config::byKey('displayStatsWidget') == 1 && strpos($template, '#' . $logicalId . '_hide_history#') !== false && $cmd->getDisplay('showStatsOn' . $_version, 1) == 1) {
+						$startHist = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s') . ' -' . config::byKey('historyCalculPeriod') . ' hour'));
+						$replace['#' . $logicalId . '_hide_history#'] = '';
+						$historyStatistique = $cmd->getStatistique($startHist, date('Y-m-d H:i:s'));
+						if ($historyStatistique['avg'] == 0 && $historyStatistique['min'] == 0 && $historyStatistique['max'] == 0) {
+							$replace['#' . $logicalId . '_averageHistoryValue#'] = round($replace['#' . $logicalId .'_state#'], 1);
+							$replace['#' . $logicalId . '_minHistoryValue#'] = round($replace['#' . $logicalId .'_state#'], 1);
+							$replace['#' . $logicalId . '_maxHistoryValue#'] = round($replace['#' . $logicalId .'_state#'], 1);
+						} else {
+							$replace['#' . $logicalId . '_averageHistoryValue#'] = round($historyStatistique['avg'], 1);
+							$replace['#' . $logicalId . '_minHistoryValue#'] = round($historyStatistique['min'], 1);
+							$replace['#' . $logicalId . '_maxHistoryValue#'] = round($historyStatistique['max'], 1);
+						}
+						$startHist = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s') . ' -' . config::byKey('historyCalculTendance') . ' hour'));
+						$tendance = $cmd->getTendance($startHist, date('Y-m-d H:i:s'));
+						if ($tendance > config::byKey('historyCalculTendanceThresholddMax')) {
+							$replace['#' . $logicalId . '_tendance#'] = 'fas fa-arrow-up';
+						} else if ($tendance < config::byKey('historyCalculTendanceThresholddMin')) {
+							$replace['#' . $logicalId . '_tendance#'] = 'fas fa-arrow-down';
+						} else {
+							$replace['#' . $logicalId . '_tendance#'] = 'fas fa-minus';
+						}
+					}
 				}
 			}
 		}
-		$template = template_replace($replace, getTemplate('core', $version, 'EaseeCharger', 'EaseeCharger'));
+		$template = template_replace($replace, $template);
 		$template = translate::exec($template, 'plugings,EaseeCharger/core/template/' . $version . '/EaseeCharger.html');
 		return $this->postToHtml($_version, $template);
 	}
