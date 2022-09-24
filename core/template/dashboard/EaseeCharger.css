@@ -12,9 +12,9 @@ body:not([data-theme*=Dark]) {
 }
 
 body[data-theme*=Dark][data-coloredicons="1"] {
-	--permanently-locked-color: rgb(20,20,255);
+	--permanently-locked-color: rgb(26,26,255);
 	--locked-color: rgb(0,255,0);
-	--unlocked-color: rgb(255,40,40);
+	--unlocked-color: rgb(198,57,62);
 }
 
 body[data-theme*=Dark][data-coloredicons="0"] {
@@ -24,9 +24,9 @@ body[data-theme*=Dark][data-coloredicons="0"] {
 }
 
 body:not([data-theme*=Dark])[data-coloredicons="1"] {
-	--permanently-locked-color: rgb(0,0,255);
+	--permanently-locked-color: rgb(26,26,255);
 	--locked-color: rgb(0,255,0);
-	--unlocked-color: rgb(255,0,0);
+	--unlocked-color: rgb(198,57,62);
 }
 
 body:not([data-theme*=Dark])[data-coloredicons="0"] {
