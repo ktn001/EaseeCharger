@@ -58,6 +58,10 @@ body:not([data-theme*=Dark])[data-coloredicons="0"] {
 	left: -5px;
 }
 
+.widget_EaseeCharger .content-sm.center {
+	display: inline-block;
+}
+
 /*
  * Le signal de communication (wifi/cellulaire)
  */
@@ -93,17 +97,14 @@ body:not([data-theme*=Dark])[data-coloredicons="0"] {
  * Vérouillage du cable
  */
 
-.widget_EaseeCharger .content-sm.cable_state [data-value_should_be="0"],
-.widget_EaseeCharger .content-sm.cable_state [data-value_should_be="1"],
-.widget_EaseeCharger .content-sm.cable_state [data-value_should_be="2"],
-.widget_EaseeCharger .content-sm.cable_state [data-value_should_be="3"] {
+.widget_EaseeCharger .content-sm [data-value_should_be] {
 	display: none;
 }
 
-.widget_EaseeCharger .content-sm.cable_state [data-value_should_be="0"][data-value_is="0"],
-.widget_EaseeCharger .content-sm.cable_state [data-value_should_be="1"][data-value_is="1"],
-.widget_EaseeCharger .content-sm.cable_state [data-value_should_be="2"][data-value_is="2"],
-.widget_EaseeCharger .content-sm.cable_state [data-value_should_be="3"][data-value_is="3"] {
+.widget_EaseeCharger .content-sm [data-value_should_be="0"][data-value_is="0"],
+.widget_EaseeCharger .content-sm [data-value_should_be="1"][data-value_is="1"],
+.widget_EaseeCharger .content-sm [data-value_should_be="2"][data-value_is="2"],
+.widget_EaseeCharger .content-sm [data-value_should_be="3"][data-value_is="3"] {
 	display: block;
 }
 
@@ -119,13 +120,13 @@ body:not([data-theme*=Dark])[data-coloredicons="0"] {
 	color: var(--unlocked-color);
 }
 
-.widget_EaseeCharger .content-sm.cable_state {
-	display: inline-block;
+.widget_EaseeCharger .content-sm span.fa-stack {
+	font-size: 18px;
 }
 
-.widget_EaseeCharger .content-sm.cable_state span.fa-stack {
-	font-size: 20px;
-}
+/*
+ * Branché
+ */
 
 /*
  * Les phases d'alimentation

@@ -54,7 +54,7 @@
 				<div class="title #cable_state_hide_name#">
 					<span class="cmdName">#cable_state_name#</span>
 				</div>
-				<div class="content-sm cable_state">
+				<div class="content-sm center">
 					<div data-value_should_be="0" data-value_is="#cable_state_state#">
 						<span class='fa-stack'>
 							<i class="icon fas fa-circle fa-2x fa-stack-2x cable_permanently_locked" style="visibility: hidden"></i>
@@ -82,11 +82,39 @@
 				</div>
 
 			</div>
+			<div class="cmd-widget cursor" data-cmd_id="#plugged_id#">
+				<div class="title #plugged_hide_name#">
+					<span class="cmdName">#plugged_name#</span>
+				</div>
+				<div class="content-sm center">
+					<div>
+						<span class='fa-stack'>
+							<i class="icon icon_green fas fa-plug fa-stack-1x"></i>
+							<i class="icon icon_red fas fa-times fa-stack-2x"></i>
+						</span>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<!-- Tuile Charge -->
 		<div class="tile charge">
 			<div class='tile-title'>{{Charge}}</div>
+			<div>
+			 	<div class="cmd cmd-widget arcgauge #power_history# power" data-cmd_id="#power_id#">
+					<div class="title #power_hide_name#">
+						<span class="cmdName">#power_name#</span>
+					</div>
+					<div class="content-sm phase">
+						<div class="gauge cursor #power_history#" data-cmd_id="#power_id#"></div>
+						<div class="gaugeValue" data-cmd_id="#power_id#"></div>
+					</div>
+					<div class="state ipower"><strong>#power_state#</strong> <strong>#power_unite#</strong></div>
+					<div class="cmdStats power #power_hide_history#">
+						<span title='{{Min}}' class='tooltypes'>#power_minHistoryValue#</span>|<span title='{{Moyenne}}' class='tooltypes'>#power_averageHistoryValue#</span>|<span title='{{Max}}' class='tooltypes'>#power_maxHistoryValue#</span> <i class='#power_tendance#'></i>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<!-- Tuile Alimentation -->
@@ -251,15 +279,49 @@
 		});
 		$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#cable_state_id#] .content-sm').on('click', function() {
 			value = $(this).find('[data-value_is]').attr('data-value_is');
-			console.log(value);
 			if (value == 0 || value == 1) {
-				console.log('lock  #cable_lock_id#');
 				jeedom.cmd.execute({id: '#cable_lock_id#'});
 			} else if (value == 2 || value == 3) {
-				console.log('unlock  #cable_unlock_id#');
 				jeedom.cmd.execute({id: '#cable_unlock_id#'});
 			}
 		})
+
+		// plugged
+		// =======
+		jeedom.cmd.update['#plugged_id#'] = function(_options) {
+			if (_options.display_value == 0) {
+				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#plugged_id#] .fa-times').removeClass('hidden');
+			} else {
+				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#plugged_id#] .fa-times').addClass('hidden');
+			}
+			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#plugged_id#]').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
+		}
+		jeedom.cmd.update['#plugged_id#']({display_value: '#plugged_state#', valueDate: '#plugged_valueDate#', collectDate: '#plugged_collectDate#'})
+
+		// power
+		// =====
+		jeedom.cmd.update['#power_id#'] = function(_options) {
+			var cmd = $('.eqLogic[data-eqLogic_uid=#uid#] .cmd[data-cmd_id=#power_id#]')
+			var minValue = ('#power_minValue#' == '') ? 0 : parseInt('#power_minValue#')
+			var maxValue = ('#power_maxValue#' == '') ? 100 : parseInt('#power_maxValue#')
+			if (_options.display_value >= maxValue) {
+				maxValue = _options.display_value
+				var angle = 0
+			} else if (_options.display_name <= minValue) {
+				minValue = _options.display_value
+				var angle = -180
+			} else {
+				var angle = (((_options.display_value - minValue) * 180) / (maxValue - minValue)) -180
+			}
+			cmd.find('.gaugeValue').css('transform', 'scale(0.94) rotate(' + angle + 'deg)')
+			cmd.find('.state strong').first().text(_options.display_value)
+			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#power_id#]').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
+		}
+		if (is_numeric('#power_state#')) {
+			jeedom.cmd.update['#power_id#']({display_value: '#power_state#', valueDate: '#power_valueDate#', collectDate: '#power_collectDate#'})
+		} else {
+			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd[data-cmd_uid=#power_uid#] .gauge').append('<center><span class="label label-danger">#power_state#</span></center>')
+		}
 
 		// current_#
 		// =========
