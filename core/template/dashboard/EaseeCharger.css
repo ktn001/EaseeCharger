@@ -1,0 +1,144 @@
+
+/*
+ * Adaptation au theme jeedom
+ */
+
+body[data-theme*=Dark] {
+	--bg-tile-color: rgb(32,32,32);
+}
+
+body:not([data-theme*=Dark]) {
+	--bg-tile-color: rgb(232,232,232);
+}
+
+body[data-theme*=Dark][data-coloredicons="1"] {
+	--permanently-locked-color: rgb(26,26,255);
+	--locked-color: rgb(0,255,0);
+	--unlocked-color: rgb(198,57,62);
+}
+
+body[data-theme*=Dark][data-coloredicons="0"] {
+	--permanently-locked-color: rgb(80,80,80);
+	--locked-color: rgb(180,180,180);
+	--unlocked-color: rgb(180,180,180);
+}
+
+body:not([data-theme*=Dark])[data-coloredicons="1"] {
+	--permanently-locked-color: rgb(26,26,255);
+	--locked-color: rgb(0,255,0);
+	--unlocked-color: rgb(198,57,62);
+}
+
+body:not([data-theme*=Dark])[data-coloredicons="0"] {
+	--permanently-locked-color: rgb(180,180,180);
+	--locked-color: rgb(60,60,60);
+	--unlocked-color: rgb(60,60,60);
+}
+
+/*
+ * Les tuiles
+ */
+
+.widget_EaseeCharger .cmds {
+	position: relative;
+}
+
+.widget_EaseeCharger .tile {
+	margin: 5px 5px 5px 5px !important;
+	padding: 5px 5px 5px 5px !important;
+	background-color: var(--bg-tile-color);
+	text-align: center;
+}
+
+.widget_EaseeCharger .tile-title  {
+	font-size: 0.8em;
+	text-align: left;
+	position: relative;
+	top: -5px;
+	left: -5px;
+}
+
+.widget_EaseeCharger .content-sm.center {
+	display: inline-block;
+}
+
+/*
+ * Le signal de communication (wifi/cellulaire)
+ */
+
+.widget_EaseeCharger #signal {
+	position: relative;
+	top: -5px;
+	margin-bottom: -15px;
+	width: calc(100% - 10px);
+}
+
+.widget_EaseeCharger [data-signal_level=weak] {
+	color: #e86161 !important;
+}
+
+.widget_EaseeCharger [data-signal_level=fair] {
+	color: #f2e751 !important;
+}
+
+.widget_EaseeCharger [data-signal_level=good] {
+	color: #108efe !important;
+}
+
+.widget_EaseeCharger [data-signal_level=excellent] {
+	color: #42cc8a !important;
+}
+
+.widget_EaseeCharger .cmd-widget.status img {
+	width: 160px;
+}
+
+/*
+ * Vérouillage du cable
+ */
+
+.widget_EaseeCharger .content-sm [data-value_should_be] {
+	display: none;
+}
+
+.widget_EaseeCharger .content-sm [data-value_should_be="0"][data-value_is="0"],
+.widget_EaseeCharger .content-sm [data-value_should_be="1"][data-value_is="1"],
+.widget_EaseeCharger .content-sm [data-value_should_be="2"][data-value_is="2"],
+.widget_EaseeCharger .content-sm [data-value_should_be="3"][data-value_is="3"] {
+	display: block;
+}
+
+.widget_EaseeCharger .icon.cable_permanently_locked {
+	color: var(--permanently-locked-color);
+}
+
+.widget_EaseeCharger .icon.cable_locked {
+	color: var(--locked-color);
+}
+
+.widget_EaseeCharger .icon.cable_unlocked {
+	color: var(--unlocked-color);
+}
+
+.widget_EaseeCharger .content-sm span.fa-stack {
+	font-size: 18px;
+}
+
+/*
+ * Branché
+ */
+
+/*
+ * Les phases d'alimentation
+ */
+
+.widget_EaseeCharger .cmd-widget.phase {
+	height: 72px;
+}
+
+.widget_EaseeCharger .state.phase.current,
+.widget_EaseeCharger .state.phase.voltage,
+.widget_EaseeCharger .cmdStats.phase.current {
+	position: relative;
+	top: -20px;
+}
