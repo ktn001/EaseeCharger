@@ -47,6 +47,7 @@ body:not([data-theme*=Dark])[data-coloredicons="0"] {
 	margin: 5px 5px 5px 5px !important;
 	padding: 5px 5px 5px 5px !important;
 	background-color: var(--bg-tile-color);
+	opacity: 0.8;
 	text-align: center;
 }
 
