@@ -40,6 +40,12 @@ class EaseeCharger extends eqLogic {
 				'default' => '0',
 				'type' => 'input',
 			),
+			'hiddenCharge' => array(
+				'name' => '{{Ne pas afficher la tuile "Charge" (0 ou 1)}}',
+				'allow_displayType' => true,
+				'default' => '0',
+				'type' => 'input',
+			),
 			'hiddenAlimentation' => array(
 				'name' => '{{Ne pas afficher la tuile "Alimentation" (0 ou 1)}}',
 				'allow_displayType' => true,
@@ -238,15 +244,15 @@ class EaseeCharger extends eqLogic {
 					'cable_lock' => [
 						'template' => 'cable_lock',
 						'replace' => [
-							'#_icon_on_#' => '<i class=\'icon_green icon jeedom-lock-ferme\'></i>',
-							'#_icon_off_#' => '<i class=\'icon_orange icon jeedom-lock-ouvert\'></i>'
+							'#_icon_on_#' => "<i class='icon_green icon jeedom-lock-ferme'></i>",
+							'#_icon_off_#' => "<i class='icon_orange icon jeedom-lock-ouvert'></i>"
 						]
 					],
 					'paused' => [
 						'template' => 'tmplicon',
 						'replace' => [
-							'#_icon_on_#' => '<i class=\'icon fas fa-play fa-border\' style=\'font-size:15px;margin-top:20px\'></i>',
-							'#_icon_off_#' => '<i class=\'icon fas fa-pause fa-border\' style=\'font-size:15px;margin-top:20px\'></i>'
+							'#_icon_on_#' => "<i class='icon fas fa-play' style='font-size:15px;margin-top:20px'></i>",
+							'#_icon_off_#' => "<i class='icon fas fa-pause ' style='font-size:15px;margin-top:20px'></i>"
 						]
 					]
 				]
@@ -270,6 +276,29 @@ class EaseeCharger extends eqLogic {
 		return $return;
 	}
 
+	public static function pluginGenericTypes() {
+		$generics = array(
+			'CURRENT' => array(
+				'name' => __('Courant', __FILE__),
+				'familyid' => 'Electricity',
+				'family' => __('Electricité',__FILE__),
+				'type' => 'info',
+				'subtype' => array('numeric')
+			)
+		);
+		return $generics;
+	}
+
+	/*     * ************************ Les crons **************************** */
+
+	public static function cronHourly() {
+		Easee_account::cronHourly();
+	}
+
+	//========================================================================
+	//========================= METHODES D'INSTANCE ==========================
+	//========================================================================
+
 	function toHtml($_version = 'dashboard') {
 		log::add("EaseeCharger","debug",$this->getName() . ":  " . $this->getConfiguration('widget_perso') . "  " . $this->getConfiguration('widget_perso',1));
 		if ($this->getConfiguration('widget_perso',1) == '0') {
@@ -290,7 +319,7 @@ class EaseeCharger extends eqLogic {
 		$replace['#phase_2_title#'] = '{{Phase 2}}';
 		$replace['#phase_3_title#'] = '{{Phase 3}}';
 
-		foreach (['#hiddenSignal#', '#hiddenCable#', '#hiddenAlimentation#'] as $param) {
+		foreach (['#hiddenSignal#', '#hiddenCable#', '#hiddenCharge#', '#hiddenAlimentation#'] as $param) {
 			if ($replace[$param] == 0) {
 				$replace[$param] = '';
 			} else {
@@ -309,8 +338,9 @@ class EaseeCharger extends eqLogic {
 
 		foreach ($this->getCmd() as $cmd) {
 			$logicalId = $cmd->getLogicalId();
-			$replace['#' . $logicalId . "_id#"] = $cmd->getId();
-			$replace['#' . $logicalId . "_name#"] = $cmd->getName();
+			$replace['#' . $logicalId . '_widget#'] = $cmd->toHtml();
+			$replace['#' . $logicalId . '_id#'] = $cmd->getId();
+			$replace['#' . $logicalId . '_name#'] = $cmd->getName();
 			$replace['#' . $logicalId . '_history#'] = '';
 			$replace['#' . $logicalId . '_hide_history#'] = 'hidden';
 			$replace['#' . $logicalId . '_unite#'] = $cmd->getUnite();
@@ -404,18 +434,8 @@ class EaseeCharger extends eqLogic {
 		return $this->postToHtml($_version, $template);
 	}
 
-	/*     * ************************ Les crons **************************** */
-
-	public static function cronHourly() {
-		Easee_account::cronHourly();
-	}
-
-	//========================================================================
-	//========================= METHODES D'INSTANCE ==========================
-	//========================================================================
-
 	/*
-	 * Configi, avant prmière suavegarde, des valeurs par défaut
+	 * Config, avant première sauvegarde, des valeurs par défaut
 	 */
 	public function preInsert() {
 		$this->setConfiguration('widget_perso', 1);
@@ -530,6 +550,20 @@ class EaseeCharger extends eqLogic {
 		if ($secondPass == false) {
 			$needSave = false;
 
+			// phaseId
+			// -------
+			if (isset($config['phaseId'])) {
+				if ($cmd->getConfiguration('phaseId') != $config['phaseId']) {
+					$cmd->setConfiguration('phaseId', $config['phaseId']);
+					$needSave = true;
+				}
+			} else {
+				if ($cmd->getConfiguration('phaseId', 'nonDefini') != 'nonDefini') {
+					$cmd->setConfiguration('phaseId', null);
+					$needSave = true;
+				}
+			}
+
 			// displayName
 			// -----------
 			if (isset($config['displayName'])) {
@@ -553,6 +587,15 @@ class EaseeCharger extends eqLogic {
 			if ($cmd->getEqLogic_id() != $this->getId()) {
 				$cmd->setEqLogic_id($this->getId());
 				$needSave = true;
+			}
+
+			// genericType
+			// -----------
+			if (isset($config['genericType'])) {
+				if ($cmd->getGeneric_type() != $config['genericType']) {
+					$cmd->setGeneric_type($config['genericType']);
+					$needSave = true;
+				}
 			}
 
 			// name
@@ -598,11 +641,11 @@ class EaseeCharger extends eqLogic {
 				}
 			}
 
-			// rounding
-			// --------
-			if (isset($config['rounding'])) {
-				if ($cmd->getConfiguration('historizeRound') != $config['rounding']) {
-					$cmd->setConfiguration('historizeRound',$config['rounding']);
+			// max
+			// ---
+			if (isset($config['max'])) {
+				if ($cmd->getConfiguration('maxValue') != $config['max']) {
+					$cmd->setConfiguration('maxValue',$config['max']);
 					$needSave = true;
 				}
 			}
@@ -616,11 +659,11 @@ class EaseeCharger extends eqLogic {
 				}
 			}
 
-			// max
-			// ---
-			if (isset($config['max'])) {
-				if ($cmd->getConfiguration('maxValue') != $config['max']) {
-					$cmd->setConfiguration('maxValue',$config['max']);
+			// rounding
+			// --------
+			if (isset($config['rounding'])) {
+				if ($cmd->getConfiguration('historizeRound') != $config['rounding']) {
+					$cmd->setConfiguration('historizeRound',$config['rounding']);
 					$needSave = true;
 				}
 			}
@@ -677,6 +720,21 @@ class EaseeCharger extends eqLogic {
 					$needSave = true;
 				}
 			}
+
+			// widgetTitle
+			// -----------
+			if (isset($config['widgetTitle'])) {
+				if ($cmd->getConfiguration('widgetTitle') != $config['widgetTitle']) {
+					$cmd->setConfiguration('widgetTitle', $config['widgetTitle']);
+					$needSave = true;
+				}
+			} else {
+				if ($cmd->getConfiguration('widgetTitle', 'nonDefini') != 'nonDefini') {
+					$cmd->setConfiguration('widgetTitle', null);
+					$needSave = true;
+				}
+			}
+
 			if ($needSave) {
 				$cmd->save();
 			}
@@ -791,11 +849,29 @@ class EaseeCharger extends eqLogic {
 
 class EaseeChargerCmd extends cmd {
 
+	public static $_widgetPossibility = array ("custom" => true);
+
 	public function dontRemoveCmd() {
 		if ($this->getLogicalId() == 'refresh') {
 			return true;
 		}
 		return false;
+	}
+
+	public function toHtml($_version = 'dashboard', $options = '') {
+		if ($this->getTemplate($_version) == 'EaseeCharger::phase') {
+			if ($options == '') {
+				$options = array();
+			}
+			$options = is_json($options,$opts);
+			if ($this->getConfiguration('phaseId') != '') {
+				$options['phaseId'] = $this->getConfiguration('phaseId');
+			}
+			if ($this->getConfiguration('widgetTitle') != '') {
+				$options['widgetTitle'] = $this->getConfiguration('widgetTitle');
+			}
+		}
+		return parent::toHtml($_version, $options);
 	}
 
 	public function preUpdate() {
@@ -835,14 +911,6 @@ class EaseeChargerCmd extends cmd {
 		case 'action':
 			$this->getEqLogic()->getAccount()->execute($this);
 		}
-	}
-
-	public function getValueTime() {
-		return DateTime::createFromFormat("Y-m-d H:i:s", $this->getValueDate())->getTimeStamp();
-	}
-
-	public function getCollectTime() {
-		return DateTime::createFromFormat("Y-m-d H:i:s", $this->getCollectDate())->getTimeStamp();
 	}
 }
 

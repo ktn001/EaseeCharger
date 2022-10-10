@@ -174,7 +174,6 @@ function editAccount(name) {
 								return;
 							}
 							data = json_decode(data.result);
-							console.log(data);
 
 							// Traitement de la Card			
 							card = $('.accountDisplayCard[data-account_name=' + data['account']['name'] + ']');

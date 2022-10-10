@@ -1,396 +1,142 @@
 <script>
-	if ($('head #EaseeCharger_css').length == 0) {
-		var stylesheet = $('<link>', {
-			id : 'EaseeCharger_css',
-			rel : 'stylesheet',
-			type : 'text/css',
- 			href : 'plugins/EaseeCharger/core/template/dashboard/EaseeCharger.css',
-		});
-		stylesheet.appendTo('head');
-	}
+    if ($('head #EaseeCharger_css').length == 0) {
+        var stylesheet = $('<link>', {
+            id : 'EaseeCharger_css',
+            rel : 'stylesheet',
+            type : 'text/css',
+            href : 'plugins/EaseeCharger/core/template/dashboard/EaseeCharger.css',
+        });
+        stylesheet.appendTo('head');
+    }
 </script>
 
 <div class="eqLogic eqLogic-widget allowResize #class# widget_EaseeCharger" data-eqType="#eqType#" data-eqLogic_id="#id#" data-eqLogic_uid="#uid#" data-version="#version#" data-translate_category="#translate_category#" data-category="#category#" data-tags="#tags#" style="width: #width#;height: #height#; #style#">
-	<center class="widget-name">
-		<span class="warning" title="#alert_name#">
-			<i class="#alert_icone#"></i>
-		</span>
-		<span class="cmd refresh pull-right cursor" data-cmd_id="#refresh_id#">
-			<i class="fas fa-sync"></i>
-		</span>
-		<span class="reportModeVisible">#name_display# <span class="object_name">#object_name#</span></span>
-		<a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
-	</center>
-	<div class="cmds">
+    <center class="widget-name">
+        <span class="warning" title="#alert_name#">
+            <i class="#alert_icone#"></i>
+        </span>
+        <span class="cmd refresh pull-right cursor" data-cmd_id="#refresh_id#">
+            <i class="fas fa-sync"></i>
+        </span>
+        <span class="reportModeVisible">#name_display# <span class="object_name">#object_name#</span></span>
+        <a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
+    </center>
+    <div class="cmds">
+        <!-- Signal -->
+        <div class='#hiddenSignal#' id='signal'>
+            <span class="cmd cmd-widget wifiRSSI #wifiRSSI_history# #wifiRSSI_hidden#" data-cmd_id="#wifiRSSI_id#" data-cmd_uid="#wifiRSSI_uid#">
+                <i class="fas fa-wifi"></i> <span class='wifiRSSI_value'></span>
+            </span>
+            <span class="cmd cmd-widget cellRSSI #cellRSSI_history# #cellRSSI_hidden#" data-cmd_id="#cellRSSI_id#" data-cmd_uid="#cellRSSI_uid#">
+                <i class="fas fa-signal"></i> <span class='cellRSSI_value'></span>
+            </span>
+        </div>
 
-		<!-- Signal -->
-		<div class='#hiddenSignal#' id='signal'>
-			<span class="cmd cmd-widget wifiRSSI #wifiRSSI_history# #wifiRSSI_hidden#" data-cmd_id="#wifiRSSI_id#">
-				<i class="fas fa-wifi"></i> <span class='wifiRSSI_value'></span>
-			</span>
-			<span class="cmd cmd-widget cellRSSI #cellRSSI_history# #cellRSSI_hidden#" data-cmd_id="#cellRSSI_id#">
-				<i class="fas fa-signal"></i> <span class='cellRSSI_value'></span>
-			</span>
-		</div>
+        <!-- Tuile status -->
+        <div class="tile status">
+            <center>
+                #status_widget#
+            </center>
+        </div>
 
-		<!-- Tuile status -->
-		<div class="tile status">
-			<div class='tile-title'>{{Status}}</div>
-			<div class="cmd-widget #status_history# status" data-cmd_id="#status_id#">
-				<div class="title #status_hide_name#">
-					<span class="cmdName">#status_name#</span>
-				</div>
-				<div class="content-sm status">
-					<img src="#status_image#"></img>
-					<div class="texte">#status_texte#</div>
-				</div>
-			</div>
-		</div>
+        <!-- Tuile Cable -->
+        <div class="tile cable #hiddenCable#">
+            <div class="tile-title">{{Cable}}</div>
+            <center>
+                #cable_lock_widget#
+                #cable_unlock_widget#
+                #plugged_widget#
+            </center>
+        </div>
 
-		<!-- Tuile Cable -->
-		<div class="tile cable #hiddenCable#">
-			<div class="tile-title">{{Cable}}</div>
-			<div class="cmd-widget cursor" data-cmd_id="#cable_state_id#">
-				<div class="title #cable_state_hide_name#">
-					<span class="cmdName">#cable_state_name#</span>
-				</div>
-				<div class="content-sm center">
-					<div data-value_should_be="0" data-value_is="#cable_state_state#">
-						<span class='fa-stack'>
-							<i class="icon fas fa-circle fa-2x fa-stack-2x cable_permanently_locked" style="visibility: hidden"></i>
-							<i class="icon fas fa-lock-open fa-stack-1x cable_unlocked"></i>
-						</span>
-					</div>
-					<div data-value_should_be="1" data-value_is="#cable_state_state#">
-						<span class='fa-stack'>
-							<i class="icon fas fa-circle fa-stack-2x cable_permanently_locked" style="visibility: hidden"></i>
-							<i class="icon fas fa-lock fa-stack-1x cable_locked"></i>
-						</span>
-					</div>
-					<div data-value_should_be="2" data-value_is="#cable_state_state#">
-						<span class='fa-stack'>
-							<i class="icon fas fa-circle fa-2x fa-stack-2x cable_permanently_locked"></i>
-							<i class="icon fas fa-lock-open fa-stack-1x cable_unlocked"></i>
-						</span>
-					</div>
-					<div data-value_should_be="3" data-value_is="#cable_state_state#">
-						<span class='fa-stack'>
-							<i class="icon fas fa-circle fa-stack-2x cable_permanently_locked"></i>
-							<i class="icon fas fa-lock fa-stack-1x cable_locked"></i>
-						</span>
-					</div>
-				</div>
+        <!-- Tuile Charge -->
+        <div class="tile charge #hiddenCharge#">
+            <div class='tile-title'>{{Charge}}</div>
+            <center>
+		#power_widget#
+		#pause_ON_widget#
+		#pause_OFF_widget#
+             </center>
+        </div>
 
-			</div>
-			<div class="cmd-widget cursor" data-cmd_id="#plugged_id#">
-				<div class="title #plugged_hide_name#">
-					<span class="cmdName">#plugged_name#</span>
-				</div>
-				<div class="content-sm center">
-					<div>
-						<span class='fa-stack'>
-							<i class="icon icon_green fas fa-plug fa-stack-1x"></i>
-							<i class="icon icon_red fas fa-times fa-stack-2x"></i>
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>
+        <!-- Tuile Alimentation -->
+        <div class="tile alimentation #hiddenAlimentation#">
+            <div class="tile-title">{{Alimentation}}</div>
+            <center>
+		#current_1_widget#
+		#current_2_widget#
+		#current_3_widget#
+		#voltage_1_widget#
+		#voltage_2_widget#
+		#voltage_3_widget#
+            </center>
+        </div>
+    </div>
+    #divGraphInfo#
+    <template>
+        <div>color : rgb(20,20,20) ()</div>
+    </template>
+    <script>
+        if ('#refresh_id#' != '') {
+            $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function() {
+                jeedom.cmd.execute({id: '#refresh_id#'})
+            })
+        } else {
+            $('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove()
+        }
 
-		<!-- Tuile Charge -->
-		<div class="tile charge">
-			<div class='tile-title'>{{Charge}}</div>
-			<div>
-			 	<div class="cmd cmd-widget arcgauge #power_history# power" data-cmd_id="#power_id#">
-					<div class="title #power_hide_name#">
-						<span class="cmdName">#power_name#</span>
-					</div>
-					<div class="content-sm phase">
-						<div class="gauge cursor #power_history#" data-cmd_id="#power_id#"></div>
-						<div class="gaugeValue" data-cmd_id="#power_id#"></div>
-					</div>
-					<div class="state ipower"><strong>#power_state#</strong> <strong>#power_unite#</strong></div>
-					<div class="cmdStats power #power_hide_history#">
-						<span title='{{Min}}' class='tooltypes'>#power_minHistoryValue#</span>|<span title='{{Moyenne}}' class='tooltypes'>#power_averageHistoryValue#</span>|<span title='{{Max}}' class='tooltypes'>#power_maxHistoryValue#</span> <i class='#power_tendance#'></i>
-					</div>
-				</div>
-			</div>
-		</div>
+        // wifiRSSI
+        // ========
+        jeedom.cmd.update['#wifiRSSI_id#'] = function(_options) {
+            if (_options.value == 0) {
+                $('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.wifiRSSI').addClass('hidden');
+            } else {
+                $('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.wifiRSSI').removeClass('hidden');
+            }
+            if      (_options.value < -70) { level = 'weak'; }
+            else if (_options.value < -60) { level = 'fair'; }
+            else if (_options.value < -50) { level = 'good'; }
+            else                           { level = 'excellent'; }
+            $('.cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#]').attr('data-signal_level', level).attr('data-signal_value',_options.value);
+            $('.cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value').text('(' + _options.display_value + ' #wifiRSSI_unite#)');
+            $('.cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
+        }
+        jeedom.cmd.update['#wifiRSSI_id#']({
+            display_value: '#wifiRSSI_state#',
+            value: '#wifiRSSI_state#',
+            valueDate: '#wifiRSSI_valueDate#',
+            collectDate: '#wifiRSSI_collectDate#',
+            alertLevel: '#wifiRSSI_alertLevel#'
+        })
 
-		<!-- Tuile Alimentation -->
-		<div class="tile alimentation #hiddenAlimentation#">
-			<div class="tile-title">{{Alimentation}}</div>
-			<div>
-			 	<div class="cmd cmd-widget arcgauge #current_1_history# phase" data-cmd_id="#current_1_id#">
-					<div class="title #current_1_hide_name#">
-						<span class="cmdName">#phase_1_title#</span>
-					</div>
-					<div class="content-sm phase">
-						<div class="gauge cursor #current_1_history#" data-cmd_id="#current_1_id#"></div>
-						<div class="gaugeValue" data-cmd_id="#current_1_id#"></div>
-					</div>
-					<div class="state phase current"><strong>#current_1_state#</strong> <strong>#current_1_unite#</strong></div>
-					<div class="state phase voltage"><strong>#voltage_1_state#</strong> <strong>#voltage_1_unite#</strong></div>
-					<div class="cmdStats phase current #current_1_hide_history#">
-						<span title='{{Min}}' class='tooltypes'>#current_1_minHistoryValue#</span>|<span title='{{Moyenne}}' class='tooltypes'>#current_1_averageHistoryValue#</span>|<span title='{{Max}}' class='tooltypes'>#current_1_maxHistoryValue#</span> <i class='#current_1_tendance#'></i>
-					</div>
-				</div>
-				<div class="cmd cmd-widget arcgauge #current_2_history# phase" data-cmd_id="#current_2_id#">
-					<div class="title #current_2_hide_name#">
-						<span class="cmdName">#phase_2_title#</span>
-					</div>
-					<div class="content-sm phase">
-						<div class="gauge cursor #current_2_history#" data-cmd_id="#current_2_id#"></div>
-						<div class="gaugeValue" data-cmd_id="#current_2_id#"></div>
-					</div>
-					<div class="state phase current"><strong>#current_2_state#</strong> <strong>#current_2_unite#</strong></div>
-					<div class="state phase voltage"><strong>#voltage_2_state#</strong> <strong>#voltage_2_unite#</strong></div>
-					<div class="cmdStats phase current #current_2_hide_history#">
-						<span title='{{Min}}' class='tooltypes'>#current_2_minHistoryValue#</span>|<span title='{{Moyenne}}' class='tooltypes'>#current_2_averageHistoryValue#</span>|<span title='{{Max}}' class='tooltypes'>#current_2_maxHistoryValue#</span> <i class='#current_2_tendance#'></i>
-					</div>
-				</div>
-				<div class="cmd cmd-widget arcgauge #current_3_history# phase" data-cmd_id="#current_3_id#">
-					<div class="title #current_3_hide_name#">
-						<span class="cmdName">#phase_3_title#</span>
-					</div>
-					<div class="content-sm phase">
-						<div class="gauge cursor #current_3_history#" data-cmd_id="#current_3_id#"></div>
-						<div class="gaugeValue" data-cmd_id="#current_3_id#"></div>
-					</div>
-					<div class="state phase current"><strong>#current_3_state#</strong> <strong>#current_3_unite#</strong></div>
-					<div class="state phase voltage"><strong>#voltage_3_state#</strong> <strong>#voltage_3_unite#</strong></div>
-					<div class="cmdStats phase current #current_3_hide_history#">
-						<span title='{{Min}}' class='tooltypes'>#current_3_minHistoryValue#</span>|<span title='{{Moyenne}}' class='tooltypes'>#current_3_averageHistoryValue#</span>|<span title='{{Max}}' class='tooltypes'>#current_3_maxHistoryValue#</span> <i class='#current_3_tendance#'></i>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	#divGraphInfo#
-	<template>
-		<div>color : rgb(20,20,20) ()</div>
-	</template>
-	<script>
-		if ('#refresh_id#' != '') {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function() {
-				jeedom.cmd.execute({id: '#refresh_id#'})
-			})
-		} else {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove()
-		}
+        // cellRSSI
+        // ========
+        jeedom.cmd.update['#cellRSSI_id#'] = function(_options) {
+            if (_options.value == 0) {
+                $('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.cellRSSI').addClass('hidden');
+            } else {
+                $('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.cellRSSI').removeClass('hidden');
+            }
+            if      (_options.value < -100){
+                level = 'weak';
+            } else if (_options.value < -85) {
+                level = 'fair';
+            } else if (_options.value < -70) {
+                level = 'good';
+            } else {
+                level = 'excellent';
+            }
+            $('.cmd-widget.cellRSSI[data-cmd_id=#cellRSSI_id#]').find('i').attr('data-signal_level', level);
+            $('.cmd-widget.cellRSSI[data-cmd_id=#cellRSSI_id#] .cellRSSI_value').text('(' + _options.display_value + ' #cellRSSI_unite#)')
+        }
+        jeedom.cmd.update['#cellRSSI_id#']({
+            display_value: '#cellRSSI_state#',
+            value: '#cellRSSI_state#',
+            valueDate: '#cellRSSI_valueDate#',
+            collectDate: '#cellRSSI_collectDate#',
+            alertLevel: '#cellRSSI_alertLevel#'
+        })
 
-		// wifiRSSI
-		// ========
-		jeedom.cmd.update['#wifiRSSI_id#'] = function(_options) {
-			if (_options.value == 0) {
-				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.wifiRSSI').addClass('hidden');
-			} else {
-				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.wifiRSSI').removeClass('hidden');
-			}
-			if      (_options.value < -70) { level = 'weak'; }
-			else if (_options.value < -60) { level = 'fair'; }
-			else if (_options.value < -50) { level = 'good'; }
-			else                           { level = 'excellent'; }
-			$('.cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#]').attr('data-signal_level', level).attr('data-signal_value',_options.value);
-			$('.cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value').text('(' + _options.display_value + ' #wifiRSSI_unite#)');
-			$('.cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
-		}
-		jeedom.cmd.update['#wifiRSSI_id#']({
-			display_value: '#wifiRSSI_state#',
-			value: '#wifiRSSI_state#',
-			valueDate: '#wifiRSSI_valueDate#',
-			collectDate: '#wifiRSSI_collectDate#',
-			alertLevel: '#wifiRSSI_alertLevel#'
-		})
-
-		// cellRSSI
-		// ========
-		jeedom.cmd.update['#cellRSSI_id#'] = function(_options) {
-			if (_options.value == 0) {
-				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.cellRSSI').addClass('hidden');
-			} else {
-				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.cellRSSI').removeClass('hidden');
-			}
-			if      (_options.value < -100){
-				level = 'weak';
-			} else if (_options.value < -85) {
-				level = 'fair';s
-			} else if (_options.value < -70) {
-				level = 'good';s
-			} else {
-				level = 'excellent';
-			}
-			$('.cmd-widget.cellRSSI[data-cmd_id=#cellRSSI_id#]').find('i').attr('data-signal_level', level);
-			$('.cmd-widget.cellRSSI[data-cmd_id=#cellRSSI_id#] .cellRSSI_value').text('(' + _options.display_value + ' #cellRSSI_unite#)')
-		}
-		jeedom.cmd.update['#cellRSSI_id#']({
-			display_value: '#cellRSSI_state#',
-			value: '#cellRSSI_state#',
-			valueDate: '#cellRSSI_valueDate#',
-			collectDate: '#cellRSSI_collectDate#',
-			alertLevel: '#cellRSSI_alertLevel#'
-		})
-
-		// status
-		// ======
-		jeedom.cmd.update['#status_id#'] = function(_options) {
-			txt = [];
-			txt[1] = '#status_texte_1#';
-			txt[2] = '#status_texte_2#';
-			txt[3] = '#status_texte_3#';
-			txt[4] = '#status_texte_4#';
-			txt[5] = '#status_texte_5#';
-			txt[6] = '#status_texte_6#';
-			
-			if (_options.value >= 1 && _options.value <= 6) {
-				texte = txt[_options.value];
-				image = '/plugins/EaseeCharger/desktop/img/vehicle/compact_' + _options.value + '.png';
-			} else {
-				texte = txt[5];
-				image = '/plugins/EaseeCharger/desktop/img/vehicle/compact_5.png';
-			}
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#status_id#] .texte').html(texte);
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#status_id#] .texte').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
-			
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#status_id#] img').attr('src',image);
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#status_id#] img').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
-
-		}
-		jeedom.cmd.update['#status_id#']({
-			display_value: '#status_state#',
-			value: '#status_state#',
-			valueDate: '#status_valueDate#',
-			collectDate: '#status_collectDate#',
-			alertLevel: '#status_alertLevel#'
-		})
-
-		// cable_state
-		// ===========
-		jeedom.cmd.update['#cable_state_id#'] = function(_options) {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#cable_state_id#] .content-sm [data-value_should_be]').attr('data-value_is',_options.value);
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#cable_state_id#] .content-sm [data-value_should_be]').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
-		}
-		jeedom.cmd.update['#cable_state_id#']({
-			display_value: '#cable_state_state#',
-			value: '#cable_state_state#',
-			valueDate: '#cable_state_valueDate#',
-			collectDate: '#cable_state_collectDate#',
-			alertLevel: '#cable_state_alertLevel#'
-		});
-		$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#cable_state_id#] .content-sm').on('click', function() {
-			value = $(this).find('[data-value_is]').attr('data-value_is');
-			if (value == 0 || value == 1) {
-				jeedom.cmd.execute({id: '#cable_lock_id#'});
-			} else if (value == 2 || value == 3) {
-				jeedom.cmd.execute({id: '#cable_unlock_id#'});
-			}
-		})
-
-		// plugged
-		// =======
-		jeedom.cmd.update['#plugged_id#'] = function(_options) {
-			if (_options.display_value == 0) {
-				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#plugged_id#] .fa-times').removeClass('hidden');
-			} else {
-				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#plugged_id#] .fa-times').addClass('hidden');
-			}
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#plugged_id#]').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
-		}
-		jeedom.cmd.update['#plugged_id#']({display_value: '#plugged_state#', valueDate: '#plugged_valueDate#', collectDate: '#plugged_collectDate#'})
-
-		// power
-		// =====
-		jeedom.cmd.update['#power_id#'] = function(_options) {
-			var cmd = $('.eqLogic[data-eqLogic_uid=#uid#] .cmd[data-cmd_id=#power_id#]')
-			var minValue = ('#power_minValue#' == '') ? 0 : parseInt('#power_minValue#')
-			var maxValue = ('#power_maxValue#' == '') ? 100 : parseInt('#power_maxValue#')
-			if (_options.display_value >= maxValue) {
-				maxValue = _options.display_value
-				var angle = 0
-			} else if (_options.display_name <= minValue) {
-				minValue = _options.display_value
-				var angle = -180
-			} else {
-				var angle = (((_options.display_value - minValue) * 180) / (maxValue - minValue)) -180
-			}
-			cmd.find('.gaugeValue').css('transform', 'scale(0.94) rotate(' + angle + 'deg)')
-			cmd.find('.state strong').first().text(_options.display_value)
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget[data-cmd_id=#power_id#]').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
-		}
-		if (is_numeric('#power_state#')) {
-			jeedom.cmd.update['#power_id#']({display_value: '#power_state#', valueDate: '#power_valueDate#', collectDate: '#power_collectDate#'})
-		} else {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd[data-cmd_uid=#power_uid#] .gauge').append('<center><span class="label label-danger">#power_state#</span></center>')
-		}
-
-		// current_#
-		// =========
-		function update_current_#uid# (phase, _options) {
-			switch (phase) {
-				case 1:
-					var cmd = $('.eqLogic[data-eqLogic_uid=#uid#] .cmd[data-cmd_id=#current_1_id#]')
-					var minValue = ('#current_1_minValue#' == '') ? 0 : parseInt('#current_1_minValue#')
-					var maxValue = ('#current_1_maxValue#' == '') ? 100 : parseInt('#current_1_maxValue#')
-					break;
-				case 2:
-					var cmd = $('.eqLogic[data-eqLogic_uid=#uid#] .cmd[data-cmd_id=#current_2_id#]')
-					var minValue = ('#current_2_minValue#' == '') ? 0 : parseInt('#current_2_minValue#')
-					var maxValue = ('#current_2_maxValue#' == '') ? 100 : parseInt('#current_2_maxValue#')
-					break;
-				case 3:
-					var cmd = $('.eqLogic[data-eqLogic_uid=#uid#] .cmd[data-cmd_id=#current_3_id#]')
-					var minValue = ('#current_3_minValue#' == '') ? 0 : parseInt('#current_3_minValue#')
-					var maxValue = ('#current_3_maxValue#' == '') ? 100 : parseInt('#current_3_maxValue#')
-					break;
-			}
-			if (_options.display_value >= maxValue) {
-				maxValue = _options.display_value
-				var angle = 0
-			} else if (_options.display_name <= minValue) {
-				minValue = _options.display_value
-				var angle = -180
-			} else {
-				var angle = (((_options.display_value - minValue) * 180) / (maxValue - minValue)) -180
-			}
-			cmd.find('.gaugeValue').css('transform', 'scale(0.94) rotate(' + angle + 'deg)')
-			cmd.find('.state strong').first().text(_options.display_value)
-		} 
-
-		// current_1
-		// =========
-		jeedom.cmd.update['#current_1_id#'] = function(_options) {
-			update_current_#uid# (1, _options)
-		}
-
-		if (is_numeric('#current_1_state#')) {
-			jeedom.cmd.update['#current_1_id#']({display_value: '#current_1_state#', valueDate: '#current_1_valueDate#', collectDate: '#current_1_collectDate#'})
-		} else {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd[data-cmd_uid=#current_1_uid#] .gauge').append('<center><span class="label label-danger">#current_1_state#</span></center>')
-		}
-
-		// current_2
-		// =========
-		jeedom.cmd.update['#current_2_id#'] = function(_options) {
-			update_current_#uid# (2, _options)
-		}
-
-		if (is_numeric('#current_2_state#')) {
-			jeedom.cmd.update['#current_2_id#']({display_value: '#current_2_state#', valueDate: '#current_2_valueDate#', collectDate: '#current_2_collectDate#'})
-		} else {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd[data-cmd_uid=#current_2_uid#] .gauge').append('<center><span class="label label-danger">#current_2_state#</span></center>')
-		}
-
-		// current_3
-		// =========
-		jeedom.cmd.update['#current_3_id#'] = function(_options) {
-			update_current_#uid# (3, _options)
-		}
-
-		if (is_numeric('#current_3_state#')) {
-			jeedom.cmd.update['#current_3_id#']({display_value: '#current_3_state#', valueDate: '#current_3_valueDate#', collectDate: '#current_3_collectDate#'})
-		} else {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .cmd[data-cmd_uid=#current_3_uid#] .gauge').append('<center><span class="label label-danger">#current_3_state#</span></center>')
-		}
-	</script>
+    </script>
 </div>
 
