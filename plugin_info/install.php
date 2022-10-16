@@ -25,6 +25,7 @@ function EaseeCharger_install() {
 	config::save('api', config::genKey(), 'EaseeCharger');
 	config::save('api::EaseeCharger::mode', 'localhost');
 	config::save('api::EaseeCharger::restricted', '1');
+	EaseeCharger_update()
 }
 
 // Fonction exécutée automatiquement après la mise à jour du plugin
