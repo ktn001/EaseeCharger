@@ -270,7 +270,7 @@ class EaseeCharger extends eqLogic {
 							'#texte_6#' =>  '{{Prêt}}'
 						]
 					]
-				]
+				],
 			]
 		];
 		return $return;
@@ -312,12 +312,8 @@ class EaseeCharger extends eqLogic {
 		}
 		$version = jeedom::versionAlias($_version);
 
-		$replace['#theme#'] = 'dark';
 		$replace['#version#'] = $_version;
 		$replace['#eqLogic_id#'] = $this->getId();
-		$replace['#phase_1_title#'] = '{{Phase 1}}';
-		$replace['#phase_2_title#'] = '{{Phase 2}}';
-		$replace['#phase_3_title#'] = '{{Phase 3}}';
 
 		foreach (['#hiddenSignal#', '#hiddenCable#', '#hiddenCharge#', '#hiddenAlimentation#'] as $param) {
 			if ($replace[$param] == 0) {
@@ -326,13 +322,6 @@ class EaseeCharger extends eqLogic {
 				$replace[$param] = 'hidden';
 			}
 		}
-
-		$replace['#status_texte_1#'] = '{{Débranché}}';
-		$replace['#status_texte_2#'] = '{{En attente}}';
-		$replace['#status_texte_3#'] = '{{Recharge}}';
-		$replace['#status_texte_4#'] = '{{Terminé}}';
-		$replace['#status_texte_5#'] = '{{Erreur}}';
-		$replace['#status_texte_6#'] = '{{Prêt}}';
 
 		$template = getTemplate('core', $version, 'EaseeCharger', 'EaseeCharger');
 
@@ -350,6 +339,11 @@ class EaseeCharger extends eqLogic {
 			$replace['#' . $logicalId . '_generic_type#'] = $cmd->getGeneric_type();
 			$replace['#' . $logicalId . '_value_history#'] = '';
 
+			if ($cmd->getIsVisible() == 1) {
+				$replace['#' . $logicalId . '_hidden#'] = '';
+			} else {
+				$replace['#' . $logicalId . '_hidden#'] = 'hidden';
+			}
 			if ($cmd->getDisplay('showNameOn' . $_version, 1) == 0) {
 				$replace['#' . $logicalId . '_hide_name#'] = 'hidden';
 			} else {
@@ -364,19 +358,6 @@ class EaseeCharger extends eqLogic {
 
 			if ($cmd->getType() == 'info') {
 				$replace['#' . $logicalId . '_state#'] = $cmd->execCmd();
-
-				if (in_array($logicalId, ['wifiRSSI', 'cellRSSI'])) {
-					if ($replace['#' . $logicalId . '_state#'] == 0) {
-						$replace['#' . $logicalId . '_hidden#'] = 'hidden';
-					} else {
-						$replace['#' . $logicalId . '_hidden#'] = '';
-					}
-				}
-
-				if ($logicalId == 'status') {
-					$replace['#status_image#'] = "/plugins/EaseeCharger/desktop/img/vehicle/compact_" . $replace['#status_state#'] . ".png";
-					$replace['#status_texte#'] = $replace['#status_texte_' . $replace['#status_state#'] . '#'];
-				}
 
 				if ($cmd->getSubType() == 'binary' && $cmd->getDisplay('invertBinary') == 1) {
 					$replace['#' . $logicalId . '_state#'] = ($replace['#' . $logicalId . '_state#'] == 1) ? 0 : 1;
@@ -833,9 +814,9 @@ class EaseeCharger extends eqLogic {
 		return Easee_account::byName($this->getaccountName());
 	}
 
-	//========================================================================
-	//=========================== GETTEUR SETTTEUR ===========================
-	//========================================================================
+	//=======================================================================
+	//=========================== GETTEUR SETTEUR ===========================
+	//=======================================================================
 
 	public function getAccountName() {
 		return $this->getConfiguration('accountName');
@@ -869,6 +850,13 @@ class EaseeChargerCmd extends cmd {
 			}
 			if ($this->getConfiguration('widgetTitle') != '') {
 				$options['widgetTitle'] = $this->getConfiguration('widgetTitle');
+			}
+			return parent::toHtml($_version, $options);
+		}
+		if ($this->getLogicalId() == 'WIFI') {
+			if ($this->getEqLogic()->getConfiguration('widget_perso',1) == '1') {
+			} else {
+				return parent::toHtml($_version, $options);
 			}
 		}
 		return parent::toHtml($_version, $options);
@@ -912,6 +900,7 @@ class EaseeChargerCmd extends cmd {
 			$this->getEqLogic()->getAccount()->execute($this);
 		}
 	}
+
 }
 
 require_once __DIR__  . '/Easee_account.class.php';

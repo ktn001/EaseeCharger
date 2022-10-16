@@ -30,6 +30,16 @@ function EaseeCharger_install() {
 // Fonction exécutée automatiquement après la mise à jour du plugin
 function EaseeCharger_update() {
 	log::add("EaseeCharger","info","Execution de EaseeCharger_update");
+
+	$level = config::byKey('plugin::level','EaseeCharger', 0);
+	if ($level < 1){
+		$chargers = EaseeCharger::byType('EaseeCharger');
+		for ($chargers as $charger) {
+			$charger->createCmds('createOnly')
+		}
+		$config::save('plugin::level',1,'EaseeCharger')
+		$level = 1;
+	}
 }
 
 ?>

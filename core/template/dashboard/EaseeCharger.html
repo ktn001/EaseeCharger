@@ -24,12 +24,27 @@
     <div class="cmds">
         <!-- Signal -->
         <div class='#hiddenSignal#' id='signal'>
-            <span class="cmd cmd-widget wifiRSSI #wifiRSSI_history# #wifiRSSI_hidden#" data-cmd_id="#wifiRSSI_id#" data-cmd_uid="#wifiRSSI_uid#">
+            <span class="cmd cmd-widget wifiRSSI #wifiRSSI_history# hidden" data-cmd_id="#wifiRSSI_id#" data-cmd_uid="#wifiRSSI_uid#">
                 <i class="fas fa-wifi"></i> <span class='wifiRSSI_value'></span>
             </span>
-            <span class="cmd cmd-widget cellRSSI #cellRSSI_history# #cellRSSI_hidden#" data-cmd_id="#cellRSSI_id#" data-cmd_uid="#cellRSSI_uid#">
+            <span class="cmd cmd-widget cellRSSI #cellRSSI_history# hidden" data-cmd_id="#cellRSSI_id#" data-cmd_uid="#cellRSSI_uid#">
                 <i class="fas fa-signal"></i> <span class='cellRSSI_value'></span>
             </span>
+	    <span class="hidden" data-cmd_uid=#WIFI_uid#></span>
+	    <script>
+		jeedom.cmd.update['#WIFI_id#'] = function(_options){
+		    if (_options.display_value == 1){
+			$('[data-cmd_uid=#wifiRSSI_uid#]').removeClass('hidden')
+			$('[data-cmd_uid=#cellRSSI_uid#]').addClass('hidden')
+		    } else {
+			$('[data-cmd_uid=#cellRSSI_uid#]').removeClass('hidden')
+			$('[data-cmd_uid=#wifiRSSI_uid#]').addClass('hidden')
+		    }
+		}
+		setTimeout( function() {
+		    jeedom.cmd.update['#WIFI_id#']({display_value:#WIFI_state#})
+		},100)
+	    </script>
         </div>
 
         <!-- Tuile status -->
