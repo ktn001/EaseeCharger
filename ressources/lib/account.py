@@ -70,7 +70,7 @@ class Account():
         self.logger.debug("'refreshToken' is called")
         if time.time() > self.getTime2renew():
             self.logger.debug("Token need a refresh")
-            url = "https://api.easee.cloud/api/accounts/refresh_token"
+            url = "https://api.easee.com/api/accounts/refresh_token"
             headers = {
                     "Accept": "application/json",
                     "Content-Type": "application/*+json",

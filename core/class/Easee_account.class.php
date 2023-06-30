@@ -25,7 +25,7 @@ class Easee_account {
     private $login = '';
     private $password = '';
     private $isEnable = 0;
-    private $_site = 'https://api.easee.cloud/api/';
+    private $_site = 'https://api.easee.com/api/';
     private $_modifiedChargers = [];
 
     /*     * ********************************************************************** */
