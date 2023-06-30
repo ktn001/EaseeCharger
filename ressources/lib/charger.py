@@ -105,7 +105,7 @@ class Charger():
         self.lastMessage = None
         self.nbSignalrRestart = 0
         self.nbWatcherRestart = 0
-        url = "https://api.easee.com/hubs/chargers"
+        url = "https://streams.easee.com/hubs/chargers"
         options = {'access_token_factory': self.getToken}
 
         self.connection = HubConnectionBuilder()\
