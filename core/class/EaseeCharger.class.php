@@ -844,7 +844,7 @@ class EaseeChargerCmd extends cmd {
 			if ($options == '') {
 				$options = array();
 			}
-			$options = is_json($options,$opts);
+			$options = is_json($options,$options);
 			if ($this->getConfiguration('phaseId') != '') {
 				$options['phaseId'] = $this->getConfiguration('phaseId');
 			}

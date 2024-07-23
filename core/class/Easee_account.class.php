@@ -529,7 +529,7 @@ class Easee_account {
 	foreach ($response as $key => $value) {
 	    $logicalIds = $this->mapCmd($key);
 	    if (count($logicalIds) == 0) {
-		log::add('EaseeCharger','debug',"│   " . sprintf(__('Pas de traitemment pour %s (value: %s)',__FILE__),$key, $value));
+		log::add('EaseeCharger','debug',"│   " . sprintf(__('Pas de traitemment pour %s (value: %s)',__FILE__),$key, print_r($value,true)));
 		continue;
 	    }
 	    foreach ($logicalIds as $logicalId) {

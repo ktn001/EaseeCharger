@@ -19,28 +19,49 @@
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 require_once dirname(__FILE__) . '/../core/php/EaseeCharger.inc.php';
 
+function EaseeCharger_goto_2() {
+	config::save('heartbeat::delay::EaseeCharger',15);
+	config::save('heartbeat::restartDeamon::EaseeCharger',1);
+}
+
+function EaseeCharger_goto_1() {
+	$chargers = EaseeCharger::byType('EaseeCharger');
+	foreach ($chargers as $charger) {
+		$charger->createCmds('createOnly');
+	}
+	$config::save('plugin::level',1,'EaseeCharger');
+}
+
+function EaseeCharger_upgrade() {
+	$lastLevel = 2;
+	$pluginLevel = config::byKey('plugin::level','EaseeCharger', 0);
+	for ($level = 1; $level <= $lastLevel; $level++) {
+		if ($pluginLevel  < $level) {
+			$function = 'EaseeCharger_goto_' . $level;
+			if (function_exists($function)) {
+				log::add('EaseeCharger','info','execution de ' . $function . '()');
+				$function();
+			}
+			config::save('plugin::level',$level,'EaseeCharger');
+			$pluginLevel = $level;
+			log::add('EaseeCharger','info','pluginlevel: ' . $pluginLevel);
+		}
+	}
+}
+
 // Fonction exécutée automatiquement après l'installation du plugin
 function EaseeCharger_install() {
 	log::add("EaseeCharger","info","Execution de EaseeCharger_install");
 	config::save('api', config::genKey(), 'EaseeCharger');
 	config::save('api::EaseeCharger::mode', 'localhost');
 	config::save('api::EaseeCharger::restricted', '1');
-	EaseeCharger_update()
+	EaseeCharger_upgrade();
 }
 
 // Fonction exécutée automatiquement après la mise à jour du plugin
 function EaseeCharger_update() {
 	log::add("EaseeCharger","info","Execution de EaseeCharger_update");
-
-	$level = config::byKey('plugin::level','EaseeCharger', 0);
-	if ($level < 1){
-		$chargers = EaseeCharger::byType('EaseeCharger');
-		for ($chargers as $charger) {
-			$charger->createCmds('createOnly')
-		}
-		$config::save('plugin::level',1,'EaseeCharger')
-		$level = 1;
-	}
+	EaseeCharger_upgrade();
 }
 
 ?>
