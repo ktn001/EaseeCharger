@@ -18,11 +18,8 @@
   <script>
 
     jeedom.cmd.addUpdateFunction('#id#', function(_options) {
-	  console.log(_options)
       var widget = $('.cmd.phase.#phaseId#[data-created_for=CURRENT][data-eqLogic_id=#eqLogic_id#]')
-	  console.log(widget)
       if ('#generic_type#' == 'CURRENT') {
-		console.log("111111111111111111111111111")
         var minValue = ('#minValue#' == '') ? 0 : parseInt('#minValue#')
         var maxValue = ('#maxValue#' == '') ? 100 : parseInt('#maxValue#')
         if (_options.display_value >= maxValue) {
@@ -34,7 +31,6 @@
         } else {
           var angle = (((_options.display_value - minValue) * 180) / (maxValue - minValue)) - 180
         }
-		console.log("")
         widget.find('.gaugeValue').css('transform', 'scale(0.94) rotate('+angle+'deg)')
         widget.find('.state.current strong').first().text(_options.display_value)
       }
