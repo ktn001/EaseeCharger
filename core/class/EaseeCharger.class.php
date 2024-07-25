@@ -300,9 +300,8 @@ class EaseeCharger extends eqLogic {
 	//========================================================================
 
 	function toHtml($_version = 'dashboard') {
-		log::add("EaseeCharger","debug",$this->getName() . ":  " . $this->getConfiguration('widget_perso') . "  " . $this->getConfiguration('widget_perso',1));
+		log::add("EaseeCharger","debug",$this->getName() . ":  widget_perso = " . $this->getConfiguration('widget_perso',1));
 		if ($this->getConfiguration('widget_perso',1) == '0') {
-		   log::add("EaseeCharger","debug",$this->getName() . ":  legacy");
 		   return parent::toHtml($_version);
 		}
 
@@ -310,6 +309,7 @@ class EaseeCharger extends eqLogic {
 		if (!is_array($replace)) {
 			return $replace;
 		}
+		
 		$version = jeedom::versionAlias($_version);
 
 		$replace['#version#'] = $_version;
@@ -325,7 +325,7 @@ class EaseeCharger extends eqLogic {
 
 		$template = getTemplate('core', $version, 'EaseeCharger', 'EaseeCharger');
 
-		foreach ($this->getCmd() as $cmd) {
+		foreach ($this->getCmd(null,null,true) as $cmd) {
 			$logicalId = $cmd->getLogicalId();
 			$replace['#' . $logicalId . '_widget#'] = $cmd->toHtml();
 			$replace['#' . $logicalId . '_id#'] = $cmd->getId();

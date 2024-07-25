@@ -2,23 +2,27 @@
   <div class="title #hide_name#">
     <span class="cmdName">#widgetTitle#</span>
   </div>
-  <div class="content-sm">
+  <div class="content">
     <div class="gauge cursor #history#" data-cmd_id="#id#"></div>
     <div class="gaugeValue" data-cmd_id="#id#"></div>
   </div>
   <div class="state current" style='position:relative;top:-20px'><strong>#state#</strong> <strong>#unite#</strong></div>
   <div class="state voltage" style='position:relative;top:-20px'><strong>#state#</strong> <strong>#unite#</strong></div>
   <div class="cmdStats #hide_history#">
-    <span title='{{Min}}' class='tooltips'>#minHistoryValue#</span>|<span title='{{Moyenne}}' class='tooltips'>#averageHistoryValue#</span>|<span title='{{Max}}' class='tooltips'>#maxHistoryValue#</span> <i class="#tendance#"></i>
+    <span title='{{Minimum}}' class='tooltips'>#minHistoryValue#</span>|<span title='{{Moyenne}}' class='tooltips'>#averageHistoryValue#</span>|<span title='{{Maximum}}' class='tooltips'>#maxHistoryValue#</span> <i class="#tendance#"></i>
   </div>
   <template>
     <div>color : rgb(20,20,20) ({{couleur de l'indicateur de valeur}})</div>
+	<div>time : duration|date ({{Affiche durée ou date de la valeur}})</div>
   </template>
   <script>
 
-    jeedom.cmd.update['#id#'] = function(_options) {
-      var widget = $('.cmd[data-cmd_id=#id#]').closest('.eqLogic[data-created_for=CURRENT]')
+    jeedom.cmd.addUpdateFunction('#id#', function(_options) {
+	  console.log(_options)
+      var widget = $('.cmd.phase.#phaseId#[data-created_for=CURRENT][data-eqLogic_id=#eqLogic_id#]')
+	  console.log(widget)
       if ('#generic_type#' == 'CURRENT') {
+		console.log("111111111111111111111111111")
         var minValue = ('#minValue#' == '') ? 0 : parseInt('#minValue#')
         var maxValue = ('#maxValue#' == '') ? 100 : parseInt('#maxValue#')
         if (_options.display_value >= maxValue) {
@@ -30,16 +34,17 @@
         } else {
           var angle = (((_options.display_value - minValue) * 180) / (maxValue - minValue)) - 180
         }
+		console.log("")
         widget.find('.gaugeValue').css('transform', 'scale(0.94) rotate('+angle+'deg)')
-        widget.find('.state current strong').first().text(_options.display_value)
+        widget.find('.state.current strong').first().text(_options.display_value)
       }
       if ('#generic_type#' == 'VOLTAGE') {
-        widget.find('.state voltage strong').first().text(_options.display_value)
+        widget.find('.state.voltage strong').first().text(_options.display_value)
       }
-    }
+    })
 
     if (is_numeric('#state#')) {
-      jeedom.cmd.update['#id#']({display_value: '#state#', valueDate: '#valueDate#', collectDate: '#collectDate#'})
+      jeedom.cmd.refreshValue([{cmd_id: '#id#', display_value: '#state#', valueDate: '#valueDate#', collectDate: '#collectDate#'}])
     } else {
       $('.cmd[data-cmd_uid=#uid#] .gauge').append('<center><span class="label label-danger">#state#</span></center>')
     }
