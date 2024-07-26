@@ -45,18 +45,24 @@ body:not([data-theme*=Dark])[data-coloredicons="0"] {
 
 .widget_EaseeCharger .tile {
 	margin: 5px 5px 5px 5px !important;
-	padding: 5px 5px 5px 5px !important;
+	padding: 5px 5px 10px 5px !important;
 	background-color: var(--bg-tile-color);
 	opacity: 0.8;
 	text-align: center;
 }
 
+.widget_EaseeCharger .tile.status {
+	margin-top: 15px !important;
+}
+
 .widget_EaseeCharger .tile-title  {
-	font-size: 0.8em;
-	text-align: left;
+	font-weight: bold;
+}
+
+.widget_EaseeCharger .tile.charge [data-type=action] {
 	position: relative;
-	top: -5px;
-	left: -5px;
+	top: 30px;
+	margin-top: -30px;
 }
 
 .widget_EaseeCharger .content-sm.center {
