@@ -93,13 +93,6 @@ try {
 			throw new Exception(sprintf(__("Chargeur %s introuvable.",__FILE__),$id));
 		}
 		try {
-			//$option = array();
-			//if (init('action') == 'createCmds') {
-			//	$mode = "createOnly";
-			//} elseif (init('action') == 'updateCmds')  {
-			//	$mode = "updateOnly";
-			//}
-			//$charger->createCmds($mode);
 			$charger->createOrUpdateCmds();
 			ajax::success();
 		} catch (Exception $e){

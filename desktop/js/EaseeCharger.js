@@ -292,11 +292,20 @@ $('#selectChargerImg').on('change',function(){
  * mise à jour ou création des commandes
  */
 function updateCmds ( action = "") {
+}
+
+/*
+ * Action sur recréation des commandes
+ */
+$('.cmdAction[data-action=recreateCmds]').on('click',function() {
+	if (jeedomUtils.checkPageModified()) {
+		return
+	}
 	$.ajax({
 		type: 'POST',
 		url: 'plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php',
 		data: {
-			action: action,
+			action: 'createCmds',
 			id:  $('.eqLogicAttr[data-l1key=id]').value(),
 		},
 		dataType : 'json',
@@ -318,29 +327,9 @@ function updateCmds ( action = "") {
 				}
 			}
 			url += 'saveSuccessFull=1' + document.location.hash
-			loadPage(url)
+			jeedomUtils.loadPage(url)
 		}
 	})
-}
-
-/*
- * Action sur recréation des commandes
- */
-$('.cmdAction[data-action=createMissing]').on('click',function() {
-	if (checkPageModified()) {
-		return
-	}
-	updateCmds ('createCmds')
-})
-
-/*
- * Action sur configuration des commandes
- */
-$('.cmdAction[data-action=reconfigure]').on('click',function() {
-	if (checkPageModified()) {
-		return
-	}
-	updateCmds ('updateCmds')
 })
 
 $('#table_cmd').delegate('.listEquipementAction', 'click', function(){
@@ -370,9 +359,6 @@ function addCmdToTable(_cmd) {
 	}
 	if (!isset(_cmd.configuration)) {
 		_cmd.configuration = {}
-	}
-	if (init(_cmd.logicalId) == 'refresh') {
-		return
 	}
 	let isStandard = false
 	let  tr = '<tr class="cmd" data-cmd_id="' + init(_cmd.id) + '">'

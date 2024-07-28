@@ -455,7 +455,7 @@ class EaseeCharger extends eqLogic {
 	 * Ajout des cmds après création du chargeur
 	 */
 	public function postInsert() {
-		$this->createCmds();
+		$this->createOrUpdateCmds();
 	}
 
 	/*
@@ -555,7 +555,7 @@ class EaseeCharger extends eqLogic {
 				utils::a2o($cmd,$purgedCmd);
 				if ($cmd->getChanged()) {
 					log::add("EaseeCharger","info", sprintf(__('La commande %s a été modifiée',__FILE__),$purgedCmd['logicalId']));
-					$cmd->save()
+					$cmd->save();
 				}
 			}
 		}
@@ -580,7 +580,7 @@ class EaseeCharger extends eqLogic {
 			utils::a2o($cmd,$resolvedCmd);
 			if ($cmd->getChanged()) {
 				log::add("EaseeCharger","info", sprintf(__('La commande %s a été modifiée',__FILE__),$purgedCmd['logicalId']));
-				$cmd->save()
+				$cmd->save();
 			}
 		}
 	}

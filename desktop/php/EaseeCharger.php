@@ -241,8 +241,7 @@ sendVarToJS('eqType', $plugin->getId());
 	    <!-- Onglet des commandes d'un chargeur -->
 	    <!-- ================================== -->
 	    <div role="tabpanel" class="tab-pane" id="commandtab">
-		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="createMissing" style="margin-top:5px;"><i class="fas fa-magic"></i> {{Recréer les commandes manquantes}}</a>
-		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="reconfigure" style="margin-top:5px;"><i class="fas fa-redo"></i> {{Reconfigurer les commandes}}</a>
+		<a class="btn btn-default btn-sm pull-right cmdAction" data-action="recreateCmds" style="margin-top:5px;"><i class="fas fa-magic"></i> {{Mettre à jours les commandes}}</a>
 		<br/><br/>
 		<div class="table-responsive">
 		    <table id="table_cmd" class="table table-bordered table-condensed">

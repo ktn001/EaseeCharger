@@ -27,7 +27,7 @@ function EaseeCharger_goto_2() {
 function EaseeCharger_goto_1() {
 	$chargers = EaseeCharger::byType('EaseeCharger');
 	foreach ($chargers as $charger) {
-		$charger->createCmds('createOnly');
+		$charger->createOrUpdateCmds('createOnly');
 	}
 	$config::save('plugin::level',1,'EaseeCharger');
 }
