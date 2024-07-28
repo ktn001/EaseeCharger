@@ -527,286 +527,61 @@ class EaseeCharger extends eqLogic {
 		return $image;
 	}
 
-	public function configureCmd(&$cmd, $config, $secondPass=false) {
-		if ($secondPass == false) {
-			$needSave = false;
-
-			// phaseId
-			// -------
-			if (isset($config['phaseId'])) {
-				if ($cmd->getConfiguration('phaseId') != $config['phaseId']) {
-					$cmd->setConfiguration('phaseId', $config['phaseId']);
-					$needSave = true;
-				}
-			} else {
-				if ($cmd->getConfiguration('phaseId', 'nonDefini') != 'nonDefini') {
-					$cmd->setConfiguration('phaseId', null);
-					$needSave = true;
-				}
-			}
-
-			// displayName
-			// -----------
-			if (isset($config['displayName'])) {
-				if ($cmd->getDisplay('showNameOndashboard') != $config['displayName']) {
-					$cmd->setDisplay('showNameOndashboard',$config['displayName']);
-					$needSave = true;
-				}
-			}
-
-			// display::graphStep
-			// ------------------
-			if (isset($config['display::graphStep'])) {
-				if ($cmd->getDisplay('graphStep') != $config['display::graphStep']) {
-					$cmd->setDisplay('graphStep',$config['display::graphStep']);
-					$needSave = true;
-				}
-			}
-
-			// eqLogic_id
-			// ----------
-			if ($cmd->getEqLogic_id() != $this->getId()) {
-				$cmd->setEqLogic_id($this->getId());
-				$needSave = true;
-			}
-
-			// genericType
-			// -----------
-			if (isset($config['genericType'])) {
-				if ($cmd->getGeneric_type() != $config['genericType']) {
-					$cmd->setGeneric_type($config['genericType']);
-					$needSave = true;
-				}
-			}
-
-			// name
-			// ----
-			if (isset($config['name'])) {
-				if ($cmd->getName() != $config['name']) {
-					$cmd->setName($config['name']);
-					$needSave = true;
-				}
-			} else {
-				if ($cmd->getName() != $cmd->getLogicalId()) {
-					$cmd->setName($cmd->getLogicalId);
-					$needSave = true;
-				}
-			}
-
-			// order
-			// -----
-			if (isset($config['order'])) {
-				$oldOrder = $cmd->getOrder();
-				if ($oldOrder != $config['order']) {
-					log::add("EaseeCharger","debug","========================");
-					log::add("EaseeCharger","debug",$config['order']);
-					foreach ($this->getCmd() as $c) {
-						if ($c->getOrder() >= $config['order']) {
-							if ($odlsOrder == 0 || $c->getOrder < $oldOrder) {
-								$c->setOrder($c->getOrder()+1);
-								$c->save();
-							}
-						}
-						log::add("EaseeCharger","debug","c: " . $c->getLogicalId() . " o: " . $c->getOrder());
-					}
-					$cmd->setOrder($config['order']);
-					$needSave = true;
-				}
-			}
-
-			// returnAfterDisplay
-			// ------------------
-			if (isset($config['returnAfterDisplay'])) {
-				if ($cmd->getDisplay('forceReturnLineAfter') != $config['returnAfterDisplay']) {
-					$cmd->setDisplay('forceReturnLineAfter', $config['returnAfterDisplay']);
-				}
-			}
-
-			// max
-			// ---
-			if (isset($config['max'])) {
-				if ($cmd->getConfiguration('maxValue') != $config['max']) {
-					$cmd->setConfiguration('maxValue',$config['max']);
-					$needSave = true;
-				}
-			}
-
-			// min
-			// ---
-			if (isset($config['min'])) {
-				if ($cmd->getConfiguration('minValue') != $config['min']) {
-					$cmd->setConfiguration('minValue',$config['min']);
-					$needSave = true;
-				}
-			}
-
-			// rounding
-			// --------
-			if (isset($config['rounding'])) {
-				if ($cmd->getConfiguration('historizeRound') != $config['rounding']) {
-					$cmd->setConfiguration('historizeRound',$config['rounding']);
-					$needSave = true;
-				}
-			}
-
-			// subType
-			// -------
-			if (isset($config['subType'])) {
-				if ($cmd->getSubType() != $config['subType']) {
-					$cmd->setSubType($config['subType']);
-					$needSave = true;
-				}
-			} else {
-				log::add("EaseeCharger","error",sprintf(__("Le subType de la commande %s n'est pas défini",__FILE__),$logicalId));
-			}
-
-			// template
-			// --------
-			if (isset($config['template'])) {
-				if ($cmd->getTemplate('dashboard') != $config['template']) {
-					$cmd->setTemplate('dashboard',$config['template']);
-					$needSave = true;
-				}
-				if ($cmd->getTemplate('mobile') != $config['template']) {
-					$cmd->getTemplate('mobile',$config['template']);
-					$needSave = true;
-				}
-			}
-
-			// type
-			// ----
-			if (isset($config['type'])) {
-				if ($cmd->getType() != $config['type']) {
-					$cmd->setType($config['type']);
-					$needSave = true;
-				}
-			} else {
-				log::add("EaseeCharger","error",sprintf(__("Le type de la commande %s n'est pas défini",__FILE__),$logicalId));
-			}
-
-			// unite
-			// -----
-			if (isset($config['unite'])) {
-				if ($cmd->getUnite() != $config['unite']) {
-					$cmd->setUnite($config['unite']);
-					$needSave = true;
-				}
-			}
-
-			// visible
-			// -------
-			if (isset($config['visible'])) {
-				if ($cmd->getIsVisible() != $config['visible']) {
-					$cmd->setIsVisible($config['visible']);
-					$needSave = true;
-				}
-			}
-
-			// widgetTitle
-			// -----------
-			if (isset($config['widgetTitle'])) {
-				if ($cmd->getConfiguration('widgetTitle') != $config['widgetTitle']) {
-					$cmd->setConfiguration('widgetTitle', $config['widgetTitle']);
-					$needSave = true;
-				}
-			} else {
-				if ($cmd->getConfiguration('widgetTitle', 'nonDefini') != 'nonDefini') {
-					$cmd->setConfiguration('widgetTitle', null);
-					$needSave = true;
-				}
-			}
-
-			if ($needSave) {
-				$cmd->save();
-			}
-			return $cmd;
-		} else {
-			$needSave = false;
-
-			if (isset ($config['calcul'])) {
-				$calcul = $config['calcul'];
-				preg_match_all('/#(.*?)#/',$calcul,$matches);
-				foreach ($matches[1] as $cible) {
-					$cmdCible = $this->getCmd(null, $cible);
-					if (is_object($cmdCible)) {
-						$calcul = str_replace('#' . $cible . '#','#' . $cmdCible->getId() . '#', $calcul);
-					}
-				}
-				if ($cmd->getConfiguration('calcul') !=  $calcul) {
-					$cmd->setConfiguration('calcul', $calcul);
-					$needSave = true;
-				}
-			}
-
-			if (isset($config['value'])) {
-				$cmdValue = $this->getCmd(null, $config['value']);
-				$value = "";
-				if (is_object($cmdValue)) {
-						$value = '#' . $cmdValue->getId() . '#';
-				}
-				if ($cmd->getValue(i) != $value) {
-					$cmd->setValue($value);
-					$needSave = true;
-				}
-			}
-
-			log::add("EaseeCharger","debug",print_r($config,true));
-			if (isset($config['actiononchange'])) {
-				log::add("EaseeCharger","debug","XXXXXXXXXXXXXXXXXXx actionOnChange");
-			}
-			if ($needSave) {
-				$cmd->save();
-			}
-		}
-	}
-
-	public function createCmds( $mode = "") {
-		if (!in_array($mode, array('','createOnly','updateOnly'))) {
-			throw new Exception(sprintf(__("%s: Le mode %s n'est pas traité",__FILE__),'createCmds',print_r($mode,true)));
-		}
-		$create = true;
-		$update = true;
-		if ($mode == 'createOnly') {
-			$update = false;
-		}
-		if ($mode == 'updateOnly') {
-			$create = false;
-		}
-		$cfgFile = realpath (__DIR__ . '/../config/cmd.config.ini');
-		log::add("EaseeCharger","debug",sprintf(__("Lecture du fichier %s ...",__FILE__),$cfgFile));
-		$cmdConfigs = parse_ini_file($cfgFile,true,INI_SCANNER_RAW);
-		$createdCmds = [];
-
-		foreach ($cmdConfigs as $logicalId => $config) {
-			$created = false;
-			$cmd = cmd::byEqLogicIdAndLogicalId($this->getId(),$logicalId);
-			if ($create) {
-				if (is_object($cmd)) {
-					log::add("EaseeCharger","debug",sprintf(__("%s existe déjà",__FILE__),$logicalId));
+	public function createOrUpdateCmds() {
+		function purgeDash ($array) {
+			$return = array();
+			foreach($array as $key => $value) {
+				if (is_array($value)) {
+					$return[$key] = purgeDash($value);
 					continue;
 				}
-				log::add("EaseeCharger","info",sprintf(__("Création de la commande %s...",__FILE__),$logicalId));
-				$cmd = new EaseeChargerCMD();
-				$cmd->setLogicalId($logicalId);
-				$created = true;
-				$createdCmds[] = $logicalId;
+				if (strpos($value,'#') === false) {
+					$return[$key] = $value;
+				}
 			}
-			if ($update or $created) {
-				if (is_object($cmd)) {
-					$this->configureCmd($cmd,$config);
+			return $return;
+		}
+
+		$cmdsFile = realpath(__DIR__ . '/../config/cmds.json');
+		$cmds = json_decode(translate::exec(file_get_contents($cmdsFile),$cmdsFile),true);
+		foreach($cmds as $cmdConfig) {
+			$purgedCmd = purgeDash($cmdConfig);
+			$cmd = $this->getCmd(null,$purgedCmd['logicalId']);
+			if (! is_object($cmd)) {
+				log::add("EaseeCharger","info",sprintf(__('Création de la commande %s',__FILE__),$purgedCmd['logicalId']));
+				$cmd = new EaseeChargerCmd();
+				utils::a2o($cmd,$purgedCmd);
+			} else {
+				utils::a2o($cmd,$purgedCmd);
+				if ($cmd->getChanged()) {
+					log::add("EaseeCharger","info", sprintf(__('La commande %s a été modifiée',__FILE__),$purgedCmd['logicalId']));
+					$cmd->save()
 				}
 			}
 		}
-
-		foreach ($cmdConfigs as $logicalId => $config) {
-			if ($update or in_array($logicalId, $createdCmds)) {
-					$cmd = $this->getCmd(null,$logicalId);
-					$this->configureCmd($cmd,$config,true);
+		foreach($cmds as $cmdConfig) {
+			$json = json_encode($cmdConfig);
+			preg_match_all("/#(\S*?)#/", $json, $matches);
+			$replace = array();
+			foreach ($matches[1] as $match) {
+				if (isset($replace[$match])) {
+					continue;
+				}
+				$cmd = $this->getCmd(null,$match);
+				if (is_object($cmd)) {
+					$replace['#' . $match . '#'] = '#' . $cmd->getId() . '#';
+				}
 			}
-		}
-
-		if ($this->getIsEnable()) {
-			$this->refresh();
+			$resolvedCmd = json_decode(str_replace(array_keys($replace), $replace, $json),true);
+			$cmd = $this->getCmd(null,$resolvedCmd['logicalId']);
+			if (! is_object($cmd)) {
+				$cmd = new EaseeChargerCmd();
+			}
+			utils::a2o($cmd,$resolvedCmd);
+			if ($cmd->getChanged()) {
+				log::add("EaseeCharger","info", sprintf(__('La commande %s a été modifiée',__FILE__),$purgedCmd['logicalId']));
+				$cmd->save()
+			}
 		}
 	}
 
