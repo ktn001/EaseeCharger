@@ -19,6 +19,13 @@
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 require_once dirname(__FILE__) . '/../core/php/EaseeCharger.inc.php';
 
+function EaseeCharger_goto_3() {
+	$chargers = EaseeCharger::byType('EaseeCharger');
+	foreach ($chargers as $charger) {
+		$charger->createOrUpdateCmds('createOnly');
+	}
+}
+
 function EaseeCharger_goto_2() {
 	config::save('heartbeat::delay::EaseeCharger',15);
 	config::save('heartbeat::restartDeamon::EaseeCharger',1);
@@ -29,7 +36,6 @@ function EaseeCharger_goto_1() {
 	foreach ($chargers as $charger) {
 		$charger->createOrUpdateCmds('createOnly');
 	}
-	$config::save('plugin::level',1,'EaseeCharger');
 }
 
 function EaseeCharger_upgrade() {
