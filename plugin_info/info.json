@@ -1,23 +1,39 @@
 {
-	"id" : "EaseeCharger",
-	"name" : "Chargeur Easee",
-	"description" : {
-		"fr_FR": "Plugin pour les chargeurs de véhicules électriques *Easee*"
+	"id": "EaseeCharger",
+	"name": "Chargeur Easee",
+	"description": {
+		"fr_FR": "Plugin pour les chargeurs de véhicules électriques *Easee*",
+		"en_US": "Plugin for *Easee* electric vehicle chargers",
+		"es_ES": "Plugin para cargadores de vehículos eléctricos *Easee",
+		"de_DE": "Plugin für Ladegeräte für Elektrofahrzeuge *Easee*"
 	},
-	"utilization" : {
+	"utilization": {
 		"fr_FR": "Fonctionalités très basiques pour le moment. Le plugin est en cours d'évolution"
 	},
-	"licence" : "GNU",
-	"author" : "ktn",
-	"require" : "4.2.0",
-	"category" : "devicecommunication",
-	"hasDependency" : true,
-	"hasOwnDeamon" : true,
-	"maxDependancyInstallTime" : 10,
-	"changelog" : "https://ktn001.github.io/fr_FR/EaseeCharger/changelog.html",
-	"documentation" : "https://ktn001.github.io/fr_FR/EaseeCharger/index.html",
-	"changelog_beta" : "https://ktn001.github.io/fr_FR/EaseeCharger/changelog.html",
-	"documentation_beta" : "https://ktn001.github.io/fr_FR/EaseeCharger/index.html",
-	"language" : ["fr_FR"],
-	"compatibility" : ["miniplus","smart","rpi","docker","diy","mobile","v4"]
+	"licence": "GNU",
+	"author": "ktn",
+	"require": "4.2.0",
+	"category": "devicecommunication",
+	"hasDependency": true,
+	"hasOwnDeamon": true,
+	"maxDependancyInstallTime": 10,
+	"changelog": "https://ktn001.github.io/fr_FR/EaseeCharger/changelog.html",
+	"documentation": "https://ktn001.github.io/fr_FR/EaseeCharger/index.html",
+	"changelog_beta": "https://ktn001.github.io/fr_FR/EaseeCharger/changelog.html",
+	"documentation_beta": "https://ktn001.github.io/fr_FR/EaseeCharger/index.html",
+	"language": [
+		"de_DE",
+		"en_US",
+		"es_ES",
+		"fr_FR"
+	],
+	"compatibility": [
+		"miniplus",
+		"smart",
+		"rpi",
+		"docker",
+		"diy",
+		"mobile",
+		"v4"
+	]
 }
