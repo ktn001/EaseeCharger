@@ -21,49 +21,52 @@ import json
 import argparse
 import datetime
 
-libDir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)) + '/../lib')
-sys.path.append (libDir)
+libDir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)) + "/../lib")
+sys.path.append(libDir)
 
 from logfilter import *
 from jeedom import *
 from account import Account
 from charger import Charger
-logger = logging.getLogger('EaseeChargerd')
+
+logger = logging.getLogger("EaseeChargerd")
 logger.addFilter(logFilter())
-logLevel = 'error'
-callback = ''
-apiKey = ''
-pidFile = '/tmp/jeedom/EaseeCharger/daemon.pid'
+logLevel = "error"
+callback = ""
+apiKey = ""
+pidFile = "/tmp/jeedom/EaseeCharger/daemon.pid"
 socketPort = -1
-socketHost = 'localhost'
+socketHost = "localhost"
 startTime = datetime.datetime.fromtimestamp(time.time())
 
 _commands = {
-    'startAccount' : [
-        'account',
-        'accessToken',
-        'expiresIn',
-        'expiresAt',
+    "startAccount": [
+        "account",
+        "accessToken",
+        "expiresIn",
+        "expiresAt",
     ],
-    'stopAccount' : [
-        'account',
+    "stopAccount": [
+        "account",
     ],
-    'startCharger' : [
-        'id',
-        'serial',
-        'name',
-        'account',
+    "startCharger": [
+        "id",
+        "serial",
+        "name",
+        "account",
     ],
-    'stopCharger' : [
-        'id',
+    "stopCharger": [
+        "id",
     ],
-    'shutdown' : [],
+    "shutdown": [],
 }
-#===============================================================================
+
+
+# ===============================================================================
 # options
-#...............................................................................
+# ...............................................................................
 # Prise en compte des options de la ligne de commande
-#===============================================================================
+# ===============================================================================
 def options():
     global logLevel
     global callback
@@ -71,18 +74,22 @@ def options():
     global pidFile
     global socketPort
 
-    parser = argparse.ArgumentParser( description="EaseeCharger daemon for Jeedom's plugin")
+    parser = argparse.ArgumentParser(
+        description="EaseeCharger daemon for Jeedom's plugin"
+    )
     parser.add_argument("-l", "--loglevel", help="Log level for the daemon", type=str)
     parser.add_argument("-c", "--callback", help="Callback", type=str)
     parser.add_argument("-a", "--apikey", help="ApiKey", type=str)
     parser.add_argument("-p", "--pid", help="Pif file", type=str)
-    parser.add_argument("-s", "--socketport", help="Port to receive plugin's message", type=int)
-    parser.add_argument("-x", "--secureLog", help="Securised logs", action='store_true')
+    parser.add_argument(
+        "-s", "--socketport", help="Port to receive plugin's message", type=int
+    )
+    parser.add_argument("-x", "--secureLog", help="Securised logs", action="store_true")
     args = parser.parse_args()
 
     if args.loglevel:
-        if args.loglevel == 'extendedDebug':
-            logLevel = 'debug'
+        if args.loglevel == "extendedDebug":
+            logLevel = "debug"
             logFilter.set_quietDebug(False)
         else:
             logLevel = args.loglevel
@@ -100,50 +107,54 @@ def options():
 
     jeedom_utils.set_logLevel(logLevel)
 
-    logger.info('Start daemon')
-    logger.info('Log level: ' + logLevel)
-    if logLevel == 'debug':
-        logger.info('extendedDebug: ' + str(not logFilter.get_quietDebug()))
-    logger.info('callback: ' + callback)
-    logger.info('Apikey: ' + apiKey)
-    logger.info('Socket Port: ' + str(socketPort))
-    logger.info('Socket Host: ' + socketHost)
-    logger.info('PID file: ' + pidFile)
+    logger.info("Start daemon")
+    logger.info("Log level: " + logLevel)
+    if logLevel == "debug":
+        logger.info("extendedDebug: " + str(not logFilter.get_quietDebug()))
+    logger.info("callback: " + callback)
+    logger.info("Apikey: " + apiKey)
+    logger.info("Socket Port: " + str(socketPort))
+    logger.info("Socket Host: " + socketHost)
+    logger.info("PID file: " + pidFile)
 
-#===============================================================================
+
+# ===============================================================================
 # logStatus
-#...............................................................................
+# ...............................................................................
 # Log l'état interne du daemon
-#===============================================================================
+# ===============================================================================
 def logStatus():
-    logger.info ("┌── Daemon state: ──────────────────────────────────────────")
-    logger.info ("│ Daemon:")
-    logger.info (f"│   - Started at : {startTime}")
-    logger.info ("│ Accounts:")
+    logger.info("┌── Daemon state: ──────────────────────────────────────────")
+    logger.info("│ Daemon:")
+    logger.info(f"│   - Started at : {startTime}")
+    logger.info("│ Accounts:")
     for account in Account.all():
         expiresAt = datetime.datetime.fromtimestamp(account.getExpiresAt())
         lifetime = account.getLifetime()
         time2renew = datetime.datetime.fromtimestamp(account.getTime2renew())
-        logger.info (f"│ - {account.getName()}")
-        logger.info (f"│   - Token expires at {expiresAt}")
-        logger.info (f"│   - Lifetime: {lifetime}")
-        logger.info (f"│   - Time to renew: {time2renew}")
-    logger.info ("│ Chargers:")
+        logger.info(f"│ - {account.getName()}")
+        logger.info(f"│   - Token expires at {expiresAt}")
+        logger.info(f"│   - Lifetime: {lifetime}")
+        logger.info(f"│   - Time to renew: {time2renew}")
+    logger.info("│ Chargers:")
     for charger in Charger.all():
-        logger.info (f"│ - {charger.getName()}")
-        logger.info (f"│   - Serial:          {charger.getSerial()}")
+        logger.info(f"│ - {charger.getName()}")
+        logger.info(f"│   - Serial:          {charger.getSerial()}")
         accountName = charger.getAccount().getName()
-        logger.info (f"│   - Account:         {accountName}")
-        logger.info (f"│   - State:           {charger.getState()}")
-        logger.info (f"│   - Cloud Connected: {charger.is_running()}")
-        logger.info (f"│   - Nb Restart:      signalr: {charger.getNbSignalrRestart()}   watcher: {charger.getNbWatcherRestart()}")
-    logger.info ("└──────────────────────────────────────────────────────────")
+        logger.info(f"│   - Account:         {accountName}")
+        logger.info(f"│   - State:           {charger.getState()}")
+        logger.info(f"│   - Cloud Connected: {charger.is_running()}")
+        logger.info(
+            f"│   - Nb Restart:      signalr: {charger.getNbSignalrRestart()}   watcher: {charger.getNbWatcherRestart()}"
+        )
+    logger.info("└──────────────────────────────────────────────────────────")
 
-#===============================================================================
+
+# ===============================================================================
 # start_account
-#...............................................................................
+# ...............................................................................
 # Ajout d'un account
-#===============================================================================
+# ===============================================================================
 def start_account(name, accessToken, refreshToken, expiresAt, expiresIn):
     account = Account.byName(name)
     if account:
@@ -152,28 +163,27 @@ def start_account(name, accessToken, refreshToken, expiresAt, expiresIn):
     logger.info(f"Starting account < {name} >")
     account = Account(name, accessToken, refreshToken, expiresAt, expiresIn)
     if account:
-        jeedom_com.send_change_immediate({
-            'object' : 'account',
-            'message': 'started',
-            'account' : account.getName()
-    })
+        jeedom_com.send_change_immediate(
+            {"object": "account", "message": "started", "account": account.getName()}
+        )
 
 
-#===============================================================================
+# ===============================================================================
 # stop_account
-#...............................................................................
+# ...............................................................................
 # Retrait d'un account
-#===============================================================================
+# ===============================================================================
 def stop_account(name):
     account = Account.byName(name)
     if account:
         account.remove()
 
-#===============================================================================
+
+# ===============================================================================
 # start_charger
-#...............................................................................
+# ...............................................................................
 # Démarrage d'un thread pour un charger
-#===============================================================================
+# ===============================================================================
 def start_charger(id, name, serial, accountName):
     charger = Charger.byId(id)
     if charger:
@@ -184,22 +194,24 @@ def start_charger(id, name, serial, accountName):
     charger = Charger(id, name, serial, account)
     charger.run()
 
-#===============================================================================
+
+# ===============================================================================
 # stop_charger
-#...............................................................................
+# ...............................................................................
 # Arrêt du thread d'un charger
-#===============================================================================
+# ===============================================================================
 def stop_charger(id):
     charger = Charger.byId(id)
     if charger:
         charger.remove()
 
-#===============================================================================
+
+# ===============================================================================
 # read_socket
-#...............................................................................
+# ...............................................................................
 # Traitement des message reçu de Jeedom par jeedom_com et placé dans la
 # queue JEEDOM_SOCKET_MESSAGE
-#===============================================================================
+# ===============================================================================
 def read_socket():
     global JEEDOM_SOCKET_MESSAGE
 
@@ -207,41 +219,50 @@ def read_socket():
         # jeedom_com a reçu un message qu'il a mis en queue. On le récupère ici
         message = json.loads(JEEDOM_SOCKET_MESSAGE.get().decode())
 
-        if 'cmd' not in message:
+        if "cmd" not in message:
             logger.info(f"Message received from Jeedom: {message}")
             logger.warning("'cmd' is not in message")
             return
 
-        if message['cmd'] not in _commands:
+        if message["cmd"] not in _commands:
             logger.info(f"Message received from Jeedom: {message}")
             logger.warning(f"Unknow command {message['cmd']} in message")
             return
 
-        for arg in _commands[message['cmd']]:
+        for arg in _commands[message["cmd"]]:
             if arg not in message:
                 logger.error(f"Arg {arg} is missing for cmd {message['cmd']}")
                 return
 
-        if message['cmd'] == 'startAccount':
-            logFilter.add_sensible(message['accessToken'])
-            logFilter.add_sensible(message['refreshToken'])
+        if message["cmd"] == "startAccount":
+            logFilter.add_sensible(message["accessToken"])
+            logFilter.add_sensible(message["refreshToken"])
             logger.info(f"Message received from Jeedom: {message}")
-            start_account(message['account'],message['accessToken'],message['refreshToken'],message['expiresAt'],message['expiresIn'])
-        elif message['cmd'] == 'stopAccount':
-            stop_account(message['account'])
-        elif message['cmd'] == 'startCharger':
-            start_charger(message['id'],message['name'],message['serial'],message['account'])
-        elif message['cmd'] == 'stopCharger':
-            stop_charger(message['id'])
-        elif message['cmd'] == 'shutdown':
+            start_account(
+                message["account"],
+                message["accessToken"],
+                message["refreshToken"],
+                message["expiresAt"],
+                message["expiresIn"],
+            )
+        elif message["cmd"] == "stopAccount":
+            stop_account(message["account"])
+        elif message["cmd"] == "startCharger":
+            start_charger(
+                message["id"], message["name"], message["serial"], message["account"]
+            )
+        elif message["cmd"] == "stopCharger":
+            stop_charger(message["id"])
+        elif message["cmd"] == "shutdown":
             shutdown()
         return
 
-#===============================================================================
+
+# ===============================================================================
 # handler
-#...............................................................................
+# ...............................................................................
 # Procédure appelée pour trapper divers signaux
-#===============================================================================
+# ===============================================================================
 def handler(signum=None, frame=None):
 
     if signum == signal.SIGUSR1:
@@ -257,11 +278,12 @@ def handler(signum=None, frame=None):
     logger.debug("Signal %i caught, exiting..." % int(signum))
     shutdown()
 
-#===============================================================================
+
+# ===============================================================================
 # shutdown
-#...............................................................................
+# ...............................................................................
 # Procédure d'arrêt du daemon
-#===============================================================================
+# ===============================================================================
 def shutdown():
     logger.debug("Shutdown...")
     try:
@@ -280,16 +302,16 @@ def shutdown():
     os._exit(0)
 
 
-  ###########################
- #                           #
+###########################
+#                           #
 #  #    #    ##    #  #    #  #
 #  ##  ##   #  #   #  ##   #  #
 #  # ## #  #    #  #  # #  #  #
 #  #    #  ######  #  #  # #  #
 #  #    #  #    #  #  #   ##  #
 #  #    #  #    #  #  #    #  #
- #                           #
-  ###########################
+#                           #
+###########################
 
 
 options()
@@ -302,23 +324,20 @@ try:
     jeedom_utils.write_pid(pidFile)
 
     # Configuration du canal pour l'envoi de messages a Jeedom
-    jeedom_com = jeedom_com(apikey = apiKey, url=callback)
-    if (not jeedom_com.test()):
-        logger.error('Network communication issue. Unable to send messages to Jeedom')
-        shutdown();
+    jeedom_com = jeedom_com(apikey=apiKey, url=callback)
+    if not jeedom_com.test():
+        logger.error("Network communication issue. Unable to send messages to Jeedom")
+        shutdown()
     Charger.set_jeedom_com(jeedom_com)
 
     # Réception des message de jeedom qui seont mis en queue dans JEEDOM_SOCKET_MESSAGE
-    jeedom_socket = jeedom_socket(port=socketPort,address=socketHost)
+    jeedom_socket = jeedom_socket(port=socketPort, address=socketHost)
     jeedom_socket.open()
 
     signal.alarm(10)
 
     # Annonce à jeedom que le daemon est démarré
-    jeedom_com.send_change_immediate({
-        'object' : 'daemon',
-        'message': 'started'
-    })
+    jeedom_com.send_change_immediate({"object": "daemon", "message": "started"})
 
     # Boucle de traitement des messages mis en queue par jeedom_socket
     try:
@@ -329,7 +348,6 @@ try:
         shutdown()
 
 except Exception as e:
-    logger.error('Fatal error: ' + str(e))
+    logger.error("Fatal error: " + str(e))
     logger.info(traceback.format_exc())
-    shutdown();
-
+    shutdown()
