@@ -19,17 +19,18 @@ import signalrcore.helpers
 import re
 import sys
 
+
 class logFilter(logging.Filter):
     secure = True
     quietDebug = True
     sensibles = []
     message_to_drop = [
-            'Raw message incomming: ',
-            ]
+        "Raw message incomming: ",
+    ]
     pattern_to_drop = [
-            '^Sending message <signalrcore.messages.ping_message.PingMessage',
-            '^(Message received)?{"type":\s?6}'
-            ]
+        "^Sending message <signalrcore.messages.ping_message.PingMessage",
+        '^(Message received)?{"type":\s?6}',
+    ]
 
     @classmethod
     def set_secure(cls, secure):
@@ -47,16 +48,16 @@ class logFilter(logging.Filter):
     def add_sensible(cls, sensible):
         if not sensible in cls.sensibles:
             cls.sensibles.append(sensible)
-    
+
     @classmethod
     def filter(cls, record):
         if not record.msg:
             return True
         if cls.secure:
             for word in cls.sensibles:
-                if (hasattr(record.msg,'replace')):
+                if hasattr(record.msg, "replace"):
                     record.msg = record.msg.replace(word, "********")
-                if (hasattr(record,'args')):
+                if hasattr(record, "args"):
                     list_args = list(record.args)
                     for i in range(len(list_args)):
                         if not isinstance(list_args[i], str):
@@ -68,10 +69,11 @@ class logFilter(logging.Filter):
                 if record.msg == msg:
                     return False
             for pattern in cls.pattern_to_drop:
-                if re.search(pattern,record.msg):
+                if re.search(pattern, record.msg):
                     return False
         return True
 
+
 signalrcore.helpers.Helpers.get_logger().addFilter(logFilter())
-logging.getLogger('websocket').addFilter(logFilter())
-logging.getLogger('urllib3.connectionpool').addFilter(logFilter())
+logging.getLogger("websocket").addFilter(logFilter())
+logging.getLogger("urllib3.connectionpool").addFilter(logFilter())
