@@ -124,7 +124,6 @@ class Charger:
         )
         self.connection.on_open(lambda: self.on_open())
         self.connection.on_close(self.on_close)
-        self.connection.on_reconnect(lambda: self.on_reconnect())
         self.connection.on_error(lambda data: self.on_error(data))
         self.connection.on("ProductUpdate", self.on_Update)
         self.connection.on("ChargerUpdate", self.on_Update)

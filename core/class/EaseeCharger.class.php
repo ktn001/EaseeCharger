@@ -67,7 +67,7 @@ class EaseeCharger extends eqLogic {
 		if (!$_onlyEnable) {
 			return $chargers;
 		}
-		$enabledchargers = [];
+		$enabledChargers = [];
 		foreach ($chargers as $charger) {
 			if ($charger->getIsEnable() == 1) {
 				$enabledChargers[] = $charger;
@@ -594,6 +594,7 @@ class EaseeCharger extends eqLogic {
 			if (! is_object($cmd)) {
 				log::add("EaseeCharger","info",sprintf(__('Création de la commande %s',__FILE__),$purgedCmd['logicalId']));
 				$cmd = new EaseeChargerCmd();
+				$cmd->setEqLogic_id($this->getId());
 				utils::a2o($cmd,$purgedCmd);
 			} else {
 				utils::a2o($cmd,$purgedCmd);
@@ -620,6 +621,7 @@ class EaseeCharger extends eqLogic {
 			$cmd = $this->getCmd(null,$resolvedCmd['logicalId']);
 			if (! is_object($cmd)) {
 				$cmd = new EaseeChargerCmd();
+				$cmd->setEqLogic_id($this->getId());
 			}
 			utils::a2o($cmd,$resolvedCmd);
 			if ($cmd->getChanged()) {
