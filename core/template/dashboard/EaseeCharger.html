@@ -1,150 +1,187 @@
 <script>
-    if ($('head #EaseeCharger_css').length == 0) {
-		var stylesheet = $('<link>', {
-			id : 'EaseeCharger_css',
-			rel : 'stylesheet',
-			type : 'text/css',
-			href : 'plugins/EaseeCharger/core/template/dashboard/EaseeCharger.css',
-		});
-		stylesheet.appendTo('head');
-	}
+  if ($("head #EaseeCharger_css").length == 0) {
+    var stylesheet = $("<link>", {
+      id: "EaseeCharger_css",
+      rel: "stylesheet",
+      type: "text/css",
+      href: "plugins/EaseeCharger/core/template/dashboard/EaseeCharger.css",
+    });
+    stylesheet.appendTo("head");
+  }
 </script>
 
-<div class="eqLogic eqLogic-widget allowResize #class# widget_EaseeCharger" data-eqType="#eqType#" data-eqLogic_id="#id#" data-eqLogic_uid="#uid#" data-version="#version#" data-translate_category="#translate_category#" data-category="#category#" data-tags="#tags#" style="width: 293.75px;height: 446px;">
-	<center class="widget-name">
-		<span class="warning" title="#alert_name#">
-			<i class="#alert_icone#"></i>
-		</span>
-		<span class="cmd refresh pull-right cursor" data-cmd_id="#refresh_id#">
-			<i class="fas fa-sync"></i>
-		</span>
-		<span class="reportModeVisible">#name_display# <span class="object_name">#object_name#</span></span>
-		<a href="#eqLink#" class="reportModeHidden">#name_display# <span class="object_name">#object_name#</span></a>
-	</center>
-	<!-- Signal -->
-	<div class='#hiddenSignal#' id='signal'>
-		<span class="cmd cmd-widget wifiRSSI #wifiRSSI_history# hidden" data-cmd_id="#wifiRSSI_id#" data-cmd_uid="#wifiRSSI_uid#">
-			<i class="fas fa-wifi"></i> <span class='wifiRSSI_value'></span>
-		</span>
-		<span class="cmd cmd-widget cellRSSI #cellRSSI_history# hidden" data-cmd_id="#cellRSSI_id#" data-cmd_uid="#cellRSSI_uid#">
-			<i class="fas fa-signal"></i> <span class='cellRSSI_value'></span>
-		</span>
-	<span class="hidden" data-cmd_uid=#WIFI_uid#></span>
-	<script>
-	jeedom.cmd.update['#WIFI_id#'] = function(_options){
-		if (_options.display_value == 1){
-			$('[data-cmd_uid=#wifiRSSI_uid#]').removeClass('hidden')
-			$('[data-cmd_uid=#cellRSSI_uid#]').addClass('hidden')
-		} else {
-			$('[data-cmd_uid=#cellRSSI_uid#]').removeClass('hidden')
-			$('[data-cmd_uid=#wifiRSSI_uid#]').addClass('hidden')
-		}
-	}
-	setTimeout( function() {
-		jeedom.cmd.update['#WIFI_id#']({display_value:#WIFI_state#})
-	},100)
-	</script>
-	</div>
+<div
+  class="eqLogic eqLogic-widget allowResize #class# widget_EaseeCharger"
+  data-eqType="#eqType#"
+  data-eqLogic_id="#id#"
+  data-eqLogic_uid="#uid#"
+  data-version="#version#"
+  data-translate_category="#translate_category#"
+  data-category="#category#"
+  data-tags="#tags#"
+  style="width: 293.75px; height: 446px"
+>
+  <center class="widget-name">
+    <span class="warning" title="#alert_name#">
+      <i class="#alert_icone#"></i>
+    </span>
+    <span class="cmd refresh pull-right cursor" data-cmd_id="#refresh_id#">
+      <i class="fas fa-sync"></i>
+    </span>
+    <span class="reportModeVisible"
+      >#name_display# <span class="object_name">#object_name#</span></span
+    >
+    <a href="#eqLink#" class="reportModeHidden"
+      >#name_display# <span class="object_name">#object_name#</span></a
+    >
+  </center>
+  <!-- Signal -->
+  <div class="#hiddenSignal#" id="signal">
+    <span
+      class="cmd cmd-widget wifiRSSI #wifiRSSI_history# hidden"
+      data-cmd_id="#wifiRSSI_id#"
+      data-cmd_uid="#wifiRSSI_uid#"
+    >
+      <i class="fas fa-wifi"></i> <span class="wifiRSSI_value"></span>
+    </span>
+    <span
+      class="cmd cmd-widget cellRSSI #cellRSSI_history# hidden"
+      data-cmd_id="#cellRSSI_id#"
+      data-cmd_uid="#cellRSSI_uid#"
+    >
+      <i class="fas fa-signal"></i> <span class="cellRSSI_value"></span>
+    </span>
+    <span class="hidden" data-cmd_uid="#WIFI_uid#"></span>
+    <script>
+      jeedom.cmd.update['#WIFI_id#'] = function(_options){
+      	if (_options.display_value == 1){
+      		$('[data-cmd_uid=#wifiRSSI_uid#]').removeClass('hidden')
+      		$('[data-cmd_uid=#cellRSSI_uid#]').addClass('hidden')
+      	} else {
+      		$('[data-cmd_uid=#cellRSSI_uid#]').removeClass('hidden')
+      		$('[data-cmd_uid=#wifiRSSI_uid#]').addClass('hidden')
+      	}
+      }
+      setTimeout( function() {
+      	jeedom.cmd.update['#WIFI_id#']({display_value:#WIFI_state#})
+      },100)
+    </script>
+  </div>
 
-	<!-- Tuile status -->
-	<div class="tile status">
-		#status_widget#
-	</div>
-	<div class="break"></div>
+  <!-- Tuile status -->
+  <div class="tile status">#status_widget#</div>
+  <div class="break"></div>
 
-	<!-- Tuile Cable -->
-	<div class="tile cable">
-		<div class="tile-title">{{Cable}}</div>
-		#cable_lock_widget#
-		#cable_unlock_widget#
-		#plugged_widget#
-	</div>
-	<div class="break"></div>
+  <!-- Tuile Cable -->
+  <div class="tile cable">
+    <div class="tile-title">{{Cable}}</div>
+    #cable_lock_widget# #cable_unlock_widget# #plugged_widget#
+  </div>
+  <div class="break"></div>
 
-	<!-- Tuile Charge -->
-	<div class="tile charge">
-		<div class='tile-title'>{{Charge}}</div>
-		#power_widget#
-		#pause_ON_widget#
-		#pause_OFF_widget#
-	</div>
-	<div class="break"></div>
+  <!-- Tuile Charge -->
+  <div class="tile charge">
+    <div class="tile-title">{{Charge}}</div>
+    #power_widget# #pause_ON_widget# #pause_OFF_widget#
+  </div>
+  <div class="break"></div>
 
-	<!-- Tuile Alimentation -->
-	<div class="tile alimentation #hiddenAlimentation#">
-		<div class="tile-title">{{Alimentation}}</div>
-		#current_1_widget#
-		#current_2_widget#
-		#current_3_widget#
-		#voltage_1_widget#
-		#voltage_2_widget#
-		#voltage_3_widget#
-	</div>
-	#divGraphInfo#
-	<template>
-		<div>color : rgb(20,20,20) ()</div>
-	</template>
-	<script>
-		if ('#refresh_id#' != '') {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').on('click', function() {
-				jeedom.cmd.execute({id: '#refresh_id#'})
-			})
-		} else {
-			$('.eqLogic[data-eqLogic_uid=#uid#] .refresh').remove()
-		}
+  <!-- Tuile Alimentation -->
+  <div class="tile alimentation #hiddenAlimentation#">
+    <div class="tile-title">{{Alimentation}}</div>
+    #current_1_widget# #current_2_widget# #current_3_widget# #voltage_1_widget#
+    #voltage_2_widget# #voltage_3_widget#
+  </div>
+  #divGraphInfo#
+  <template>
+    <div>color : rgb(20,20,20) ()</div>
+  </template>
+  <script>
+    if ("#refresh_id#" != "") {
+      $(".eqLogic[data-eqLogic_uid=#uid#] .refresh").on("click", function () {
+        jeedom.cmd.execute({ id: "#refresh_id#" });
+      });
+    } else {
+      $(".eqLogic[data-eqLogic_uid=#uid#] .refresh").remove();
+    }
 
-		// wifiRSSI
-		// ========
-		jeedom.cmd.update['#wifiRSSI_id#'] = function(_options) {
-			if (_options.value == 0) {
-				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.wifiRSSI').addClass('hidden');
-			} else {
-				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.wifiRSSI').removeClass('hidden');
-			}
-			if      (_options.value < -70) { level = 'weak'; }
-			else if (_options.value < -60) { level = 'fair'; }
-			else if (_options.value < -50) { level = 'good'; }
-			else                           { level = 'excellent'; }
-			$('.cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#]').attr('data-signal_level', level).attr('data-signal_value',_options.value);
-			$('.cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value').text('(' + _options.display_value + ' #wifiRSSI_unite#)');
-			$('.cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value').attr('title','{{Date de valeur}} : '+_options.valueDate+'<br>{{Date de collecte}} : '+_options.collectDate);
-		}
-		jeedom.cmd.update['#wifiRSSI_id#']({
-			display_value: '#wifiRSSI_state#',
-			value: '#wifiRSSI_state#',
-			valueDate: '#wifiRSSI_valueDate#',
-			collectDate: '#wifiRSSI_collectDate#',
-			alertLevel: '#wifiRSSI_alertLevel#'
-		})
+    // wifiRSSI
+    // ========
+    jeedom.cmd.update["#wifiRSSI_id#"] = function (_options) {
+      if (_options.value == 0) {
+        $(".eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.wifiRSSI").addClass(
+          "hidden",
+        );
+      } else {
+        $(".eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.wifiRSSI").removeClass(
+          "hidden",
+        );
+      }
+      if (_options.value < -70) {
+        level = "weak";
+      } else if (_options.value < -60) {
+        level = "fair";
+      } else if (_options.value < -50) {
+        level = "good";
+      } else {
+        level = "excellent";
+      }
+      $(".cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#]")
+        .attr("data-signal_level", level)
+        .attr("data-signal_value", _options.value);
+      $(".cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value").text(
+        "(" + _options.display_value + " #wifiRSSI_unite#)",
+      );
+      $(".cmd-widget.wifiRSSI[data-cmd_id=#wifiRSSI_id#] .wifiRSSI_value").attr(
+        "title",
+        "{{Date de valeur}} : " +
+          _options.valueDate +
+          "<br>{{Date de collecte}} : " +
+          _options.collectDate,
+      );
+    };
+    jeedom.cmd.update["#wifiRSSI_id#"]({
+      display_value: "#wifiRSSI_state#",
+      value: "#wifiRSSI_state#",
+      valueDate: "#wifiRSSI_valueDate#",
+      collectDate: "#wifiRSSI_collectDate#",
+      alertLevel: "#wifiRSSI_alertLevel#",
+    });
 
-		// cellRSSI
-		// ========
-		jeedom.cmd.update['#cellRSSI_id#'] = function(_options) {
-			if (_options.value == 0) {
-				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.cellRSSI').addClass('hidden');
-			} else {
-				$('.eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.cellRSSI').removeClass('hidden');
-			}
-			if      (_options.value < -100){
-				level = 'weak';
-			} else if (_options.value < -85) {
-				level = 'fair';
-			} else if (_options.value < -70) {
-				level = 'good';
-			} else {
-				level = 'excellent';
-			}
-			$('.cmd-widget.cellRSSI[data-cmd_id=#cellRSSI_id#]').find('i').attr('data-signal_level', level);
-			$('.cmd-widget.cellRSSI[data-cmd_id=#cellRSSI_id#] .cellRSSI_value').text('(' + _options.display_value + ' #cellRSSI_unite#)')
-		}
-		jeedom.cmd.update['#cellRSSI_id#']({
-			display_value: '#cellRSSI_state#',
-			value: '#cellRSSI_state#',
-			valueDate: '#cellRSSI_valueDate#',
-			collectDate: '#cellRSSI_collectDate#',
-			alertLevel: '#cellRSSI_alertLevel#'
-		})
-
-	</script>
+    // cellRSSI
+    // ========
+    jeedom.cmd.update["#cellRSSI_id#"] = function (_options) {
+      if (_options.value == 0) {
+        $(".eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.cellRSSI").addClass(
+          "hidden",
+        );
+      } else {
+        $(".eqLogic[data-eqLogic_uid=#uid#] .cmd-widget.cellRSSI").removeClass(
+          "hidden",
+        );
+      }
+      if (_options.value < -100) {
+        level = "weak";
+      } else if (_options.value < -85) {
+        level = "fair";
+      } else if (_options.value < -70) {
+        level = "good";
+      } else {
+        level = "excellent";
+      }
+      $(".cmd-widget.cellRSSI[data-cmd_id=#cellRSSI_id#]")
+        .find("i")
+        .attr("data-signal_level", level);
+      $(".cmd-widget.cellRSSI[data-cmd_id=#cellRSSI_id#] .cellRSSI_value").text(
+        "(" + _options.display_value + " #cellRSSI_unite#)",
+      );
+    };
+    jeedom.cmd.update["#cellRSSI_id#"]({
+      display_value: "#cellRSSI_state#",
+      value: "#cellRSSI_state#",
+      valueDate: "#cellRSSI_valueDate#",
+      collectDate: "#cellRSSI_collectDate#",
+      alertLevel: "#cellRSSI_alertLevel#",
+    });
+  </script>
 </div>
-

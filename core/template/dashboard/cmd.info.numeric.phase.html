@@ -1,4 +1,15 @@
-<div class="cmd cmd-widget arcgauge phase #phaseId# #history#" data-type="info" data-subtype="numeric" data-template="phase" data-cmd_id="#id#" data-cmd_uid="#uid#" data-version="#version#" data-eqLogic_id="#eqLogic_id#" data-created_for='#generic_type#' title="{{Date de valeur}} : #valueDate#<br/>{{Date de collecte}} : #collectDate#" >
+<div
+  class="cmd cmd-widget arcgauge phase #phaseId# #history#"
+  data-type="info"
+  data-subtype="numeric"
+  data-template="phase"
+  data-cmd_id="#id#"
+  data-cmd_uid="#uid#"
+  data-version="#version#"
+  data-eqLogic_id="#eqLogic_id#"
+  data-created_for="#generic_type#"
+  title="{{Date de valeur}} : #valueDate#<br/>{{Date de collecte}} : #collectDate#"
+>
   <div class="title #hide_name#">
     <span class="cmdName">#widgetTitle#</span>
   </div>
@@ -6,67 +17,99 @@
     <div class="gauge cursor #history#" data-cmd_id="#id#"></div>
     <div class="gaugeValue" data-cmd_id="#id#"></div>
   </div>
-  <div class="state current" style='position:relative;top:-13px'><strong>#state#</strong> <strong>#unite#</strong></div>
-  <div class="state voltage" style='position:relative;top:-13px'><strong>#state#</strong> <strong>#unite#</strong></div>
+  <div class="state current" style="position: relative; top: -13px">
+    <strong>#state#</strong> <strong>#unite#</strong>
+  </div>
+  <div class="state voltage" style="position: relative; top: -13px">
+    <strong>#state#</strong> <strong>#unite#</strong>
+  </div>
   <div class="cmdStats #hide_history#">
-    <span title='{{Minimum}}' class='tooltips'>#minHistoryValue#</span>|<span title='{{Moyenne}}' class='tooltips'>#averageHistoryValue#</span>|<span title='{{Maximum}}' class='tooltips'>#maxHistoryValue#</span> <i class="#tendance#"></i>
+    <span title="{{Minimum}}" class="tooltips">#minHistoryValue#</span>|<span
+      title="{{Moyenne}}"
+      class="tooltips"
+      >#averageHistoryValue#</span
+    >|<span title="{{Maximum}}" class="tooltips">#maxHistoryValue#</span>
+    <i class="#tendance#"></i>
   </div>
   <template>
     <div>color : rgb(20,20,20) ({{couleur de l'indicateur de valeur}})</div>
-	<div>time : duration|date ({{Affiche durée ou date de la valeur}})</div>
+    <div>time : duration|date ({{Affiche durée ou date de la valeur}})</div>
   </template>
   <script>
-
-    jeedom.cmd.addUpdateFunction('#id#', function(_options) {
-      var widget = $('.cmd.phase.#phaseId#[data-created_for=CURRENT][data-eqLogic_id=#eqLogic_id#]')
-      if ('#generic_type#' == 'CURRENT') {
-        var minValue = ('#minValue#' == '') ? 0 : parseInt('#minValue#')
-        var maxValue = ('#maxValue#' == '') ? 100 : parseInt('#maxValue#')
+    jeedom.cmd.addUpdateFunction("#id#", function (_options) {
+      var widget = $(
+        ".cmd.phase.#phaseId#[data-created_for=CURRENT][data-eqLogic_id=#eqLogic_id#]",
+      );
+      if ("#generic_type#" == "CURRENT") {
+        var minValue = "#minValue#" == "" ? 0 : parseInt("#minValue#");
+        var maxValue = "#maxValue#" == "" ? 100 : parseInt("#maxValue#");
         if (_options.display_value >= maxValue) {
-          maxValue = _options.display_value
-          var angle = 0
+          maxValue = _options.display_value;
+          var angle = 0;
         } else if (_options.display_value <= minValue) {
-          minValue = _options.display_value
-          var angle = -180
+          minValue = _options.display_value;
+          var angle = -180;
         } else {
-          var angle = (((_options.display_value - minValue) * 180) / (maxValue - minValue)) - 180
+          var angle =
+            ((_options.display_value - minValue) * 180) /
+              (maxValue - minValue) -
+            180;
         }
-        widget.find('.gaugeValue').css('transform', 'scale(0.94) rotate('+angle+'deg)')
-        widget.find('.state.current strong').first().text(_options.display_value)
+        widget
+          .find(".gaugeValue")
+          .css("transform", "scale(0.94) rotate(" + angle + "deg)");
+        widget
+          .find(".state.current strong")
+          .first()
+          .text(_options.display_value);
       }
-      if ('#generic_type#' == 'VOLTAGE') {
-        widget.find('.state.voltage strong').first().text(_options.display_value)
+      if ("#generic_type#" == "VOLTAGE") {
+        widget
+          .find(".state.voltage strong")
+          .first()
+          .text(_options.display_value);
       }
-    })
+    });
 
-    if (is_numeric('#state#')) {
-      jeedom.cmd.refreshValue([{cmd_id: '#id#', display_value: '#state#', valueDate: '#valueDate#', collectDate: '#collectDate#'}])
+    if (is_numeric("#state#")) {
+      jeedom.cmd.refreshValue([
+        {
+          cmd_id: "#id#",
+          display_value: "#state#",
+          valueDate: "#valueDate#",
+          collectDate: "#collectDate#",
+        },
+      ]);
     } else {
-      $('.cmd[data-cmd_uid=#uid#] .gauge').append('<center><span class="label label-danger">#state#</span></center>')
+      $(".cmd[data-cmd_uid=#uid#] .gauge").append(
+        '<center><span class="label label-danger">#state#</span></center>',
+      );
     }
 
-    setTimeout(function() {
-      widgets = $('.cmd[data-cmd_id=#id#]').closest('.eqLogic').find('.phase.#phaseId#')
+    setTimeout(function () {
+      widgets = $(".cmd[data-cmd_id=#id#]")
+        .closest(".eqLogic")
+        .find(".phase.#phaseId#");
       if (widgets.length > 1) {
-        if (widgets.eq(1).attr('data-created_for') == 'CURRENT') {
-          value = widgets.eq(0).find('.state.voltage strong').eq(0).text() 
-          unite = widgets.eq(0).find('.state.voltage strong').eq(1).text() 
-          widgets.eq(1).find('.state.voltage strong').eq(0).text(value)
-          widgets.eq(1).find('.state.voltage strong').eq(1).text(unite)
-          widgets.eq(0).hide()
+        if (widgets.eq(1).attr("data-created_for") == "CURRENT") {
+          value = widgets.eq(0).find(".state.voltage strong").eq(0).text();
+          unite = widgets.eq(0).find(".state.voltage strong").eq(1).text();
+          widgets.eq(1).find(".state.voltage strong").eq(0).text(value);
+          widgets.eq(1).find(".state.voltage strong").eq(1).text(unite);
+          widgets.eq(0).hide();
         }
-        if (widgets.eq(1).attr('data-created_for') == 'VOLTAGE') {
-          value = widgets.eq(1).find('.state.voltage strong').eq(0).text() 
-          unite = widgets.eq(1).find('.state.voltage strong').eq(1).text() 
-          widgets.eq(0).find('.state.voltage strong').eq(0).text(value)
-          widgets.eq(0).find('.state.voltage strong').eq(1).text(unite)
-          widgets.eq(1).hide()
+        if (widgets.eq(1).attr("data-created_for") == "VOLTAGE") {
+          value = widgets.eq(1).find(".state.voltage strong").eq(0).text();
+          unite = widgets.eq(1).find(".state.voltage strong").eq(1).text();
+          widgets.eq(0).find(".state.voltage strong").eq(0).text(value);
+          widgets.eq(0).find(".state.voltage strong").eq(1).text(unite);
+          widgets.eq(1).hide();
         }
       }
-    }, 100)
+    }, 100);
 
-    if ($.issetWidgetOptParam('#color#', 'color')) {
-      $('.cmd[data-cmd_id=#id#] .gaugeValue').css('border-color', '#color#')
+    if ($.issetWidgetOptParam("#color#", "color")) {
+      $(".cmd[data-cmd_id=#id#] .gaugeValue").css("border-color", "#color#");
     }
   </script>
 </div>
