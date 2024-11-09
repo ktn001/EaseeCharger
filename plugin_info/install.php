@@ -43,8 +43,8 @@ function EaseeCharger_upgrade() {
 	if (file_exists($packagesFile)) {
 		unlink($packagesFile);
 	}
-	if (is_dir(__DIR__ . '/../ressources')) {
-		system('rm -rf ' . __DIR__ . '/../ressources', $retval);
+	if (is_dir(__DIR__ . '/../resources')) {
+		system('rm -rf ' . __DIR__ . '/../resources', $retval);
 	}
 
 	$lastLevel = 2;

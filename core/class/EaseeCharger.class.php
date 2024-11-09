@@ -25,7 +25,7 @@ class EaseeCharger extends eqLogic {
 	//============================== ATTRIBUTS ===============================
 	//========================================================================
 
-	const PYTHON_PATH = __DIR__ . '/../../resources/venv/bin/python3';
+	const PYTHON_PATH = __DIR__ . '/../../ressources/venv/bin/python3';
 	public static $_widgetPossibility = array(
 		'custom' => true,
 		'parameters' => array(
@@ -108,7 +108,7 @@ class EaseeCharger extends eqLogic {
 		$return['state'] = 'ok';
 		if (file_exists(jeedom::getTmpFolder(__CLASS__) . '/dependance')) {
 			$return['state'] = 'in_progress';
-		} elseif (!self::pythonRequirementsInstalled(self::PYTHON_PATH, __DIR__ . '/../../resources/requirements.txt')) {
+		} elseif (!self::pythonRequirementsInstalled(self::PYTHON_PATH, __DIR__ . '/../../ressources/requirements.txt')) {
 			$return['state'] = 'nok';
 		}
 		return $return;
@@ -116,7 +116,7 @@ class EaseeCharger extends eqLogic {
 
 	public static function dependancy_install() {
 		log::remove(__CLASS__ . '_update');
-		return array('script' => __DIR__ . '/../../resources/install_#stype#.sh', 'log' => log::getPathToLog(__CLASS__ . '_update'));
+		return array('script' => __DIR__ . '/../../ressources/install_#stype#.sh', 'log' => log::getPathToLog(__CLASS__ . '_update'));
 	}
 
 
@@ -169,7 +169,7 @@ class EaseeCharger extends eqLogic {
 			$logLevel = 'extendedDebug';
 		}
 
-		$path = realpath(dirname(__FILE__) . '/../../resources/bin'); // répertoire du démon
+		$path = realpath(dirname(__FILE__) . '/../../ressources/bin'); // répertoire du démon
 		$cmd = self::PYTHON_PATH . " {$path}/EaseeChargerd.py";
 		$cmd .= ' --loglevel ' . $logLevel;
 		$cmd .= ' --socketport ' . config::byKey('daemon::port', __CLASS__); // port
