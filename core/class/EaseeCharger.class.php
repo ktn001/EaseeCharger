@@ -170,7 +170,7 @@ class EaseeCharger extends eqLogic {
 		}
 
 		$path = realpath(dirname(__FILE__) . '/../../resources/bin'); // répertoire du démon
-		$cmd = self::PYTHO_PATH . " {$path}/EaseeChargerd.py";
+		$cmd = self::PYTHON_PATH . " {$path}/EaseeChargerd.py";
 		$cmd .= ' --loglevel ' . $logLevel;
 		$cmd .= ' --socketport ' . config::byKey('daemon::port', __CLASS__); // port
 		$cmd .= ' --callback ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/EaseeCharger/core/php/jeeEaseeCharger.php';
