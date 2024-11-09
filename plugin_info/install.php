@@ -39,6 +39,11 @@ function EaseeCharger_goto_1() {
 }
 
 function EaseeCharger_upgrade() {
+	$packagesFile = __DIR__ . '/packages.json';
+	if (file_exists($packagesFile)) {
+		unlink($packagesFile);
+	}
+
 	$lastLevel = 2;
 	$pluginLevel = config::byKey('plugin::level','EaseeCharger', 0);
 	for ($level = 1; $level <= $lastLevel; $level++) {

@@ -4,3 +4,7 @@
 *.bck
 *.bck*
 __pycache__
+/resources/venv/
+/resources/pyenv.lib
+/resources/dependance.lib
+

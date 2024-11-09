@@ -1,5 +1,5 @@
 <?php
-
+// vim: tabstop=4 autoindent
 /* This file is part of Jeedom.
  *
  * Jeedom is free software: you can redistribute it and/or modify
@@ -25,6 +25,7 @@ class EaseeCharger extends eqLogic {
 	//============================== ATTRIBUTS ===============================
 	//========================================================================
 
+	const PYTHON_PATH = __DIR__ . '/../../resources/venv/bin/python3';
 	public static $_widgetPossibility = array(
 		'custom' => true,
 		'parameters' => array(
@@ -75,8 +76,51 @@ class EaseeCharger extends eqLogic {
 		return $enabledChargers;
 	}
 
-	/*     * ********************** Gestion du daemon ************************* */
+	/*     * ********************* Gestion des dependances ************************* */
 
+	private static function pythonRequirementsInstalled(string $pythonPath, string $requirementsPath) {
+		if (!file_exists($pythonPath) || !file_exists($requirementsPath)) {
+			return false;
+		}
+		exec("{$pythonPath} -m pip --no-cache-dir  freeze", $packages_installed);
+		$packages = join("||", $packages_installed);
+		exec("cat {$requirementsPath}", $packages_needed);
+		foreach ($packages_needed as $line) {
+			if (preg_match('/([^\s]+)[\s]*([>=~]=)[\s]*([\d+\.?]+)$/', $line, $need) === 1) {
+				if (preg_match('/' . $need[1] . '==([\d+\.?]+)/', $packages, $install) === 1) {
+					if ($need[2] == '==' && $need[3] != $install[1]) {
+						return false;
+					} elseif (version_compare($need[3], $install[1], '>')) {
+						return false;
+					}
+				} else {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	public static function dependancy_info() {
+		$return = array();
+		$return['log'] = log::getPathToLog(__CLASS__ . '_update');
+		$return['progress_file'] = jeedom::getTmpFolder(__CLASS__) . '/dependance';
+		$return['state'] = 'ok';
+		if (file_exists(jeedom::getTmpFolder(__CLASS__) . '/dependance')) {
+			$return['state'] = 'in_progress';
+		} elseif (!self::pythonRequirementsInstalled(self::PYTHON_PATH, __DIR__ . '/../../resources/requirements.txt')) {
+			$return['state'] = 'nok';
+		}
+		return $return;
+	}
+
+	public static function dependancy_install() {
+		log::remove(__CLASS__ . '_update');
+		return array('script' => __DIR__ . '/../../resources/install_#stype#.sh', 'log' => log::getPathToLog(__CLASS__ . '_update'));
+	}
+
+
+	/*     * ********************* Gestion du daemon ************************* */
 	/*
 	 * Info sur le daemon (function mal nommée pour le core)
 	 */
@@ -125,8 +169,8 @@ class EaseeCharger extends eqLogic {
 			$logLevel = 'extendedDebug';
 		}
 
-		$path = realpath(dirname(__FILE__) . '/../../ressources/bin'); // répertoire du démon
-		$cmd = 'python3 ' . $path . '/EaseeChargerd.py';
+		$path = realpath(dirname(__FILE__) . '/../../resources/bin'); // répertoire du démon
+		$cmd = self::PYTHO_PATH . " {$path}/EaseeChargerd.py";
 		$cmd .= ' --loglevel ' . $logLevel;
 		$cmd .= ' --socketport ' . config::byKey('daemon::port', __CLASS__); // port
 		$cmd .= ' --callback ' . network::getNetworkAccess('internal', 'proto:127.0.0.1:port:comp') . '/plugins/EaseeCharger/core/php/jeeEaseeCharger.php';
