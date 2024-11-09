@@ -44,7 +44,7 @@ function EaseeCharger_upgrade() {
 		unlink($packagesFile);
 	}
 	if (is_dir(__DIR__ . '/../ressources')) {
-		system('rm -rf ' __DIR__ . '/../ressources', $retval);
+		system('rm -rf ' . __DIR__ . '/../ressources', $retval);
 	}
 
 	$lastLevel = 2;
