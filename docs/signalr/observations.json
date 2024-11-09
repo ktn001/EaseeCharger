@@ -1,707 +1,707 @@
 [
-   {
-      "dataType" : 2,
-      "name" : "LocalPreAuthorizeEnabled",
-      "observationId" : 15
-   },
-   {
-      "dataType" : 2,
-      "name" : "LocalAuthorizeOfflineEnabled",
-      "observationId" : 16
-   },
-   {
-      "dataType" : 2,
-      "name" : "AllowOfflineTxForUnknownId",
-      "observationId" : 17
-   },
-   {
-      "dataType" : 6,
-      "name" : "SiteStructure",
-      "observationId" : 20
-   },
-   {
-      "dataType" : 4,
-      "name" : "DetectedPowerGridType",
-      "observationId" : 21
-   },
-   {
-      "dataType" : 3,
-      "name" : "CircuitMaxCurrentP1",
-      "observationId" : 22
-   },
-   {
-      "dataType" : 3,
-      "name" : "CircuitMaxCurrentP2",
-      "observationId" : 23
-   },
-   {
-      "dataType" : 3,
-      "name" : "CircuitMaxCurrentP3",
-      "observationId" : 24
-   },
-   {
-      "dataType" : 5,
-      "name" : "Location",
-      "observationId" : 25
-   },
-   {
-      "dataType" : 6,
-      "name" : "SiteIDString",
-      "observationId" : 26
-   },
-   {
-      "dataType" : 4,
-      "name" : "SiteIDNumeric",
-      "observationId" : 27
-   },
-   {
-      "dataType" : 2,
-      "name" : "LockCablePermanently",
-      "observationId" : 30
-   },
-   {
-      "dataType" : 2,
-      "name" : "IsEnabled",
-      "observationId" : 31
-   },
-   {
-      "dataType" : 4,
-      "name" : "CircuitSequenceNumber",
-      "observationId" : 33
-   },
-   {
-      "dataType" : 4,
-      "name" : "SinglePhaseNumber",
-      "observationId" : 34
-   },
-   {
-      "dataType" : 2,
-      "name" : "Enable3Phases_DEPRECATED",
-      "observationId" : 35
-   },
-   {
-      "dataType" : 6,
-      "name" : "WiFiSSID",
-      "observationId" : 36
-   },
-   {
-      "dataType" : 2,
-      "name" : "EnableIdleCurrent",
-      "observationId" : 37
-   },
-   {
-      "dataType" : 4,
-      "name" : "PhaseMode",
-      "observationId" : 38
-   },
-   {
-      "dataType" : 4,
-      "name" : "LedStripBrightness",
-      "observationId" : 40
-   },
-   {
-      "dataType" : 2,
-      "name" : "LocalAuthorizationRequired",
-      "observationId" : 41
-   },
-   {
-      "dataType" : 2,
-      "name" : "AuthorizationRequired",
-      "observationId" : 42
-   },
-   {
-      "dataType" : 2,
-      "name" : "RemoteStartRequired",
-      "observationId" : 43
-   },
-   {
-      "dataType" : 2,
-      "name" : "SmartButtonEnabled",
-      "observationId" : 44
-   },
-   {
-      "dataType" : 4,
-      "name" : "OfflineChargingMode",
-      "observationId" : 45
-   },
-   {
-      "dataType" : 4,
-      "name" : "LEDMode",
-      "observationId" : 46
-   },
-   {
-      "dataType" : 3,
-      "name" : "MaxChargerCurrent",
-      "observationId" : 47
-   },
-   {
-      "dataType" : 3,
-      "name" : "DynamicChargerCurrent",
-      "observationId" : 48
-   },
-   {
-      "dataType" : 4,
-      "name" : "MaxCurrentOfflineFallback_P1",
-      "observationId" : 50
-   },
-   {
-      "dataType" : 4,
-      "name" : "MaxCurrentOfflineFallback_P2",
-      "observationId" : 51
-   },
-   {
-      "dataType" : 4,
-      "name" : "MaxCurrentOfflineFallback_P3",
-      "observationId" : 52
-   },
-   {
-      "dataType" : 6,
-      "name" : "ChargingSchedule",
-      "observationId" : 62
-   },
-   {
-      "dataType" : 2,
-      "name" : "WiFiAPEnabled",
-      "observationId" : 68
-   },
-   {
-      "dataType" : 6,
-      "name" : "PairedUserIDToken",
-      "observationId" : 69
-   },
-   {
-      "dataType" : 3,
-      "name" : "CircuitTotalAllocatedPhaseConductorCurrent_L1",
-      "observationId" : 70
-   },
-   {
-      "dataType" : 3,
-      "name" : "CircuitTotalAllocatedPhaseConductorCurrent_L2",
-      "observationId" : 71
-   },
-   {
-      "dataType" : 3,
-      "name" : "CircuitTotalAllocatedPhaseConductorCurrent_L3",
-      "observationId" : 72
-   },
-   {
-      "dataType" : 3,
-      "name" : "CircuitTotalPhaseConductorCurrent_L1",
-      "observationId" : 73
-   },
-   {
-      "dataType" : 3,
-      "name" : "CircuitTotalPhaseConductorCurrent_L2",
-      "observationId" : 74
-   },
-   {
-      "dataType" : 3,
-      "name" : "CircuitTotalPhaseConductorCurrent_L3",
-      "observationId" : 75
-   },
-   {
-      "dataType" : 4,
-      "name" : "SoftwareRelease",
-      "observationId" : 80
-   },
-   {
-      "dataType" : 6,
-      "name" : "ICCID",
-      "observationId" : 81
-   },
-   {
-      "dataType" : 6,
-      "name" : "ModemFwId",
-      "observationId" : 82
-   },
-   {
-      "dataType" : 4,
-      "name" : "OTAErrorCode",
-      "observationId" : 83
-   },
-   {
-      "dataType" : 4,
-      "name" : "RebootReason",
-      "observationId" : 89
-   },
-   {
-      "dataType" : 4,
-      "name" : "PowerPCBVersion",
-      "observationId" : 90
-   },
-   {
-      "dataType" : 4,
-      "name" : "ComPCBVersion",
-      "observationId" : 91
-   },
-   {
-      "dataType" : 4,
-      "name" : "ReasonForNoCurrent",
-      "observationId" : 96
-   },
-   {
-      "dataType" : 4,
-      "name" : "LoadBalancingNumberOfConnectedChargers",
-      "observationId" : 97
-   },
-   {
-      "dataType" : 4,
-      "name" : "UDPNumOfConnectedNodes",
-      "observationId" : 98
-   },
-   {
-      "dataType" : 4,
-      "name" : "LocalConnection",
-      "observationId" : 99
-   },
-   {
-      "dataType" : 6,
-      "name" : "PilotMode",
-      "observationId" : 100
-   },
-   {
-      "dataType" : 2,
-      "name" : "CarConnected_DEPRECATED",
-      "observationId" : 101
-   },
-   {
-      "dataType" : 2,
-      "name" : "SmartCharging",
-      "observationId" : 102
-   },
-   {
-      "dataType" : 2,
-      "name" : "CableLocked",
-      "observationId" : 103
-   },
-   {
-      "dataType" : 3,
-      "name" : "CableRating",
-      "observationId" : 104
-   },
-   {
-      "dataType" : 3,
-      "name" : "PilotHigh",
-      "observationId" : 105
-   },
-   {
-      "dataType" : 3,
-      "name" : "PilotLow",
-      "observationId" : 106
-   },
-   {
-      "dataType" : 6,
-      "name" : "BackPlateID",
-      "observationId" : 107
-   },
-   {
-      "dataType" : 6,
-      "name" : "UserIDTokenReversed",
-      "observationId" : 108
-   },
-   {
-      "dataType" : 4,
-      "name" : "ChargerOpMode",
-      "observationId" : 109
-   },
-   {
-      "dataType" : 4,
-      "name" : "OutputPhase",
-      "observationId" : 110
-   },
-   {
-      "dataType" : 3,
-      "name" : "DynamicCircuitCurrentP1",
-      "observationId" : 111
-   },
-   {
-      "dataType" : 3,
-      "name" : "DynamicCircuitCurrentP2",
-      "observationId" : 112
-   },
-   {
-      "dataType" : 3,
-      "name" : "DynamicCircuitCurrentP3",
-      "observationId" : 113
-   },
-   {
-      "dataType" : 3,
-      "name" : "OutputCurrent",
-      "observationId" : 114
-   },
-   {
-      "dataType" : 3,
-      "name" : "DeratedCurrent",
-      "observationId" : 115
-   },
-   {
-      "dataType" : 2,
-      "name" : "DeratingActive",
-      "observationId" : 116
-   },
-   {
-      "dataType" : 6,
-      "name" : "DebugString",
-      "observationId" : 117
-   },
-   {
-      "dataType" : 6,
-      "name" : "ErrorString",
-      "observationId" : 118
-   },
-   {
-      "dataType" : 4,
-      "name" : "ErrorCode",
-      "observationId" : 119
-   },
-   {
-      "dataType" : 3,
-      "name" : "TotalPower",
-      "observationId" : 120
-   },
-   {
-      "dataType" : 3,
-      "name" : "SessionEnergy",
-      "observationId" : 121
-   },
-   {
-      "dataType" : 3,
-      "name" : "EnergyPerHour",
-      "observationId" : 122
-   },
-   {
-      "dataType" : 4,
-      "name" : "LegacyEvStatus",
-      "observationId" : 123
-   },
-   {
-      "dataType" : 3,
-      "name" : "LifetimeEnergy",
-      "observationId" : 124
-   },
-   {
-      "dataType" : 4,
-      "name" : "LifetimeRelaySwitches",
-      "observationId" : 125
-   },
-   {
-      "dataType" : 4,
-      "name" : "LifetimeHours",
-      "observationId" : 126
-   },
-   {
-      "dataType" : 4,
-      "name" : "DynamicCurrentOfflineFallback_DEPRICATED",
-      "observationId" : 127
-   },
-   {
-      "dataType" : 6,
-      "name" : "UserIDToken",
-      "observationId" : 128
-   },
-   {
-      "dataType" : 6,
-      "name" : "ChargingSession",
-      "observationId" : 129
-   },
-   {
-      "dataType" : 4,
-      "name" : "CellRSSI",
-      "observationId" : 130
-   },
-   {
-      "dataType" : 4,
-      "name" : "CellRAT",
-      "observationId" : 131
-   },
-   {
-      "dataType" : 4,
-      "name" : "WiFiRSSI",
-      "observationId" : 132
-   },
-   {
-      "dataType" : 6,
-      "name" : "CellAddress",
-      "observationId" : 133
-   },
-   {
-      "dataType" : 6,
-      "name" : "WiFiAddress",
-      "observationId" : 134
-   },
-   {
-      "dataType" : 6,
-      "name" : "WiFiType",
-      "observationId" : 135
-   },
-   {
-      "dataType" : 4,
-      "name" : "LocalRSSI",
-      "observationId" : 136
-   },
-   {
-      "dataType" : 6,
-      "name" : "MasterBackPlateID",
-      "observationId" : 137
-   },
-   {
-      "dataType" : 4,
-      "name" : "LocalTxPower",
-      "observationId" : 138
-   },
-   {
-      "dataType" : 6,
-      "name" : "LocalState",
-      "observationId" : 139
-   },
-   {
-      "dataType" : 6,
-      "name" : "FoundWiFi",
-      "observationId" : 140
-   },
-   {
-      "dataType" : 4,
-      "name" : "ChargerRAT",
-      "observationId" : 141
-   },
-   {
-      "dataType" : 4,
-      "name" : "CellularInterfaceErrorCount",
-      "observationId" : 142
-   },
-   {
-      "dataType" : 4,
-      "name" : "CellularInterfaceResetCount",
-      "observationId" : 143
-   },
-   {
-      "dataType" : 4,
-      "name" : "WifiInterfaceErrorCount",
-      "observationId" : 144
-   },
-   {
-      "dataType" : 4,
-      "name" : "WifiInterfaceResetCount",
-      "observationId" : 145
-   },
-   {
-      "dataType" : 4,
-      "name" : "LocalNodeType",
-      "observationId" : 146
-   },
-   {
-      "dataType" : 4,
-      "name" : "LocalRadioChannel",
-      "observationId" : 147
-   },
-   {
-      "dataType" : 4,
-      "name" : "LocalShortAddress",
-      "observationId" : 148
-   },
-   {
-      "dataType" : 4,
-      "name" : "LocalParentAddrOrNumOfNodes",
-      "observationId" : 149
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempMax",
-      "observationId" : 150
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempAmbientPowerBoard",
-      "observationId" : 151
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempInputT2",
-      "observationId" : 152
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempInputT3",
-      "observationId" : 153
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempInputT4",
-      "observationId" : 154
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempInputT5",
-      "observationId" : 155
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempOutputN",
-      "observationId" : 160
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempOutputL1",
-      "observationId" : 161
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempOutputL2",
-      "observationId" : 162
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempOutputL3",
-      "observationId" : 163
-   },
-   {
-      "dataType" : 3,
-      "name" : "TempAmbient",
-      "observationId" : 170
-   },
-   {
-      "dataType" : 4,
-      "name" : "LightAmbient",
-      "observationId" : 171
-   },
-   {
-      "dataType" : 4,
-      "name" : "IntRelHumidity",
-      "observationId" : 172
-   },
-   {
-      "dataType" : 2,
-      "name" : "BackPlateLocked",
-      "observationId" : 173
-   },
-   {
-      "dataType" : 3,
-      "name" : "CurrentMotor",
-      "observationId" : 174
-   },
-   {
-      "dataType" : 4,
-      "name" : "BackPlateHallSensor",
-      "observationId" : 175
-   },
-   {
-      "dataType" : 3,
-      "name" : "InCurrent_T2",
-      "observationId" : 182
-   },
-   {
-      "dataType" : 3,
-      "name" : "InCurrent_T3",
-      "observationId" : 183
-   },
-   {
-      "dataType" : 3,
-      "name" : "InCurrent_T4",
-      "observationId" : 184
-   },
-   {
-      "dataType" : 3,
-      "name" : "InCurrent_T5",
-      "observationId" : 185
-   },
-   {
-      "dataType" : 3,
-      "name" : "InVolt_T1_T2",
-      "observationId" : 190
-   },
-   {
-      "dataType" : 3,
-      "name" : "InVolt_T1_T3",
-      "observationId" : 191
-   },
-   {
-      "dataType" : 3,
-      "name" : "InVolt_T1_T4",
-      "observationId" : 192
-   },
-   {
-      "dataType" : 3,
-      "name" : "InVolt_T1_T5",
-      "observationId" : 193
-   },
-   {
-      "dataType" : 3,
-      "name" : "InVolt_T2_T3",
-      "observationId" : 194
-   },
-   {
-      "dataType" : 3,
-      "name" : "InVolt_T2_T4",
-      "observationId" : 195
-   },
-   {
-      "dataType" : 3,
-      "name" : "InVolt_T2_T5",
-      "observationId" : 196
-   },
-   {
-      "dataType" : 3,
-      "name" : "InVolt_T3_T4",
-      "observationId" : 197
-   },
-   {
-      "dataType" : 3,
-      "name" : "InVolt_T3_T5",
-      "observationId" : 198
-   },
-   {
-      "dataType" : 3,
-      "name" : "InVolt_T4_T5",
-      "observationId" : 199
-   },
-   {
-      "dataType" : 3,
-      "name" : "OutVoltPin1_2",
-      "observationId" : 202
-   },
-   {
-      "dataType" : 3,
-      "name" : "OutVoltPin1_3",
-      "observationId" : 203
-   },
-   {
-      "dataType" : 3,
-      "name" : "OutVoltPin1_4",
-      "observationId" : 204
-   },
-   {
-      "dataType" : 3,
-      "name" : "OutVoltPin1_5",
-      "observationId" : 205
-   },
-   {
-      "dataType" : 3,
-      "name" : "VoltLevel33",
-      "observationId" : 210
-   },
-   {
-      "dataType" : 3,
-      "name" : "VoltLevel5",
-      "observationId" : 211
-   },
-   {
-      "dataType" : 3,
-      "name" : "VoltLevel12",
-      "observationId" : 212
-   },
-   {
-      "dataType" : 3,
-      "name" : "EqAvailableCurrentP1",
-      "observationId" : 230
-   },
-   {
-      "dataType" : 3,
-      "name" : "EqAvailableCurrentP2",
-      "observationId" : 231
-   },
-   {
-      "dataType" : 3,
-      "name" : "EqAvailableCurrentP3",
-      "observationId" : 232
-   }
+  {
+    "dataType": 2,
+    "name": "LocalPreAuthorizeEnabled",
+    "observationId": 15
+  },
+  {
+    "dataType": 2,
+    "name": "LocalAuthorizeOfflineEnabled",
+    "observationId": 16
+  },
+  {
+    "dataType": 2,
+    "name": "AllowOfflineTxForUnknownId",
+    "observationId": 17
+  },
+  {
+    "dataType": 6,
+    "name": "SiteStructure",
+    "observationId": 20
+  },
+  {
+    "dataType": 4,
+    "name": "DetectedPowerGridType",
+    "observationId": 21
+  },
+  {
+    "dataType": 3,
+    "name": "CircuitMaxCurrentP1",
+    "observationId": 22
+  },
+  {
+    "dataType": 3,
+    "name": "CircuitMaxCurrentP2",
+    "observationId": 23
+  },
+  {
+    "dataType": 3,
+    "name": "CircuitMaxCurrentP3",
+    "observationId": 24
+  },
+  {
+    "dataType": 5,
+    "name": "Location",
+    "observationId": 25
+  },
+  {
+    "dataType": 6,
+    "name": "SiteIDString",
+    "observationId": 26
+  },
+  {
+    "dataType": 4,
+    "name": "SiteIDNumeric",
+    "observationId": 27
+  },
+  {
+    "dataType": 2,
+    "name": "LockCablePermanently",
+    "observationId": 30
+  },
+  {
+    "dataType": 2,
+    "name": "IsEnabled",
+    "observationId": 31
+  },
+  {
+    "dataType": 4,
+    "name": "CircuitSequenceNumber",
+    "observationId": 33
+  },
+  {
+    "dataType": 4,
+    "name": "SinglePhaseNumber",
+    "observationId": 34
+  },
+  {
+    "dataType": 2,
+    "name": "Enable3Phases_DEPRECATED",
+    "observationId": 35
+  },
+  {
+    "dataType": 6,
+    "name": "WiFiSSID",
+    "observationId": 36
+  },
+  {
+    "dataType": 2,
+    "name": "EnableIdleCurrent",
+    "observationId": 37
+  },
+  {
+    "dataType": 4,
+    "name": "PhaseMode",
+    "observationId": 38
+  },
+  {
+    "dataType": 4,
+    "name": "LedStripBrightness",
+    "observationId": 40
+  },
+  {
+    "dataType": 2,
+    "name": "LocalAuthorizationRequired",
+    "observationId": 41
+  },
+  {
+    "dataType": 2,
+    "name": "AuthorizationRequired",
+    "observationId": 42
+  },
+  {
+    "dataType": 2,
+    "name": "RemoteStartRequired",
+    "observationId": 43
+  },
+  {
+    "dataType": 2,
+    "name": "SmartButtonEnabled",
+    "observationId": 44
+  },
+  {
+    "dataType": 4,
+    "name": "OfflineChargingMode",
+    "observationId": 45
+  },
+  {
+    "dataType": 4,
+    "name": "LEDMode",
+    "observationId": 46
+  },
+  {
+    "dataType": 3,
+    "name": "MaxChargerCurrent",
+    "observationId": 47
+  },
+  {
+    "dataType": 3,
+    "name": "DynamicChargerCurrent",
+    "observationId": 48
+  },
+  {
+    "dataType": 4,
+    "name": "MaxCurrentOfflineFallback_P1",
+    "observationId": 50
+  },
+  {
+    "dataType": 4,
+    "name": "MaxCurrentOfflineFallback_P2",
+    "observationId": 51
+  },
+  {
+    "dataType": 4,
+    "name": "MaxCurrentOfflineFallback_P3",
+    "observationId": 52
+  },
+  {
+    "dataType": 6,
+    "name": "ChargingSchedule",
+    "observationId": 62
+  },
+  {
+    "dataType": 2,
+    "name": "WiFiAPEnabled",
+    "observationId": 68
+  },
+  {
+    "dataType": 6,
+    "name": "PairedUserIDToken",
+    "observationId": 69
+  },
+  {
+    "dataType": 3,
+    "name": "CircuitTotalAllocatedPhaseConductorCurrent_L1",
+    "observationId": 70
+  },
+  {
+    "dataType": 3,
+    "name": "CircuitTotalAllocatedPhaseConductorCurrent_L2",
+    "observationId": 71
+  },
+  {
+    "dataType": 3,
+    "name": "CircuitTotalAllocatedPhaseConductorCurrent_L3",
+    "observationId": 72
+  },
+  {
+    "dataType": 3,
+    "name": "CircuitTotalPhaseConductorCurrent_L1",
+    "observationId": 73
+  },
+  {
+    "dataType": 3,
+    "name": "CircuitTotalPhaseConductorCurrent_L2",
+    "observationId": 74
+  },
+  {
+    "dataType": 3,
+    "name": "CircuitTotalPhaseConductorCurrent_L3",
+    "observationId": 75
+  },
+  {
+    "dataType": 4,
+    "name": "SoftwareRelease",
+    "observationId": 80
+  },
+  {
+    "dataType": 6,
+    "name": "ICCID",
+    "observationId": 81
+  },
+  {
+    "dataType": 6,
+    "name": "ModemFwId",
+    "observationId": 82
+  },
+  {
+    "dataType": 4,
+    "name": "OTAErrorCode",
+    "observationId": 83
+  },
+  {
+    "dataType": 4,
+    "name": "RebootReason",
+    "observationId": 89
+  },
+  {
+    "dataType": 4,
+    "name": "PowerPCBVersion",
+    "observationId": 90
+  },
+  {
+    "dataType": 4,
+    "name": "ComPCBVersion",
+    "observationId": 91
+  },
+  {
+    "dataType": 4,
+    "name": "ReasonForNoCurrent",
+    "observationId": 96
+  },
+  {
+    "dataType": 4,
+    "name": "LoadBalancingNumberOfConnectedChargers",
+    "observationId": 97
+  },
+  {
+    "dataType": 4,
+    "name": "UDPNumOfConnectedNodes",
+    "observationId": 98
+  },
+  {
+    "dataType": 4,
+    "name": "LocalConnection",
+    "observationId": 99
+  },
+  {
+    "dataType": 6,
+    "name": "PilotMode",
+    "observationId": 100
+  },
+  {
+    "dataType": 2,
+    "name": "CarConnected_DEPRECATED",
+    "observationId": 101
+  },
+  {
+    "dataType": 2,
+    "name": "SmartCharging",
+    "observationId": 102
+  },
+  {
+    "dataType": 2,
+    "name": "CableLocked",
+    "observationId": 103
+  },
+  {
+    "dataType": 3,
+    "name": "CableRating",
+    "observationId": 104
+  },
+  {
+    "dataType": 3,
+    "name": "PilotHigh",
+    "observationId": 105
+  },
+  {
+    "dataType": 3,
+    "name": "PilotLow",
+    "observationId": 106
+  },
+  {
+    "dataType": 6,
+    "name": "BackPlateID",
+    "observationId": 107
+  },
+  {
+    "dataType": 6,
+    "name": "UserIDTokenReversed",
+    "observationId": 108
+  },
+  {
+    "dataType": 4,
+    "name": "ChargerOpMode",
+    "observationId": 109
+  },
+  {
+    "dataType": 4,
+    "name": "OutputPhase",
+    "observationId": 110
+  },
+  {
+    "dataType": 3,
+    "name": "DynamicCircuitCurrentP1",
+    "observationId": 111
+  },
+  {
+    "dataType": 3,
+    "name": "DynamicCircuitCurrentP2",
+    "observationId": 112
+  },
+  {
+    "dataType": 3,
+    "name": "DynamicCircuitCurrentP3",
+    "observationId": 113
+  },
+  {
+    "dataType": 3,
+    "name": "OutputCurrent",
+    "observationId": 114
+  },
+  {
+    "dataType": 3,
+    "name": "DeratedCurrent",
+    "observationId": 115
+  },
+  {
+    "dataType": 2,
+    "name": "DeratingActive",
+    "observationId": 116
+  },
+  {
+    "dataType": 6,
+    "name": "DebugString",
+    "observationId": 117
+  },
+  {
+    "dataType": 6,
+    "name": "ErrorString",
+    "observationId": 118
+  },
+  {
+    "dataType": 4,
+    "name": "ErrorCode",
+    "observationId": 119
+  },
+  {
+    "dataType": 3,
+    "name": "TotalPower",
+    "observationId": 120
+  },
+  {
+    "dataType": 3,
+    "name": "SessionEnergy",
+    "observationId": 121
+  },
+  {
+    "dataType": 3,
+    "name": "EnergyPerHour",
+    "observationId": 122
+  },
+  {
+    "dataType": 4,
+    "name": "LegacyEvStatus",
+    "observationId": 123
+  },
+  {
+    "dataType": 3,
+    "name": "LifetimeEnergy",
+    "observationId": 124
+  },
+  {
+    "dataType": 4,
+    "name": "LifetimeRelaySwitches",
+    "observationId": 125
+  },
+  {
+    "dataType": 4,
+    "name": "LifetimeHours",
+    "observationId": 126
+  },
+  {
+    "dataType": 4,
+    "name": "DynamicCurrentOfflineFallback_DEPRICATED",
+    "observationId": 127
+  },
+  {
+    "dataType": 6,
+    "name": "UserIDToken",
+    "observationId": 128
+  },
+  {
+    "dataType": 6,
+    "name": "ChargingSession",
+    "observationId": 129
+  },
+  {
+    "dataType": 4,
+    "name": "CellRSSI",
+    "observationId": 130
+  },
+  {
+    "dataType": 4,
+    "name": "CellRAT",
+    "observationId": 131
+  },
+  {
+    "dataType": 4,
+    "name": "WiFiRSSI",
+    "observationId": 132
+  },
+  {
+    "dataType": 6,
+    "name": "CellAddress",
+    "observationId": 133
+  },
+  {
+    "dataType": 6,
+    "name": "WiFiAddress",
+    "observationId": 134
+  },
+  {
+    "dataType": 6,
+    "name": "WiFiType",
+    "observationId": 135
+  },
+  {
+    "dataType": 4,
+    "name": "LocalRSSI",
+    "observationId": 136
+  },
+  {
+    "dataType": 6,
+    "name": "MasterBackPlateID",
+    "observationId": 137
+  },
+  {
+    "dataType": 4,
+    "name": "LocalTxPower",
+    "observationId": 138
+  },
+  {
+    "dataType": 6,
+    "name": "LocalState",
+    "observationId": 139
+  },
+  {
+    "dataType": 6,
+    "name": "FoundWiFi",
+    "observationId": 140
+  },
+  {
+    "dataType": 4,
+    "name": "ChargerRAT",
+    "observationId": 141
+  },
+  {
+    "dataType": 4,
+    "name": "CellularInterfaceErrorCount",
+    "observationId": 142
+  },
+  {
+    "dataType": 4,
+    "name": "CellularInterfaceResetCount",
+    "observationId": 143
+  },
+  {
+    "dataType": 4,
+    "name": "WifiInterfaceErrorCount",
+    "observationId": 144
+  },
+  {
+    "dataType": 4,
+    "name": "WifiInterfaceResetCount",
+    "observationId": 145
+  },
+  {
+    "dataType": 4,
+    "name": "LocalNodeType",
+    "observationId": 146
+  },
+  {
+    "dataType": 4,
+    "name": "LocalRadioChannel",
+    "observationId": 147
+  },
+  {
+    "dataType": 4,
+    "name": "LocalShortAddress",
+    "observationId": 148
+  },
+  {
+    "dataType": 4,
+    "name": "LocalParentAddrOrNumOfNodes",
+    "observationId": 149
+  },
+  {
+    "dataType": 3,
+    "name": "TempMax",
+    "observationId": 150
+  },
+  {
+    "dataType": 3,
+    "name": "TempAmbientPowerBoard",
+    "observationId": 151
+  },
+  {
+    "dataType": 3,
+    "name": "TempInputT2",
+    "observationId": 152
+  },
+  {
+    "dataType": 3,
+    "name": "TempInputT3",
+    "observationId": 153
+  },
+  {
+    "dataType": 3,
+    "name": "TempInputT4",
+    "observationId": 154
+  },
+  {
+    "dataType": 3,
+    "name": "TempInputT5",
+    "observationId": 155
+  },
+  {
+    "dataType": 3,
+    "name": "TempOutputN",
+    "observationId": 160
+  },
+  {
+    "dataType": 3,
+    "name": "TempOutputL1",
+    "observationId": 161
+  },
+  {
+    "dataType": 3,
+    "name": "TempOutputL2",
+    "observationId": 162
+  },
+  {
+    "dataType": 3,
+    "name": "TempOutputL3",
+    "observationId": 163
+  },
+  {
+    "dataType": 3,
+    "name": "TempAmbient",
+    "observationId": 170
+  },
+  {
+    "dataType": 4,
+    "name": "LightAmbient",
+    "observationId": 171
+  },
+  {
+    "dataType": 4,
+    "name": "IntRelHumidity",
+    "observationId": 172
+  },
+  {
+    "dataType": 2,
+    "name": "BackPlateLocked",
+    "observationId": 173
+  },
+  {
+    "dataType": 3,
+    "name": "CurrentMotor",
+    "observationId": 174
+  },
+  {
+    "dataType": 4,
+    "name": "BackPlateHallSensor",
+    "observationId": 175
+  },
+  {
+    "dataType": 3,
+    "name": "InCurrent_T2",
+    "observationId": 182
+  },
+  {
+    "dataType": 3,
+    "name": "InCurrent_T3",
+    "observationId": 183
+  },
+  {
+    "dataType": 3,
+    "name": "InCurrent_T4",
+    "observationId": 184
+  },
+  {
+    "dataType": 3,
+    "name": "InCurrent_T5",
+    "observationId": 185
+  },
+  {
+    "dataType": 3,
+    "name": "InVolt_T1_T2",
+    "observationId": 190
+  },
+  {
+    "dataType": 3,
+    "name": "InVolt_T1_T3",
+    "observationId": 191
+  },
+  {
+    "dataType": 3,
+    "name": "InVolt_T1_T4",
+    "observationId": 192
+  },
+  {
+    "dataType": 3,
+    "name": "InVolt_T1_T5",
+    "observationId": 193
+  },
+  {
+    "dataType": 3,
+    "name": "InVolt_T2_T3",
+    "observationId": 194
+  },
+  {
+    "dataType": 3,
+    "name": "InVolt_T2_T4",
+    "observationId": 195
+  },
+  {
+    "dataType": 3,
+    "name": "InVolt_T2_T5",
+    "observationId": 196
+  },
+  {
+    "dataType": 3,
+    "name": "InVolt_T3_T4",
+    "observationId": 197
+  },
+  {
+    "dataType": 3,
+    "name": "InVolt_T3_T5",
+    "observationId": 198
+  },
+  {
+    "dataType": 3,
+    "name": "InVolt_T4_T5",
+    "observationId": 199
+  },
+  {
+    "dataType": 3,
+    "name": "OutVoltPin1_2",
+    "observationId": 202
+  },
+  {
+    "dataType": 3,
+    "name": "OutVoltPin1_3",
+    "observationId": 203
+  },
+  {
+    "dataType": 3,
+    "name": "OutVoltPin1_4",
+    "observationId": 204
+  },
+  {
+    "dataType": 3,
+    "name": "OutVoltPin1_5",
+    "observationId": 205
+  },
+  {
+    "dataType": 3,
+    "name": "VoltLevel33",
+    "observationId": 210
+  },
+  {
+    "dataType": 3,
+    "name": "VoltLevel5",
+    "observationId": 211
+  },
+  {
+    "dataType": 3,
+    "name": "VoltLevel12",
+    "observationId": 212
+  },
+  {
+    "dataType": 3,
+    "name": "EqAvailableCurrentP1",
+    "observationId": 230
+  },
+  {
+    "dataType": 3,
+    "name": "EqAvailableCurrentP2",
+    "observationId": 231
+  },
+  {
+    "dataType": 3,
+    "name": "EqAvailableCurrentP3",
+    "observationId": 232
+  }
 ]

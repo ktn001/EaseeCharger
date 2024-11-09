@@ -20,9 +20,10 @@ import requests
 import json
 from logfilter import *
 
-class Account():
 
-    logger = logging.getLogger('ACCOUNT')
+class Account:
+
+    logger = logging.getLogger("ACCOUNT")
     accounts = {}
 
     # ======= Méthodes statiques =======
@@ -48,49 +49,52 @@ class Account():
         self.setExpiresAt(expiresAt)
         self.setLifetime(expiresIn)
         self.accounts[name] = self
-        self.logger = logging.getLogger(f'[{name}]')
+        self.logger = logging.getLogger(f"[{name}]")
         self.logger.addFilter(logFilter())
         logFilter.add_sensible(accessToken)
         logFilter.add_sensible(refreshToken)
 
     def __del__(self):
-        self.logger.debug (f"del account {self.getName()}")
+        self.logger.debug(f"del account {self.getName()}")
         if self.getName() in self.accounts:
             del self.accounts[self.getName()]
 
     def remove(self):
-        self.logger.debug (f"remove account {self.getName()}")
+        self.logger.debug(f"remove account {self.getName()}")
         if self.getName() in self.accounts:
             del self.accounts[self.getName()]
 
     def getTime2renew(self):
-        return self.getExpiresAt() - self.getLifetime()/2
-    
+        return self.getExpiresAt() - self.getLifetime() / 2
+
     def refreshToken(self):
         self.logger.debug("'refreshToken' is called")
         if time.time() > self.getTime2renew():
             self.logger.debug("Token need a refresh")
             url = "https://api.easee.com/api/accounts/refresh_token"
             headers = {
-                    "Accept": "application/json",
-                    "Content-Type": "application/*+json",
-                    "Authorization": f"Bearer {self.getAccessToken()}"
-                    }
+                "Accept": "application/json",
+                "Content-Type": "application/*+json",
+                "Authorization": f"Bearer {self.getAccessToken()}",
+            }
             payload = {
-                    "accessToken": self.getAccessToken(),
-                    "refreshToken": self.getRefreshToken()
-                    }
+                "accessToken": self.getAccessToken(),
+                "refreshToken": self.getRefreshToken(),
+            }
             try:
                 response = requests.post(url, data=json.dumps(payload), headers=headers)
-                if response.status_code != requests.codes['ok']:
-                    self.logger.warning("Error refreshing Token: return code " + str(response.status_code))
+                if response.status_code != requests.codes["ok"]:
+                    self.logger.warning(
+                        "Error refreshing Token: return code "
+                        + str(response.status_code)
+                    )
                     return
                 tok = json.loads(response.text)
-                self.setAccessToken(tok['accessToken'])
-                self.setRefreshToken(tok['refreshToken'])
-                self.setExpiresAt(time.time() + tok['expiresIn'])
-                self.setLifetime(tok['expiresIn'])
-    
+                self.setAccessToken(tok["accessToken"])
+                self.setRefreshToken(tok["refreshToken"])
+                self.setExpiresAt(time.time() + tok["expiresIn"])
+                self.setLifetime(tok["expiresIn"])
+
             except Exception as error:
                 self.logger.warning("Error refreshing Token: " + str(error))
 
@@ -126,7 +130,7 @@ class Account():
     def getName(self):
         return self._name
 
-    def setName(self,name):
+    def setName(self, name):
         self._name = name
 
     # RefreshToken
@@ -136,4 +140,3 @@ class Account():
 
     def setRefreshToken(self, refreshToken):
         self._refreshToken = refreshToken
-
