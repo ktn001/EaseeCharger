@@ -8,6 +8,4 @@ Sites Easse:
 * Belgique [https://easee.com/fr-be/]
 * Suisse [https://easee.com//world/?location=fr]
 
-Plugin en cours de développement. Il n'y a aucune prévision pour la date de publication
-
-Documentation (en préparation): [https://ktn001.github.io/fr_FR/EaseeCharger/index.html]
+Documentation: [https://ktn001.github.io/fr_FR/EaseeCharger/index.html]
