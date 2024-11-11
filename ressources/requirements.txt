@@ -1,5 +1,1 @@
-requests
-websocket-client==0.54.0
-websocket
-msgpack
-signalrcore
+signalrcore==0.9.5
