@@ -4,7 +4,7 @@ if (!isConnect('admin')) {
 }
 //  Déclaration des variables obligatoires
 $plugin = plugin::byId('EaseeCharger');
-$accounts = Easee_account::all();
+$accounts = EaseeAccount::all();
 $chargers = eqLogic::byType($plugin->getId());
 
 // Déclaration de variables pour javasctipt
@@ -54,7 +54,7 @@ sendVarToJS('eqType', $plugin->getId());
 	    <?php
 	    foreach ($accounts as $account) {
 		$opacity = ($account->getIsEnable()) ? '' : 'disableCard';
-		echo '<div class="accountDisplayCard cursor '.$opacity.'" data-account_name="' . $account->getName() . '">';
+		echo '<div class="accountDisplayCard cursor '.$opacity.'" data-account_id="' . $account->getId() . '">';
 		echo '<img src="/plugins/EaseeCharger/desktop/img/account.png" style="width:unset !important"/>';
 		echo '<br>';
 		echo '<span class="name">';

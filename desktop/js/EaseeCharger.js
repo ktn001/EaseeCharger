@@ -1,3 +1,4 @@
+// vim: tabstop=2 autoindent expandtab
 /* This file is part of Jeedom.
  *
  * Jeedom is free software: you can redistribute it and/or modify
@@ -13,6 +14,169 @@
  * You should have received a copy of the GNU General Public License
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
+
+"use strict";
+
+if (typeof EaseeChargerFrontEnd === "undefined") {
+  var EaseeChargerFrontEnd = {
+    mdId_editAccount: "mod_editEaseeCharger",
+    ajaxUrl: "plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php",
+
+    /*
+     * Initialisation après chargement de la page
+     */
+    init: function () {
+      document.getElementById("div_pageContainer").addEventListener("click", function (event) {
+        let _target = null
+  
+        // Ajout d'un account
+        if (_target = event.target.closest('.accountAction[data-action=add]')) {
+          EaseeChargerFrontEnd.editAccount()
+        }
+
+        // Account DisplayCard
+        if (_target = event.target.closest('.accountDisplayCard')) {
+          EaseeChargerFrontEnd.loadAndEditAccount(_target.getAttribute("data-account_id"))
+        }
+      })
+    },
+    
+    /*
+     * Upload et edition d'un compte 
+     */
+    loadAndEditAccount: function (id) {
+      domUtils.ajax({
+        type: "POST",
+        async: false,
+        global: false,
+        url: EaseeChargerFrontEnd.ajaxUrl,
+        data: {
+          action: "getAccount",
+          id: id,
+        },
+        dataType: "json",
+        success: function (data) {
+          if (data.state != 'ok') {
+            jeedomUtils.showAlert({ message: data.result, level: "danger" })
+            return
+          }
+          let account = json_decode(data.result)
+          EaseeChargerFrontEnd.editAccount(account)
+        }
+      })
+    },
+        
+    /*
+     * Edition d'un compte
+     */
+    editAccount: function (account = null) {
+      let title = ''
+      if (account != null) {
+        title = account.name
+      }
+     
+      jeeDialog.dialog({
+        id: EaseeChargerFrontEnd.mdId_editAccount,
+        title: "{{Compte}}: " + title,
+        height: 280,
+        width: 400,
+        contentUrl: "index.php?v=d&plugin=EaseeCharger&modal=editAccount",
+        buttons: {
+          cancel: {
+            callback: {
+              click: function (event) {
+                editEaseeAccount.close()
+              }
+            }
+          },
+          delete: {
+            label: '<i class="fa fa-times"></i> {{Supprimer}}',
+            className: "danger",
+            callback: {
+              click: function (event) {
+                let account = editEaseeAccount.getAccount()
+                domUtils.ajax({
+                  type: "POST",
+                  async: false,
+                  global: false,
+                  url: EaseeChargerFrontEnd.ajaxUrl,
+                  data: {
+                    action: "removeAccount",
+                    id: account.id,
+                  },
+                  dataType: 'json',
+                  success: function (data) {
+                    if (data.state != "ok") {
+                      jeedomUtils.showAlert({
+                        message: data.result,
+                        level: "danger",
+                      });
+                      return;
+                    }
+                    let card = document.querySelector('.accountDisplayCard[data-account_id="' + account.id + '"]')
+                    if (card) {
+                      card.remove()
+                    }
+                    editEaseeAccount.close()
+                  }
+                })
+              }
+            }
+          },
+          confirm: {
+            callback: {
+              click: function (event) {
+                let account = editEaseeAccount.getAccount()
+                domUtils.ajax({
+                  type: "POST",
+                  async: false,
+                  global: false,
+                  url: EaseeChargerFrontEnd.ajaxUrl,
+                  data: {
+                    action: "saveAccount",
+                    account: json_encode(account),
+                  },
+                  dataType: 'json',
+                  success: function (data) {
+                    if (data.state != "ok") {
+                      jeedomUtils.showAlert({
+                        message: data.result,
+                        level: "danger",
+                      });
+                      return;
+                    }
+                    jeedomUtils.loadPage(document.URL);
+                  }
+                })
+              }
+            }
+          },
+        },
+        callback: function() {
+          editEaseeAccount.init(account)
+        }
+      })
+    },
+  }
+}
+EaseeChargerFrontEnd.init()  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
  * Permet la réorganisation des commandes dans l'équipement et des accounts
@@ -67,261 +231,6 @@ function buildAccountCard(account) {
   card += "</div>";
   return card;
 }
-
-/*
- * Chargement de la config d'un account
- */
-function loadAccount(accountName) {
-  $.ajax({
-    type: "POST",
-    url: "plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php",
-    data: {
-      action: "getAccount",
-      name: accountName,
-    },
-    dataType: "json",
-    global: false,
-    error: function (request, status, error) {
-      handleAjaxError(request, status, error);
-    },
-    success: function (data) {
-      if (data.state != "ok") {
-        $.fn.showAlert({ message: data.result, level: "danger" });
-        return;
-      }
-      return json_decode(data.result);
-    },
-  });
-}
-
-/*
- * Edition d'un compte
- */
-function editAccount(name) {
-  if ($("#modContainer_editAccount").length == 0) {
-    $("body").append('<div id="modContainer_editAccount"></dev');
-    jQuery.ajaxSetup({ async: false });
-    $("#modContainer_editAccount").load(
-      "index.php?v=d&plugin=EaseeCharger&modal=editAccount",
-    );
-    jQuery.ajaxSetup({ async: true });
-    $("#modContainer_editAccount").dialog({
-      closeText: "",
-      autoOpen: false,
-      modal: true,
-      height: 260,
-      width: 400,
-    });
-  }
-  $.ajax({
-    type: "POST",
-    url: "plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php",
-    data: {
-      action: "getAccount",
-      name: name,
-    },
-    dataType: "json",
-    global: false,
-    error: function (request, status, error) {
-      handleAjaxError(request, status, error);
-    },
-    success: function (data) {
-      if (data.state != "ok") {
-        $.fn.showAlert({ message: data.result, level: "danger" });
-        return;
-      }
-      $("#modContainer_editAccount").setValues(
-        json_decode(data.result),
-        ".accountAttr",
-      );
-      $("#modContainer_editAccount").dialog({ title: "{{Compte}}: " + name });
-      $("#modContainer_editAccount").dialog("option", "buttons", [
-        {
-          text: "{{Annuler}}",
-          click: function () {
-            $(this).dialog("close");
-          },
-        },
-        {
-          text: "{{Supprimer}}",
-          class: "btn-delete",
-          click: function () {
-            $.ajax({
-              type: "POST",
-              url: "plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php",
-              data: {
-                action: "removeAccount",
-                name: name,
-              },
-              dataType: "json",
-              global: false,
-              error: function (request, status, error) {
-                handleAjaxError(request, status, error);
-              },
-
-              success: function (data) {
-                if (data.state != "ok") {
-                  $.fn.showAlert({ message: data.result, level: "danger" });
-                  return;
-                }
-                $(
-                  ".accountDisplayCard[data-account_name=" + name + "]",
-                ).remove();
-                $("#selectAccount option[value=" + name + "]").remove();
-              },
-            });
-            $(this).dialog("close");
-          },
-        },
-        {
-          text: "{{Valider}}",
-          click: function () {
-            account = $("#modContainer_editAccount").getValues(
-              ".accountAttr",
-            )[0];
-            $.ajax({
-              type: "POST",
-              url: "plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php",
-              data: {
-                action: "saveAccount",
-                account: json_encode(account),
-              },
-              dataType: "json",
-              global: false,
-              error: function (request, status, error) {
-                handleAjaxError(request, status, error);
-              },
-
-              success: function (data) {
-                if (data.state != "ok") {
-                  $.fn.showAlert({ message: data.result, level: "danger" });
-                  return;
-                }
-                data = json_decode(data.result);
-
-                // Traitement de la Card
-                card = $(
-                  ".accountDisplayCard[data-account_name=" +
-                    data["account"]["name"] +
-                    "]",
-                );
-                if (card.length == 1) {
-                  // La card existe, on la met à jour
-                  if (data["account"]["isEnable"] == 1) {
-                    card.removeClass("disableCard");
-                  } else {
-                    card.addClass("disableCard");
-                  }
-                  card.find(".accountLogin").html(data["account"]["login"]);
-                } else {
-                  // Création d'une nouvelle Card
-                  card = buildAccountCard(data["account"]);
-                  cards = $(
-                    ".eqLogicThumbnailContainer[data-type=account] .accountDisplayCard",
-                  );
-                  nbCards = cards.length;
-                  if (nbCards == 0) {
-                    $(".eqLogicThumbnailContainer[data-type=account]").append(
-                      card,
-                    );
-                  } else {
-                    for (let i = 0; i < nbCards; i++) {
-                      n = $(cards[i]).attr("data-account_name");
-                      if (name.toLowerCase() < n.toLowerCase()) {
-                        $(cards[i]).before(card);
-                        break;
-                      }
-                      if (i == nbCards - 1) {
-                        $(cards[i]).after(card);
-                      }
-                    }
-                  }
-                }
-
-                // Traitement du sélecteur de compte pour les chargeurs
-                options = $("#selectAccount option");
-                nbOptions = options.length;
-                option =
-                  "<option value='" +
-                  account["name"] +
-                  "'>" +
-                  account["name"] +
-                  "</option>";
-                if (nbOptions == 0) {
-                  $("#selectAccount").append(option);
-                } else {
-                  for (let i = 0; i < nbOptions; i++) {
-                    n = $(options[i]).attr("value");
-                    if (name.toLowerCase() < n.toLowerCase()) {
-                      $(options[i]).before(option);
-                      break;
-                    }
-                    if (i == nbOptions - 1) {
-                      $(options[i]).after(option);
-                    }
-                  }
-                }
-
-                // Traitement de chargeur désactivés avec le compte
-                chargerIds = data["modifiedChargers"];
-                for (chargerId of chargerIds) {
-                  $(
-                    ".eqLogicDisplayCard[data-eqLogic_id=" + chargerId + "]",
-                  ).addClass("disableCard");
-                }
-              },
-            });
-            $(this).dialog("close");
-          },
-        },
-      ]);
-      $("#modContainer_editAccount").dialog("open");
-    },
-  });
-}
-
-/*
- * Action du bouton d'ajout d'un compte
- */
-$(".accountAction[data-action=add")
-  .off("click")
-  .on("click", function () {
-    bootbox.prompt("{{Nom du compte}}", function (result) {
-      if (result !== null) {
-        $.ajax({
-          type: "POST",
-          url: "plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php",
-          data: {
-            action: "createAccount",
-            name: result,
-          },
-          dataType: "json",
-          global: false,
-          error: function (request, status, error) {
-            handleAjaxError(request, status, error);
-          },
-          success: function (data) {
-            if (data.state != "ok") {
-              $.fn.showAlert({ message: data.result, level: "danger" });
-              return;
-            }
-            editAccount(result);
-          },
-        });
-      }
-    });
-  });
-
-/*
- * Action sur AccountDisplayCard
- */
-$(".eqLogicThumbnailContainer[data-type=account]").delegate(
-  ".accountDisplayCard",
-  "click",
-  function () {
-    editAccount($(this).data("account_name"));
-  },
-);
 
 /*
  * Action sur modification d'image d'un chargeur
@@ -493,18 +402,6 @@ function addCmdToTable(_cmd) {
   tr += "</tr>";
   $("#table_cmd tbody").append(tr);
   tr = $("#table_cmd tbody tr").last();
-  //	jeedom.eqLogic.buildSelectCmd({
-  //		id:  $('.eqLogicAttr[data-l1key=id]').value(),
-  //		filter: {type: 'info'},
-  //		error: function (error) {
-  //			$.fn.showAlert({message: error.message, level: 'danger'})
-  //		},
-  //		success: function (result) {
-  //			tr.find('.cmdAttr[data-l1key=value]').append(result)
-  //			tr.setValues(_cmd, '.cmdAttr')
-  //			jeedom.cmd.changeType(tr, init(_cmd.subType))
-  //		}
-  //	})
   tr.setValues(_cmd, ".cmdAttr");
 }
 

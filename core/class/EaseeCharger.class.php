@@ -62,8 +62,8 @@ class EaseeCharger extends eqLogic {
 
 	/*     * ******************** recherche de chargers *********************** */
 
-	public static function byAccount($accountName, $_onlyEnable = false) {
-		$chargers = self::byTypeAndSearchConfiguration(__CLASS__,'"accountName":"'.$accountName.'"');
+	public static function byAccount($accountId, $_onlyEnable = false) {
+		$chargers = self::byTypeAndSearchConfiguration(__CLASS__,'"accountId":"'.$accountId.'"');
 		if (!$_onlyEnable) {
 			return $chargers;
 		}
@@ -270,7 +270,7 @@ class EaseeCharger extends eqLogic {
 	 */
 	public static function daemon_started() {
 		log::add("EaseeCharger","info",__("Le daemon est démarré",__FILE__));
-		$accounts = Easee_account::all(true);
+		$accounts = EaseeAccount::all(true);
 		foreach ($accounts as $account) {
 			$account->start_account_on_daemon();
 		}
@@ -336,7 +336,7 @@ class EaseeCharger extends eqLogic {
 	/*     * ************************ Les crons **************************** */
 
 	public static function cronHourly() {
-		Easee_account::cronHourly();
+		EaseeAccount::cronHourly();
 	}
 
 	//========================================================================
@@ -484,7 +484,7 @@ class EaseeCharger extends eqLogic {
 	 * Vérifications avant enregistrement
 	 */
 	public function preUpdate() {
-		if ($this->getAccountName() == '') {
+		if ($this->getAccountId() == '') {
 			throw new Exception (__("Un compte doit être sélectioné",__FILE__));
 		}
 		if ($this->getIsEnable() == 1) {
@@ -632,12 +632,20 @@ class EaseeCharger extends eqLogic {
 	}
 
 	public function getAccount() {
-		return Easee_account::byName($this->getaccountName());
+		return EaseeAccount::byName($this->getaccountName());
 	}
 
 	//=======================================================================
 	//=========================== GETTEUR SETTEUR ===========================
 	//=======================================================================
+
+	public function getAccountId() {
+		return $this->getConfiguration('accountId');
+	}
+
+	public function setAccountId($_accountId) {
+		$this->setConfiguration('accountId',$_accountId);
+	}
 
 	public function getAccountName() {
 		return $this->getConfiguration('accountName');
@@ -724,4 +732,4 @@ class EaseeChargerCmd extends cmd {
 
 }
 
-require_once __DIR__  . '/Easee_account.class.php';
+require_once __DIR__  . '/EaseeAccount.class.php';

@@ -1,5 +1,5 @@
 <?php
-
+// vim: tabstop=4 autoindent
 /* This file is part of Jeedom.
 *
 * Jeedom is free software: you can redistribute it and/or modify
@@ -25,16 +25,21 @@ if (!isConnect('admin')) {
 	<form class="form-horizontal">
 		<fieldset>
 			<div class="form-group">
+				<label class="col-sm-3 control-label">{{Nom}}:</label>
+				<input type="text" class="accountAttr form-control col-sm-7 hidden" data-l1key="id"/>
+				<input type="text" class="accountAttr form-control col-sm-7" data-l1key="name"/>
+			</div>
+			<div class="form-group">
 				<label class="col-sm-3 control-label">{{Login}}:</label>
-				<input type="text" class="accountAttr form-control col-sm-7" data-l1key="name" style="display:none"/>
 				<input type="text" class="accountAttr form-control col-sm-7" data-l1key="login"/>
 			</div>
 			<div class="form-group">
 				<label class="col-sm-3 control-label">{{Password}}:</label>
-				<div class="input-group col-sm-7" style="display:flex; padding-right:0px !important; padding-left:0px !important">
-					<input type="password" class="accountAttr form-control" data-l1key="password"/>
-					<button class="btn btn-outline-secondary show-txt" type="button"><i class="fas fa-eye"></i></button>
-					<button class="btn btn-outline-secondary hide-txt" type="button" style="display:none"><i class="fas fa-eye-slash"></i></button>
+				<div class="input-group col-sm-7" style="padding-right:0px !important; padding-left:0px !important">
+					<input class="accountAttr form-control inputPassword roundedLeft" type="text" data-l1key="password"/>
+					<span class="input-group-btn">
+						<a class="btn btn-default form-control bt_showPass roundedRight"><i class="fas fa-eye"></i></a>
+					</span>
 				</div>
 			</div>
 			<div class="form-group">
@@ -46,18 +51,23 @@ if (!isConnect('admin')) {
 </div>
 
 <script>
+"use strict"
 
-$('#editAccount .show-txt').off().on('click', function() {
-	$(this).closest('.input-group').find('input[type=password]').attr('type','text');
-	$(this).hide();
-	$(this).closest('.input-group').find('button.hide-txt').show();
-})
-
-$('#editAccount .hide-txt').off().on('click', function() {
-	$(this).closest('.input-group').find('input[type=text]').attr('type','password');
-	$(this).hide();
-	$(this).closest('.input-group').find('button.show-txt').show();
-})
-
+if (typeof editEaseeAccount === "undefined") {
+	var editEaseeAccount = {
+		init: function(account) {
+			let modal = document.getElementById(EaseeChargerFrontEnd.mdId_editAccount)
+			modal.setJeeValues(account,'.accountAttr')
+		},
+		getAccount: function(mdId) {
+            let modal = document.getElementById(EaseeChargerFrontEnd.mdId_editAccount)
+            let account=modal.getJeeValues('.accountAttr')
+            return account[0]
+        },
+		close: function() {
+			document.getElementById(EaseeChargerFrontEnd.mdId_editAccount)._jeeDialog.close()
+		},
+	}
+}
 
 </script>

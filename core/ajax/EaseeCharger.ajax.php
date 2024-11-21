@@ -19,7 +19,7 @@
 try {
 	require_once __DIR__ . '/../../../../core/php/core.inc.php';
 	require_once __DIR__ . '/../php/EaseeCharger.inc.php';
-	require_once __DIR__ . '/../class/Easee_account.class.php';
+	require_once __DIR__ . '/../class/EaseeAccount.class.php';
 
 	include_file('core', 'authentification', 'php');
 
@@ -34,7 +34,7 @@ try {
 		try {
 			$name = init('name');
 			log::add("EaseeCharger", "debug", sprintf (__('Création de compte %s',__FILE__),$name));
-			Easee_account::create($name);
+			EaseeAccount::create($name);
 			ajax::success();
 		} catch (Exception $e){
 			ajax::error(displayException($e), $e->getCode());
@@ -42,13 +42,13 @@ try {
 	}
 
 	if ($action == 'getAccount') {
-		$name = init('name');
-		if ($name == '') {
-			throw new Exception(__("Le nom de l'account n'est pas défini",__FILE__));
+		$id = init('id');
+		if ($id == '') {
+			throw new Exception(__("L'id de l'account n'est pas défini",__FILE__));
 		}
-		$account = Easee_account::byName($name);
+		$account = EaseeAccount::byId($id);
 		if (!is_object($account)) {
-			throw new Exception(sprintf(__("Le compte %s est introuvable",__FILE__),$name));
+			throw new Exception(sprintf(__("Le compte %s est introuvable",__FILE__),$id));
 		}
 		ajax::success(json_encode(utils::o2a($account)));
 	}
@@ -59,21 +59,25 @@ try {
 			throw new Exception(__("Pas de données pour la sauvegarde du compte",__FILE__));
 		}
 		$data = json_decode($data,true);
-		$account = Easee_account::byName($data['name']);
+		if ($data['id'] == '') {
+			$account = "";
+		} else {
+			$account = EaseeAccount::byId($data['id']);
+		}
+		if (!is_object($account)) {
+			$account = new EaseeAccount();
+		}
 		utils::a2o($account,$data);
 		$account->save();
-		$return = array();
-		$return['account'] = utils::o2a(Easee_account::byName($data['name']));
-		$return['modifiedChargers'] = $account->getModifiedChargers();
-		ajax::success(json_encode($return));
+		ajax::success();
 	}
 
 	if ($action == 'removeAccount') {
-		$name = init('name');
-		if ($name == '') {
-			throw new Exception(__("Le nom du compte à supprimer n'est pas défini",__FILE__));
+		$id = init('id');
+		if ($id == '') {
+			throw new Exception(__("L'id du compte à supprimer n'est pas défini",__FILE__));
 		}
-		$account = Easee_account::byName($name);
+		$account = EaseeAccount::byId($id);
 		if (!is_object($account)){
 			throw new Exception(sprintf(__("Le compte à supprimer (%s) est intouvable",__FILE__),$name));
 		}

@@ -1,4 +1,5 @@
 <?php
+// vi: tabstop=4 autoindent
 
 /* This file is part of Jeedom.
  *
@@ -18,6 +19,29 @@
 
 require_once dirname(__FILE__) . '/../../../core/php/core.inc.php';
 require_once dirname(__FILE__) . '/../core/php/EaseeCharger.inc.php';
+
+// update `config` set `value` = 3 WHERE `plugin` = 'EaseeCharger' and `key`= 'plugin::level'
+
+function EaseeCharger_goto_4() {
+	$accounts = EaseeAccount::all();
+	$mapNames = array ();
+	foreach ($accounts as $account) {
+		if ($account->getId() == '') {
+			$account->save();
+		}
+		config::remove('account::' . $account->getName(), 'EaseeCharger');
+		$mapNames[$account->getName()] = $account->getId();
+	}
+	$chargers = EaseeCharger::byType('EaseeCharger');
+	foreach ($chargers as $charger) {
+		$accountName = $charger->getConfiguration('accountName');
+		if (array_key_exists($accountName,$mapNames)) {
+			$charger->setAccountId ($mapNames[$accountName]);
+			$charger->setConfiguration ('accountName',null);
+			$charger->save();
+		}
+	}
+}
 
 function EaseeCharger_goto_3() {
 	$chargers = EaseeCharger::byType('EaseeCharger');
@@ -47,7 +71,7 @@ function EaseeCharger_upgrade() {
 		system('rm -rf ' . __DIR__ . '/../resources', $retval);
 	}
 
-	$lastLevel = 2;
+	$lastLevel = 4;
 	$pluginLevel = config::byKey('plugin::level','EaseeCharger', 0);
 	for ($level = 1; $level <= $lastLevel; $level++) {
 		if ($pluginLevel  < $level) {

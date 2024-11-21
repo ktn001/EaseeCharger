@@ -17,11 +17,12 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class Easee_account {
+class EaseeAccount {
 
 	private static $_mapping = null;
 	private static $_transforms = null;
 
+	private $id = '';
 	private $name = '';
 	private $login = '';
 	private $password = '';
@@ -32,6 +33,15 @@ class Easee_account {
 	/*     * ********************************************************************** */
 	/*     * *************************** Méthodes Static ************************** */
 	/*     * ********************************************************************** */
+
+	/*
+	 * Retourne un nouvel ID libre pour un account
+	 */
+	public static function nextId() {
+		$nextId = config::byKey('nextAccountId','EaseeCharger',1);
+		config::save('nextAccountId',$nextId+1,'EaseeCharger');
+		return $nextId;
+	}
 
 	/*
 	 * Création d'un account
@@ -54,6 +64,26 @@ class Easee_account {
 	 */
 	public static function byName($name) {
 		$key = 'account::' . $name;
+		$value = config::byKey($key, 'EaseeCharger');
+		if ($value == '') {
+			return null;
+		}
+		$value = is_json($value,$value);
+		if (isset($value['password'])) {
+			$value['password'] = utils::decrypt($value['password']);
+		} else {
+			$value['password'] = '';
+		}
+		$account = new self();
+		utils::a2o($account,$value);
+		return $account;
+	}
+
+	/*
+	 * byId
+	 */
+	public static function byId($id) {
+		$key = 'account::' . $id;
 		$value = config::byKey($key, 'EaseeCharger');
 		if ($value == '') {
 			return null;
@@ -163,35 +193,47 @@ class Easee_account {
 	 * Enregistrement du compte
 	 */
 	public function save() {
-		$oldAccount = self::byName($this->getName());
+		if ($this->getId() == '') {
+			$this->setId(static::nextId());
+		}
+		$oldAccount = self::byName($this->getId());
 		if (is_object ($oldAccount) and ($oldAccount->getIsEnable() == 1)) {
 			$wasEnable = 1;
 		} else {
 			$wasEnable = 0;
 		}
 
+		if (!$this->getName()) {
+			throw new Exception (__("Le nom de l'account doit être défini!",__FILE__));
+		}
+		$accounts = static::all();
+		foreach ($accounts as $account) {
+			if (($account->getId() != $this->getId()) and ($account->getName() == $this->getName())) {
+				throw new Exception (__("Ce nom est déjà utilisé pour un autre compte!",__FILE__));
+			}
+		}
 		if ($this->getIsEnable()) {
 			if (!$this->getLogin()) {
-				throw new Exception (__("Le login doit être défini",__FILE__));
+				throw new Exception (__("Le login doit être défini!",__FILE__));
 			}
 			if (!$this->getPassword()) {
-				throw new Exception (__("Le password doit être défini",__FILE__));
+				throw new Exception (__("Le password doit être défini!",__FILE__));
 			}
 			if ($wasEnable == 0 || !is_object($oldAccount) || $oldAccount->getLogin() != $this->getLogin() || $oldAccount->getPassword() != $this->getPassword()) {
 				if (!$this->checkLogin()) {
-					throw new Exception(__("Login ou password incorrect",__FILE__));
+					throw new Exception(__("Login ou password incorrect!",__FILE__));
 				}
 			}
 		}
 		$value = utils::o2a($this);
 		$value['password'] = utils::encrypt($value['password']);
 		$value = json_encode($value);
-		$key = 'account::' . $this->name;
+		$key = 'account::' . $this->id;
 
 		# Désactivation de l'account
 		config::save($key, $value, 'EaseeCharger');
 		if ($this->getIsEnable() != 1 && ($wasEnable == 1)) {
-			$chargers = EaseeCharger::byAccount($this->getName());
+			$chargers = EaseeCharger::byAccount($this->getId());
 			$chargerIds = [];
 			foreach ($chargers as $charger) {
 				$charger->setIsEnable(0);
@@ -215,11 +257,11 @@ class Easee_account {
 	 * Suppression du compte
 	 */
 	public function remove() {
-		$chargers = EaseeCharger::byAccount($this->name, false);
+		$chargers = EaseeCharger::byAccount($this->getId(), false);
 		if (count($chargers) > 0) {
 			throw new Exception (sprintf(__("Le compte %s est utilisé pour le chargeur %s",__FILE__), $this->name, $chargers[0]->getName()));
 		}
-		$key = 'account::' . $this->name;
+		$key = 'account::' . $this->getId();
 		return config::remove($key,'EaseeCharger');
 	}
 
@@ -444,7 +486,7 @@ class Easee_account {
 		}
 		$_token['expiresAt'] = time() + $_token['expiresIn'];
 		$lifetime = isset($_token['expiresIn']) ? $_token['expiresIn'] : 192800;
-		cache::set('Easee_account:'. $this->getName(), $_token, $lifetime);
+		cache::set('EaseeAccount:'. $this->getName(), $_token, $lifetime);
 		return $this;
 	}
 
@@ -454,7 +496,7 @@ class Easee_account {
 		} else {
 			log::add("EaseeCharger","debug","getToken....");
 		}
-		$cache = cache::byKey('Easee_account:' . $this->getName());
+		$cache = cache::byKey('EaseeAccount:' . $this->getName());
 		if (!is_object($cache)) {
 			log::add("EaseeCharger","debug","   Pas de token en cache.");
 			if ($retrying) {
@@ -580,6 +622,21 @@ class Easee_account {
 	}
 
 	/*     * ********************** Getteur Setteur *************************** */
+
+	/*
+	 * id
+	 */
+	public function setId($_id) {
+		$this->id = $_id;
+		return $this;
+	}
+
+	public function getId() {
+		if (isset($this->id)) {
+			return $this->id;
+		}
+		return '';
+	}
 
 	/*
 	 * isEnable
