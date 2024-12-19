@@ -12,11 +12,11 @@ try {
 
 	function process_account_payload($payload) {
 		if (isset($payload['message']) && $payload['message'] == 'started') {
-			if (!isset($payload['account'])){
+			if (!isset($payload['accountId'])){
 				log::add("EaseeCharger","warning",__("Le nom du compte démarré n'est pas fourni",__FILE__));
 				return;
 			}
-			$account = Easee_account::byName($payload['account']);
+			$account = EaseeAccount::byId($payload['accountId']);
 			if (!is_object($account)) {
 				log::add("EaseeCharger","error",sprintf(__("Le compte %s est introuvable",__FILE__),$payload['account']));
 				return;

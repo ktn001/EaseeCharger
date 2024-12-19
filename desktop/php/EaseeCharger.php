@@ -4,7 +4,7 @@ if (!isConnect('admin')) {
 }
 //  Déclaration des variables obligatoires
 $plugin = plugin::byId('EaseeCharger');
-$accounts = Easee_account::all();
+$accounts = EaseeAccount::all();
 $chargers = eqLogic::byType($plugin->getId());
 
 // Déclaration de variables pour javasctipt
@@ -53,8 +53,7 @@ sendVarToJS('eqType', $plugin->getId());
 	<div class="eqLogicThumbnailContainer" data-type="account">
 	    <?php
 	    foreach ($accounts as $account) {
-		$opacity = ($account->getIsEnable()) ? '' : 'disableCard';
-		echo '<div class="accountDisplayCard cursor '.$opacity.'" data-account_name="' . $account->getName() . '">';
+		echo '<div class="accountDisplayCard cursor" data-account_id="' . $account->getId() . '">';
 		echo '<img src="/plugins/EaseeCharger/desktop/img/account.png" style="width:unset !important"/>';
 		echo '<br>';
 		echo '<span class="name">';
@@ -88,7 +87,7 @@ sendVarToJS('eqType', $plugin->getId());
 		echo '<span class="name">';
 		echo $charger->getHumanName(true, true);
 		echo '</span>';
-		echo '<span class="displayTableRight hiddenAsCard hidden">' . __('Compte',__FILE__) . ': <strong>' . $charger->getAccountName() . '</strong></span>';
+		echo '<span class="displayTableRight hiddenAsCard hidden">' . __('Compte',__FILE__) . ': <strong>' . EaseeAccount::byId($charger->getAccountid())->getName() . '</strong></span>';
 		echo '</div>';
 	    }
 	    ?>
@@ -185,12 +184,13 @@ sendVarToJS('eqType', $plugin->getId());
 			    <div class='form-group'>
 				<label class="col-sm-3 control-label">{{Compte}}</label>
 				<div class="col-sm-7">
-				    <select id="selectAccount" class="eqLogicAttr" data-l1key="configuration" data-l2key="accountName">
+				    <select id="selectAccount" class="eqLogicAttr" data-l1key="configuration" data-l2key="accountId">
 					<option value=''> -- <?= __('Sélectionez un compte',__FILE__); ?> -- </option>
 					<?php
 					foreach ($accounts as $account) {
 						$name =  $account->getName();
-						echo ("<option value='" . $name . "'>" . $name . "</option>");
+						$id = $account->getId();
+						echo ("<option value='" . $id . "'>" . $name . "</option>");
 					}
 					?>
 				    </select>
