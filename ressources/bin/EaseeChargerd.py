@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+# vim: tabstop=4 autoindent expandtab
 # This file is part of Jeedom.
 #
 # Jeedom is free software: you can redistribute it and/or modify
@@ -40,20 +40,25 @@ socketHost = "localhost"
 startTime = datetime.datetime.fromtimestamp(time.time())
 
 _commands = {
-    "startAccount": [
-        "account",
+    "registerAccount": [
+        "accountId",
+        "accountName",
         "accessToken",
         "expiresIn",
         "expiresAt",
     ],
-    "stopAccount": [
-        "account",
+    "newToken": [
+        "accountId",
+        "accountName",
+        "accessToken",
+        "expiresIn",
+        "expiresAt",
     ],
     "startCharger": [
         "id",
         "serial",
         "name",
-        "account",
+        "accountId",
     ],
     "stopCharger": [
         "id",
@@ -107,15 +112,16 @@ def options():
 
     jeedom_utils.set_logLevel(logLevel)
 
-    logger.info("Start daemon")
-    logger.info("Log level: " + logLevel)
+    logger.info("┌── Start daemon  ──────────────────────────────────────────")
+    logger.info("│ Log level: " + logLevel)
     if logLevel == "debug":
-        logger.info("extendedDebug: " + str(not logFilter.get_quietDebug()))
-    logger.info("callback: " + callback)
-    logger.info("Apikey: " + apiKey)
-    logger.info("Socket Port: " + str(socketPort))
-    logger.info("Socket Host: " + socketHost)
-    logger.info("PID file: " + pidFile)
+        logger.info("│ extendedDebug: " + str(not logFilter.get_quietDebug()))
+    logger.info("│ callback: " + callback)
+    logger.info("│ Apikey: " + apiKey)
+    logger.info("│ Socket Port: " + str(socketPort))
+    logger.info("│ Socket Host: " + socketHost)
+    logger.info("│ PID file: " + pidFile)
+    logger.info("└───────────────────────────────────────────────────────────")
 
 
 # ===============================================================================
@@ -132,7 +138,7 @@ def logStatus():
         expiresAt = datetime.datetime.fromtimestamp(account.getExpiresAt())
         lifetime = account.getLifetime()
         time2renew = datetime.datetime.fromtimestamp(account.getTime2renew())
-        logger.info(f"│ - {account.getName()}")
+        logger.info(f"│ - {account.getName()} ({account.getId()})")
         logger.info(f"│   - Token expires at {expiresAt}")
         logger.info(f"│   - Lifetime: {lifetime}")
         logger.info(f"│   - Time to renew: {time2renew}")
@@ -151,32 +157,37 @@ def logStatus():
 
 
 # ===============================================================================
-# start_account
+# register_account
 # ...............................................................................
 # Ajout d'un account
 # ===============================================================================
-def start_account(name, accessToken, refreshToken, expiresAt, expiresIn):
-    account = Account.byName(name)
+def register_account(id, name, accessToken, expiresAt, expiresIn):
+    account = Account.byId(id)
     if account:
-        logger.warning(f"Account < {name} > is already defined")
+        logger.debug(f"Account < {id} > is already defined")
         return
-    logger.info(f"Starting account < {name} >")
-    account = Account(name, accessToken, refreshToken, expiresAt, expiresIn)
+    logger.info(f"Starting account {name} (id:  {id})")
+    account = Account(id, name, accessToken, expiresAt, expiresIn)
     if account:
         jeedom_com.send_change_immediate(
-            {"object": "account", "message": "started", "account": account.getName()}
+            {"object": "account", "message": "started", "accountId": account.getId()}
         )
 
 
 # ===============================================================================
-# stop_account
+# newToken
 # ...............................................................................
-# Retrait d'un account
+# Enregistrement d'un nouveau token
 # ===============================================================================
-def stop_account(name):
-    account = Account.byName(name)
-    if account:
-        account.remove()
+def newToken(id, name, accessToken, expiresAt, expiresIn):
+    account = Account.byId(id)
+    if not account:
+        logger.debug(f"Account < {id} > not found")
+        return
+    account.setName(name)
+    account.setAccessToken(accessToken)
+    account.setExpiresAt(expiresAt)
+    account.setExpiresIn(expiresIn)
 
 
 # ===============================================================================
@@ -184,13 +195,13 @@ def stop_account(name):
 # ...............................................................................
 # Démarrage d'un thread pour un charger
 # ===============================================================================
-def start_charger(id, name, serial, accountName):
+def start_charger(id, name, serial, accountId):
     charger = Charger.byId(id)
     if charger:
-        logger.warning(f"Charger {id} is already running")
+        logger.debug(f"Charger {id} is already running")
         return
     logger.info(f"Starting charger {name} (id: {id}) ")
-    account = Account.byName(accountName)
+    account = Account.byId(accountId)
     charger = Charger(id, name, serial, account)
     charger.run()
 
@@ -203,7 +214,7 @@ def start_charger(id, name, serial, accountName):
 def stop_charger(id):
     charger = Charger.byId(id)
     if charger:
-        charger.remove()
+        charger.stop()
 
 
 # ===============================================================================
@@ -218,14 +229,16 @@ def read_socket():
     if not JEEDOM_SOCKET_MESSAGE.empty():
         # jeedom_com a reçu un message qu'il a mis en queue. On le récupère ici
         message = json.loads(JEEDOM_SOCKET_MESSAGE.get().decode())
+        logger.info(f"Message received from Jeedom: {message}")
+        if 'apikey' not in message or message['apikey'] != apiKey:
+            logger.error("La clé api in invalide")
+            return
 
         if "cmd" not in message:
-            logger.info(f"Message received from Jeedom: {message}")
             logger.warning("'cmd' is not in message")
             return
 
         if message["cmd"] not in _commands:
-            logger.info(f"Message received from Jeedom: {message}")
             logger.warning(f"Unknow command {message['cmd']} in message")
             return
 
@@ -234,22 +247,28 @@ def read_socket():
                 logger.error(f"Arg {arg} is missing for cmd {message['cmd']}")
                 return
 
-        if message["cmd"] == "startAccount":
+        if message["cmd"] == "registerAccount":
             logFilter.add_sensible(message["accessToken"])
-            logFilter.add_sensible(message["refreshToken"])
-            logger.info(f"Message received from Jeedom: {message}")
-            start_account(
-                message["account"],
+            register_account(
+                message["accountId"],
+                message["accountName"],
                 message["accessToken"],
-                message["refreshToken"],
                 message["expiresAt"],
                 message["expiresIn"],
             )
-        elif message["cmd"] == "stopAccount":
-            stop_account(message["account"])
+        elif message["cmd"] == "newToken":
+            newToken(
+                message["accountId"],
+                message["accountName"],
+                message["accessToken"],
+                message["expiresAt"],
+                message["expiresIn"],
+            )
+        elif message["cmd"] == "unregisterAccount":
+            unregister_account(message["accountId"])
         elif message["cmd"] == "startCharger":
             start_charger(
-                message["id"], message["name"], message["serial"], message["account"]
+                message["id"], message["name"], message["serial"], message["accountId"]
             )
         elif message["cmd"] == "stopCharger":
             stop_charger(message["id"])
@@ -272,8 +291,6 @@ def handler(signum=None, frame=None):
         signal.alarm(3600)
         logger.debug("ALARM")
         logStatus()
-        for account in Account.all():
-            account.refreshToken()
         return
     logger.debug("Signal %i caught, exiting..." % int(signum))
     shutdown()
@@ -291,7 +308,7 @@ def shutdown():
     except:
         pass
     for charger in list(Charger.all()):
-        charger.remove()
+        charger.stop()
     logger.debug("Removing PID file " + pidFile)
     try:
         os.remove(pidFile)
@@ -302,16 +319,16 @@ def shutdown():
     os._exit(0)
 
 
-###########################
-#                           #
+###############################
+#                             #
 #  #    #    ##    #  #    #  #
 #  ##  ##   #  #   #  ##   #  #
 #  # ## #  #    #  #  # #  #  #
 #  #    #  ######  #  #  # #  #
 #  #    #  #    #  #  #   ##  #
 #  #    #  #    #  #  #    #  #
-#                           #
-###########################
+#                             #
+###############################
 
 
 options()

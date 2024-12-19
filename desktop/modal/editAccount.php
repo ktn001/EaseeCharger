@@ -42,10 +42,6 @@ if (!isConnect('admin')) {
 					</span>
 				</div>
 			</div>
-			<div class="form-group">
-				<label class="col-sm-3 control-label">{{Activer}}:</label>
-				<input type="checkbox" class="accountAttr form-control" data-l1key="isEnable"/>
-			</div>
 		</fieldset>
 	</form>
 </div>

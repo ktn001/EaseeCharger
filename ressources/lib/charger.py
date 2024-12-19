@@ -1,3 +1,4 @@
+# vim: tabstop=4 autoindent expandtab
 # This file is part of Jeedom.
 #
 # Jeedom is free software: you can redistribute it and/or modify
@@ -90,13 +91,15 @@ class Charger:
         self.logger.addFilter(logFilter())
         self.connection = None
 
-    def __del__(self):
-        self.logger.debug(f"del charger {self.name}")
-        self.connection.close()
-
-    def remove(self):
+    def stop(self):
         self.logger.debug(f"remove charger {self.name}")
         self.state = "closing"
+        self.watcher.join(timeout=10)   
+        if self.watcher.is_alive():
+            self.logger.warning(f"watcher for {self.getSerial()} not terminated")
+        else:
+            self.logger.debug(f"watcher for {self.getSerial()} terminated")
+        self.watcher = None
         self.connection.stop()
 
     def getToken(self):
@@ -116,8 +119,6 @@ class Charger:
                 {
                     "type": "raw",
                     "keep_alive_interval": 10,
-                    "interval_reconnect": 5,
-                    "max_attemps": 5,
                 }
             )
             .build()
@@ -136,20 +137,21 @@ class Charger:
             return True
         except UnAuthorizedHubError as error:
             self.state = "error"
-            self.logger._error("login Error")
+            self.logger.error("login Error")
             self.connection = None
             return False
 
     def watch_connection(self):
         while 1:
-            if self.state == "closing" or self.state == "disconnected":
-                return
-            if self.state == "connected":
-                if not self.is_running():
-                    self.logger.warning("Le watcher redémarre la connection")
-                    self.connection.start()
-                    self.nbWatcherRestart += 1
-            time.sleep(5)
+           if self.state == "closing" or self.state == "disconnected":
+               self.logger.info(f"closing watcher for {self.getSerial()}")
+               return
+           if self.state == "connected":
+               if not self.is_running():
+                   self.logger.warning("Le watcher redémarre la connection")
+                   self.connection.start()
+                   self.nbWatcherRestart += 1
+           time.sleep(5)
 
     def is_running(self):
         if self.connection == None:

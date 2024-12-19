@@ -31,6 +31,12 @@ function EaseeCharger_goto_4() {
 		}
 		config::remove('account::' . $account->getName(), 'EaseeCharger');
 		$mapNames[$account->getName()] = $account->getId();
+		$cache=cache::byKey('EaseeAccount:' . $this->getName());
+		if (is_object($cache)) {
+			$token = $cache->getValue();
+			cache::set("EaseeAccount:" . $this->getId(), $token, 192800);
+			$cache->remove();
+		}
 	}
 	$chargers = EaseeCharger::byType('EaseeCharger');
 	foreach ($chargers as $charger) {

@@ -1,3 +1,4 @@
+# vim: tabstop=4 autoindent expandtab
 # This file is part of Jeedom.
 #
 # Jeedom is free software: you can redistribute it and/or modify
@@ -19,6 +20,7 @@ import time
 import requests
 import json
 from logfilter import *
+import datetime
 
 
 class Account:
@@ -34,69 +36,32 @@ class Account:
         return __class__.accounts.values()
 
     @staticmethod
-    def byName(name):
-        if name in __class__.accounts:
-            return __class__.accounts[name]
+    def byId(id):
+        if id in __class__.accounts:
+            return __class__.accounts[id]
         return None
 
     # ====== Méthodes d'instance =======
     # ==================================
 
-    def __init__(self, name, accessToken, refreshToken, expiresAt, expiresIn):
+    def __init__(self, id, name, accessToken, expiresAt, expiresIn):
+        self.setId(id)
         self.setName(name)
         self.setAccessToken(accessToken)
-        self.setRefreshToken(refreshToken)
         self.setExpiresAt(expiresAt)
         self.setLifetime(expiresIn)
-        self.accounts[name] = self
+        self.accounts[id] = self
         self.logger = logging.getLogger(f"[{name}]")
         self.logger.addFilter(logFilter())
         logFilter.add_sensible(accessToken)
-        logFilter.add_sensible(refreshToken)
 
     def __del__(self):
-        self.logger.debug(f"del account {self.getName()}")
-        if self.getName() in self.accounts:
-            del self.accounts[self.getName()]
-
-    def remove(self):
-        self.logger.debug(f"remove account {self.getName()}")
-        if self.getName() in self.accounts:
-            del self.accounts[self.getName()]
+        self.logger.debug(f"del account {self.getId()}")
+        if self.getId() in self.accounts:
+            del self.accounts[self.getId()]
 
     def getTime2renew(self):
         return self.getExpiresAt() - self.getLifetime() / 2
-
-    def refreshToken(self):
-        self.logger.debug("'refreshToken' is called")
-        if time.time() > self.getTime2renew():
-            self.logger.debug("Token need a refresh")
-            url = "https://api.easee.com/api/accounts/refresh_token"
-            headers = {
-                "Accept": "application/json",
-                "Content-Type": "application/*+json",
-                "Authorization": f"Bearer {self.getAccessToken()}",
-            }
-            payload = {
-                "accessToken": self.getAccessToken(),
-                "refreshToken": self.getRefreshToken(),
-            }
-            try:
-                response = requests.post(url, data=json.dumps(payload), headers=headers)
-                if response.status_code != requests.codes["ok"]:
-                    self.logger.warning(
-                        "Error refreshing Token: return code "
-                        + str(response.status_code)
-                    )
-                    return
-                tok = json.loads(response.text)
-                self.setAccessToken(tok["accessToken"])
-                self.setRefreshToken(tok["refreshToken"])
-                self.setExpiresAt(time.time() + tok["expiresIn"])
-                self.setLifetime(tok["expiresIn"])
-
-            except Exception as error:
-                self.logger.warning("Error refreshing Token: " + str(error))
 
     # ======== getter / setter =========
     # ==================================
@@ -117,6 +82,14 @@ class Account:
     def setExpiresAt(self, expiresAt):
         self._expiresAt = expiresAt
 
+    # ExpiresIn
+    #
+    def getExpiresIn(self):
+        return self._expiresIn
+
+    def setExpiresIn(self, expiresIn):
+        self._expiresIn = expiresIn
+
     # Lifetime
     #
     def getLifetime(self):
@@ -124,6 +97,14 @@ class Account:
 
     def setLifetime(self, expiresIn):
         self._lifetime = expiresIn
+
+    # Id
+    #
+    def getId(self):
+        return self._id
+
+    def setId(self, id):
+        self._id = id
 
     # Name
     #
@@ -133,10 +114,3 @@ class Account:
     def setName(self, name):
         self._name = name
 
-    # RefreshToken
-    #
-    def getRefreshToken(self):
-        return self._refreshToken
-
-    def setRefreshToken(self, refreshToken):
-        self._refreshToken = refreshToken
