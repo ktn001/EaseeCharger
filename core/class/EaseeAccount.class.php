@@ -202,13 +202,14 @@ class EaseeAccount {
 		if (!$this->getLogin()) {
 			throw new Exception (__("Le login doit être défini!",__FILE__));
 		}
-		if (!$this->login()) {
+		if (!$this->login(true)) {
 			throw new Exception(__("Login ou password incorrect!",__FILE__));
 		}
 		$value = utils::o2a($this);
 		$value['password'] = utils::encrypt($value['password']);
 		$value = json_encode($value);
 		$key = 'account::' . $this->id;
+		$this->login();
 
 		if (EaseeCharger::daemon_info()['state'] == 'ok') {
 			$this->register_account_on_daemon();
@@ -268,16 +269,10 @@ class EaseeAccount {
 	/*
 	 * Test login et password
 	 */
-	public function login($login = '', $password = '') {
-		if (!$login) {
-			$login = $this->getLogin();
-		}
-		if (!$password) {
-			$password = $this->getPassword();
-		}
+	public function login($checkOnly = false) {
 		$data = [
-			'userName' => $login,
-			'password' => $password
+			'userName' => $this->getLogin();
+			'password' => $this->getPassword();
 		];
 		try {
 			$result = $this->sendRequest('accounts/login', $data);
@@ -287,7 +282,9 @@ class EaseeAccount {
 					'expiresIn' => $result['expiresIn'],
 					'refreshToken' => $result['refreshToken']
 				];
-				$this->saveToken($token);
+				if (checkOnly === false) {
+					$this->saveToken($token);
+				}
 			}
 		} catch (EaseeCloudException $e) {
 			return false;
