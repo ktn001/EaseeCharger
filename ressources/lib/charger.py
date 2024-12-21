@@ -101,6 +101,12 @@ class Charger:
             self.logger.debug(f"watcher for {self.getSerial()} terminated")
         self.watcher = None
         self.connection.stop()
+        time.sleep(2)
+        while self.connection.transport.is_running():
+            self.logger.warning(f"Retriyng to stop connection for {self.getSerial}")
+            self.connection.stop()
+            time.sleep(2)
+        self.connection = None
 
     def getToken(self):
         return self.getAccount().getAccessToken()
@@ -126,6 +132,7 @@ class Charger:
         self.connection.on_open(lambda: self.on_open())
         self.connection.on_close(self.on_close)
         self.connection.on_error(lambda data: self.on_error(data))
+        self.connection.on_reconnect(self.on_reconnect)
         self.connection.on("ProductUpdate", self.on_Update)
         self.connection.on("ChargerUpdate", self.on_Update)
         self.connection.on("CommandResponse", self.on_CommandResponse)
@@ -165,6 +172,7 @@ class Charger:
         return
 
     def on_close(self):
+        self.logger.debug(f'on_close called, state is "{self.state}"')
         if self.state != "closing":
             self.logger.debug(f"on_close called but state is {self.state}")
             return
@@ -174,7 +182,7 @@ class Charger:
             del self.chargers[self.id]
 
     def on_reconnect(self):
-        self.logger.warning(f"reconnecting {self.getSerial()}")
+        self.logger.warning(f"reconnecting {self.getSerial()} (status: {self.state})")
         self.nbSignalrRestart += 1
 
     def on_error(self, data):
