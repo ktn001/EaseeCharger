@@ -155,7 +155,7 @@ if (typeof EaseeChargerFrontEnd === "undefined") {
                   dataType: 'json',
                   success: function (data) {
                     if (data.state != "ok") {
-                      domUtils.hiddeLoading()
+                      domUtils.hideLoading()
                       jeedomUtils.showAlert({
                         message: data.result,
                         level: "danger",
