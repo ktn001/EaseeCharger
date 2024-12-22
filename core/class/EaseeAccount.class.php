@@ -271,8 +271,8 @@ class EaseeAccount {
 	 */
 	public function login($checkOnly = false) {
 		$data = [
-			'userName' => $this->getLogin();
-			'password' => $this->getPassword();
+			'userName' => $this->getLogin(),
+			'password' => $this->getPassword(),
 		];
 		try {
 			$result = $this->sendRequest('accounts/login', $data);
