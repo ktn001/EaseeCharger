@@ -187,7 +187,9 @@ class EaseeAccount {
 	 * Enregistrement du compte
 	 */
 	public function save() {
+		$create = false;
 		if ($this->getId() == '') {
+			$create = true;
 			$this->setId(static::nextId());
 		}
 		if (!$this->getName()) {
@@ -199,7 +201,7 @@ class EaseeAccount {
 				throw new Exception (__("Ce nom est déjà utilisé pour un autre compte!",__FILE__));
 			}
 		}
-		if (!$this->getLogin()) {
+		if (!$this->getLogin($create)) {
 			throw new Exception (__("Le login doit être défini!",__FILE__));
 		}
 		$value = utils::o2a($this);
@@ -207,7 +209,9 @@ class EaseeAccount {
 		$value = json_encode($value);
 		$key = 'account::' . $this->id;
 		config::save($key, $value, 'EaseeCharger');
-		$this->login();
+		if ($create) {
+			$this->login();
+		}
 
 		if (EaseeCharger::daemon_info()['state'] == 'ok') {
 			$this->register_account_on_daemon();
