@@ -282,7 +282,7 @@ class EaseeAccount {
 					'expiresIn' => $result['expiresIn'],
 					'refreshToken' => $result['refreshToken']
 				];
-				if (checkOnly === false) {
+				if ($checkOnly === false) {
 					$this->saveToken($token);
 				}
 			}
