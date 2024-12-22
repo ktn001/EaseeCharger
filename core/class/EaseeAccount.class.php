@@ -209,6 +209,7 @@ class EaseeAccount {
 		$value['password'] = utils::encrypt($value['password']);
 		$value = json_encode($value);
 		$key = 'account::' . $this->id;
+		config::save($key, $value, 'EaseeCharger');
 		$this->login();
 
 		if (EaseeCharger::daemon_info()['state'] == 'ok') {
