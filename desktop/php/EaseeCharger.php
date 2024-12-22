@@ -87,7 +87,13 @@ sendVarToJS('eqType', $plugin->getId());
 		echo '<span class="name">';
 		echo $charger->getHumanName(true, true);
 		echo '</span>';
-		echo '<span class="displayTableRight hiddenAsCard hidden">' . __('Compte',__FILE__) . ': <strong>' . EaseeAccount::byId($charger->getAccountid())->getName() . '</strong></span>';
+		$account = $charger->getAccount();
+		if (!is_object($account)) {
+			$accountName = $account->getName();
+		} else {
+			$accountName = '';
+		}
+		echo '<span class="displayTableRight hiddenAsCard hidden">' . __('Compte',__FILE__) . ': <strong>' . $accountName . '</strong></span>';
 		echo '</div>';
 	    }
 	    ?>

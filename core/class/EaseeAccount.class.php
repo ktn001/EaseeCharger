@@ -202,9 +202,6 @@ class EaseeAccount {
 		if (!$this->getLogin()) {
 			throw new Exception (__("Le login doit être défini!",__FILE__));
 		}
-		if (!$this->login(true)) {
-			throw new Exception(__("Login ou password incorrect!",__FILE__));
-		}
 		$value = utils::o2a($this);
 		$value['password'] = utils::encrypt($value['password']);
 		$value = json_encode($value);
