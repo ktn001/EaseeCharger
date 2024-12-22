@@ -88,7 +88,7 @@ sendVarToJS('eqType', $plugin->getId());
 		echo $charger->getHumanName(true, true);
 		echo '</span>';
 		$account = $charger->getAccount();
-		if (!is_object($account)) {
+		if (is_object($account)) {
 			$accountName = $account->getName();
 		} else {
 			$accountName = '';
