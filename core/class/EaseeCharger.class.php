@@ -506,15 +506,6 @@ class EaseeCharger extends eqLogic {
 				if ($this->_wasEnable !=1) {
 					$needDaemonRestart = true;
 				}
-				if ($this->getLogicalId() != $this->_oldLogicalId) {
-					$needDaemonRestart = true;
-				}
-				if ($this->getHumanName() != $this->_oldHumanName) {
-					$needDaemonRestart = true;
-				}
-				if ($this->getAccountId() != $this->_oldAccountId) {
-					$needDaemonRestart = true;
-				}
 				if ($needDaemonRestart){
 					log::add("EaseeCharger","debug",sprintf(__("Redémarrage du thread du daemon pour %s",__FILE__),$this->getHumanName()));
 					$this->stop_daemon_thread();

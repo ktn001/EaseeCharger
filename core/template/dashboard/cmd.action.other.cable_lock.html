@@ -6,7 +6,7 @@
   data-cmd_id="#id#"
   data-cmd_uid="#uid#"
   data-version="#version#"
-  data-eqlogic_id="#eqLogicId#"
+  data-eqlogic_id="#eqLogic_id#"
 >
   <div class="title #hide_name#">
     <div class="cmdName">#valueName#</div>
@@ -36,6 +36,7 @@
     permanentlyLockedColor = "";
 
     jeedom.cmd.update["#id#"] = function (_options) {
+      console.log(_options)
       var cmd = $(".cmd[data-cmd_id=#id#]");
       if ("#_time_widget_#" != "1") {
         cmd.find(".timeCmd").parent().remove();
@@ -43,7 +44,7 @@
 
       if (String(_options.display_value).length == 0) {
         cmd
-          .find("iconCmd")
+          .find(".iconCmd")
           .empty()
           .append(
             jeedom.cmd.normalizeName("#name#") == "off"
