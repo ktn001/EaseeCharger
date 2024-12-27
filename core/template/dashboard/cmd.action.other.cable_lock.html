@@ -1,3 +1,6 @@
+<!--
+vim: tabstop=2 autoindent expandtab
+-->
 <div
   class="cmd cmd-widget cursor"
   data-type="action"
@@ -13,89 +16,74 @@
   </div>
   <div class="content-sm">
     <span
-      class="iconCmd"
+      class="execute iconCmd tooltips"
       style="
         padding: 10px;
         border-radius: 50px;
         width: 5rem;
         display: inline-block;
       "
+      title="#name#"
     ></span>
   </div>
-  <div class="value">
-    <span
-      class="timeCmd label label-default #value_history#"
-      data-type="info"
-      data-cmd_id="#value_id#"
-    ></span>
-  </div>
-  <template>
-    <div>time : date ({{Affiche l'info time sous forme de date}})</div>
-  </template>
   <script>
-    permanentlyLockedColor = "";
+    {
+      let permanentlyLockedColor = "";
 
-    jeedom.cmd.update["#id#"] = function (_options) {
-      console.log(_options)
-      var cmd = $(".cmd[data-cmd_id=#id#]");
-      if ("#_time_widget_#" != "1") {
-        cmd.find(".timeCmd").parent().remove();
-      }
+      document.querySelector('.cmd[data-cmd_uid=#uid#] .execute').addEventListener('click', function() {
+        jeedom.cmd.execute({ id: "#id#" });
+      })
 
-      if (String(_options.display_value).length == 0) {
-        cmd
-          .find(".iconCmd")
-          .empty()
-          .append(
-            jeedom.cmd.normalizeName("#name#") == "off"
-              ? "#_icon_off_#"
-              : "#_icon_on_#",
-          );
-      } else {
-        if (_options.display_value & 1) {
-          cmd.find(".iconCmd").empty().append("#_icon_on_#");
-        } else {
-          cmd.find(".iconCmd").empty().append("#_icon_off_#");
+      jeedom.cmd.addUpdateFunction('#id#', function (_options) {
+        let cmd = document.querySelector('.cmd[data-cmd_uid="#uid#"]')
+        if (is_object(cmd)) {
+  
+          if (String(_options.display_value).length == 0) {
+            cmd.querySelector(".iconCmd").innerHTML = 
+                jeedom.cmd.normalizeName("#name#") == "off"
+                  ? "#_icon_off_#"
+                  : "#_icon_on_#"
+          } else {
+            if (_options.display_value & 1) {
+              cmd.querySelector('.iconCmd').innerHTML = "#_icon_on_#"
+            } else {
+              cmd.querySelector('.iconCmd').innerHTML = "#_icon_off_#"
+            }
+          }
+          if (_options.display_value & 2) {
+            if (jeedom.cmd.normalizeName("#name#") == "on") {
+              cmd.unseen();
+            } else {
+              cmd.seen();
+              cmd.querySelector('.iconCmd').style.backgroundColor = permanentlyLockedColor
+            }
+          } else {
+            if (jeedom.cmd.normalizeName("#name#") == "off") {
+              cmd.unseen();
+            } else {
+              cmd.seen();
+              cmd.querySelector(".iconCmd").style.backgroundColor = ""
+            }
+          }
         }
-      }
-      if (_options.display_value & 2) {
-        if (jeedom.cmd.normalizeName("#name#") == "on") {
-          cmd.hide();
-        } else {
-          cmd
-            .show()
-            .find(".iconCmd")
-            .css("background-color", permanentlyLockedColor);
-        }
-      } else {
-        if (jeedom.cmd.normalizeName("#name#") == "off") {
-          cmd.hide();
-        } else {
-          cmd.show().find(".iconCmd").css("background-color", "");
-        }
-      }
-    };
+      });
 
-    $(".cmd[data-cmd_uid=#uid#] .iconCmd").on("click", function () {
-      jeedom.cmd.execute({ id: "#id#" });
-    });
-
-    $(function () {
-      if ($("body").attr("data-coloredicons") == "1") {
+      if (document.body.getAttribute("data-coloredicons") == "1") {
         permanentlyLockedColor = "blue";
       } else {
-        if ($("body").attr("data-theme").endsWith("Light")) {
+        if (document.body.getAttribute("data-theme").endsWith("Light")) {
           permanentlyLockedColor = "lightgrey";
         } else {
           permanentlyLockedColor = "grey";
         }
       }
-      jeedom.cmd.update["#id#"]({
+      jeedom.cmd.refreshValue([{
+        cmd_id: "#id#",
         display_value: "#state#",
         valueDate: "#valueDate#",
         collectDate: "#collectDate#",
         alertLevel: "#alertLevel#",
-      });
-    });
+      }]);
+    }
   </script>
 </div>
