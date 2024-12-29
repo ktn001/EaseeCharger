@@ -68,22 +68,31 @@ vim: tabstop=2 autoindent expandtab
         }
       });
 
-      if (document.body.getAttribute("data-coloredicons") == "1") {
-        permanentlyLockedColor = "blue";
-      } else {
-        if (document.body.getAttribute("data-theme").endsWith("Light")) {
-          permanentlyLockedColor = "lightgrey";
+
+      function initColor() {
+        coloredIcons = document.body.getAttribute("data-coloredicons")
+        if (coloredIcons == null) {
+          setTimeout(initColor,100)
         } else {
-          permanentlyLockedColor = "grey";
+          if (coloredIcons == "1") {
+            permanentlyLockedColor = "blue";
+          } else {
+            if (document.body.getAttribute("data-theme").endsWith("Light")) {
+              permanentlyLockedColor = "lightgrey";
+            } else {
+              permanentlyLockedColor = "grey";
+            }
+          }
+          jeedom.cmd.refreshValue([{
+            cmd_id: "#id#",
+            display_value: "#state#",
+            valueDate: "#valueDate#",
+            collectDate: "#collectDate#",
+            alertLevel: "#alertLevel#",
+          }]);
         }
       }
-      jeedom.cmd.refreshValue([{
-        cmd_id: "#id#",
-        display_value: "#state#",
-        valueDate: "#valueDate#",
-        collectDate: "#collectDate#",
-        alertLevel: "#alertLevel#",
-      }]);
+      initColor()
     }
   </script>
 </div>
