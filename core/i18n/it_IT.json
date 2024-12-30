@@ -26,7 +26,6 @@
         "Le fichier %s est introuvable": "Il file %s non può essere trovato",
         "Le login doit être défini!": "Il login deve essere definito!",
         "Le nom de l'account doit être défini!": "Il nome dell'account deve essere definito!",
-        "Login ou password incorrect!": "Login o password errati!",
         "OK": "Bene",
         "Pas de token valid pour l'account %s": "Nessun token valido per l'account %s",
         "Pas de traitemment pour %s (value: %s)": "Nessuna elaborazione per %s (valore: %s)",
@@ -107,9 +106,6 @@
         "Date de collecte": "Date de collecte",
         "Date de valeur": "Date de valeur"
     },
-    "plugins\/EaseeCharger\/core\/template\/dashboard\/cmd.action.other.cable_lock.html": {
-        "Affiche l'info time sous forme de date": "Visualizza l'ora delle informazioni come data"
-    },
     "plugins\/EaseeCharger\/core\/template\/dashboard\/cmd.info.numeric.etat.html": {
         "Cache l'image": "Nascondi immagine",
         "Cache le texte": "Nascondi testo",
@@ -117,7 +113,6 @@
         "Date de valeur": "Date de valeur"
     },
     "plugins\/EaseeCharger\/core\/template\/dashboard\/cmd.info.numeric.phase.html": {
-        "Affiche durée ou date de la valeur": "Affiche durée ou date de la valeur",
         "Date de collecte": "Date de collecte",
         "Date de valeur": "Date de valeur",
         "Maximum": "Massimo",

@@ -26,7 +26,6 @@
         "Le fichier %s est introuvable": "O ficheiro %s não pode ser encontrado",
         "Le login doit être défini!": "O login tem de ser definido!",
         "Le nom de l'account doit être défini!": "O nome da conta deve ser definido!",
-        "Login ou password incorrect!": "Login ou palavra-passe incorrecta!",
         "OK": "Ok",
         "Pas de token valid pour l'account %s": "Nenhum token válido para a conta %s",
         "Pas de traitemment pour %s (value: %s)": "Não há processamento para %s (valor: %s)",
@@ -107,9 +106,6 @@
         "Date de collecte": "Data de coleta",
         "Date de valeur": "Data de validade"
     },
-    "plugins\/EaseeCharger\/core\/template\/dashboard\/cmd.action.other.cable_lock.html": {
-        "Affiche l'info time sous forme de date": "Apresenta a hora da informação como uma data"
-    },
     "plugins\/EaseeCharger\/core\/template\/dashboard\/cmd.info.numeric.etat.html": {
         "Cache l'image": "Ocultar imagem",
         "Cache le texte": "Ocultar texto",
@@ -117,7 +113,6 @@
         "Date de valeur": "Data de validade"
     },
     "plugins\/EaseeCharger\/core\/template\/dashboard\/cmd.info.numeric.phase.html": {
-        "Affiche durée ou date de la valeur": "Exibe a duração ou data do valor",
         "Date de collecte": "Data de coleta",
         "Date de valeur": "Data de validade",
         "Maximum": "Máximo",
