@@ -39,6 +39,11 @@ if (typeof EaseeChargerFrontEnd === "undefined") {
         if (_target = event.target.closest('.accountDisplayCard')) {
           EaseeChargerFrontEnd.loadAndEditAccount(_target.getAttribute("data-account_id"))
         }
+
+        // Recreate Cmds
+        if (_target = event.target.closest(".cmdAction[data-action=recreateCmds]")) {
+          EaseeChargerFrontEnd.recreateCmds()
+        }
       })
 
       /* ** CHANGE ** */
@@ -186,6 +191,42 @@ if (typeof EaseeChargerFrontEnd === "undefined") {
     },
 
     /*
+     * Recréation de commandes
+     */
+    recreateCmds: function() {
+      if (jeedomUtils.checkPageModified()) {
+        return;
+      }
+      domUtils.ajax({
+        type: "POST",
+        async: false,
+        global: false,
+        url: "plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php",
+        data: {
+          action: "createCmds",
+          id: $(".eqLogicAttr[data-l1key=id]").value(),
+        },
+        dataType: "json",
+        success: function (data) {
+          if (data.state != "ok") {
+            jeedomUtils.showAlert({ message: data.result, level: "danger" });
+            return;
+          }
+          modifyWithoutSave = false;
+          let vars = getUrlVars();
+          let url = "index.php?";
+          for (let i in vars) {
+            if (i != "saveSuccessFull" && i != "removeSuccessFull") {
+              url += i + "=" + vars[i] + "&";
+            }
+          }
+          url += "saveSuccessFull=1" + document.location.hash;
+          jeedomUtils.loadPage(url);
+        },
+      });
+    },
+
+    /*
      * Fonction permettant l'affichage des commandes dans l'équipement
      */
     addCmdToTable: function(_cmd) {
@@ -271,75 +312,11 @@ if (typeof EaseeChargerFrontEnd === "undefined") {
       newRow.innerHTML = tr
       newRow.addClass("cmd")
       newRow.setAttribute("data-cmd_id", init(_cmd.id))
+      newRow.setJeeValues(_cmd, '.cmdAttr')
       document.getElementById("table_cmd").querySelector("tbody").appendChild(newRow)
-      tr = $("#table_cmd tbody tr").last();
-      tr.setValues(_cmd, ".cmdAttr");
     }
   }
 
 }
 EaseeChargerFrontEnd.init()  
 addCmdToTable = EaseeChargerFrontEnd.addCmdToTable
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
- * Action sur recréation des commandes
- */
-$(".cmdAction[data-action=recreateCmds]").on("click", function () {
-  if (jeedomUtils.checkPageModified()) {
-    return;
-  }
-  $.ajax({
-    type: "POST",
-    url: "plugins/EaseeCharger/core/ajax/EaseeCharger.ajax.php",
-    data: {
-      action: "createCmds",
-      id: $(".eqLogicAttr[data-l1key=id]").value(),
-    },
-    dataType: "json",
-    global: false,
-    error: function (request, status, error) {
-      handleAjaxError(request, status, error);
-    },
-    success: function (data) {
-      if (data.state != "ok") {
-        $.fn.showAlert({ message: data.result, level: "danger" });
-        return;
-      }
-      modifyWithoutSave = false;
-      let vars = getUrlVars();
-      let url = "index.php?";
-      for (let i in vars) {
-        if (i != "saveSuccessFull" && i != "removeSuccessFull") {
-          url += i + "=" + vars[i] + "&";
-        }
-      }
-      url += "saveSuccessFull=1" + document.location.hash;
-      jeedomUtils.loadPage(url);
-    },
-  });
-});
