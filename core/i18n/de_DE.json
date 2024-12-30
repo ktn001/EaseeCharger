@@ -26,7 +26,6 @@
         "Le fichier %s est introuvable": "Die Datei %s wurde nicht gefunden",
         "Le login doit être défini!": "Das Login muss definiert werden!",
         "Le nom de l'account doit être défini!": "Der Name des Accounts muss festgelegt werden!",
-        "Login ou password incorrect!": "Falsches Login oder Passwort!",
         "OK": "Ok",
         "Pas de token valid pour l'account %s": "Kein gültiges Token für den Account %s",
         "Pas de traitemment pour %s (value: %s)": "Keine Behandlung für %s (value: %s)",
@@ -107,9 +106,6 @@
         "Date de collecte": "Datum der Abholung",
         "Date de valeur": "Datum der Wertstellung"
     },
-    "plugins\/EaseeCharger\/core\/template\/dashboard\/cmd.action.other.cable_lock.html": {
-        "Affiche l'info time sous forme de date": "Zeigt die Infozeit als Datum an"
-    },
     "plugins\/EaseeCharger\/core\/template\/dashboard\/cmd.info.numeric.etat.html": {
         "Cache l'image": "Bild ausblenden",
         "Cache le texte": "Text ausblenden",
@@ -117,7 +113,6 @@
         "Date de valeur": "Datum der Wertstellung"
     },
     "plugins\/EaseeCharger\/core\/template\/dashboard\/cmd.info.numeric.phase.html": {
-        "Affiche durée ou date de la valeur": "Zeigt die Dauer oder das Datum des Werts an",
         "Date de collecte": "Datum der Abholung",
         "Date de valeur": "Datum der Wertstellung",
         "Maximum": "Maximal",
