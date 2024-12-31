@@ -129,6 +129,10 @@
       "minValue": "0",
       "maxValue": "25"
     },
+    "template": {
+      "dashboard":"core::gauge",
+      "mobile":"core::gauge"
+    },
     "order": "11"
   },
   {
