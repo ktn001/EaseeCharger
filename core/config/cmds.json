@@ -93,6 +93,7 @@
     "template": {
       "dashboard": "EaseeCharger::cable_lock"
     },
+    "value": "#cable_state#",
     "order": "8"
   },
   {
@@ -105,6 +106,7 @@
     "template": {
       "dashboard": "EaseeCharger::cable_lock"
     },
+    "value": "#cable_state#",
     "order": "9"
   },
   {
