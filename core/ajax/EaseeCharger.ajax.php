@@ -30,17 +30,6 @@ try {
 	$action = init('action');
 	log::add("EaseeCharger","debug","  Ajax EaseeCharger: action: " . $action);
 
-	if ($action == 'createAccount') {
-		try {
-			$name = init('name');
-			log::add("EaseeCharger", "debug", sprintf (__('Création de compte %s',__FILE__),$name));
-			EaseeAccount::create($name);
-			ajax::success();
-		} catch (Exception $e){
-			ajax::error(displayException($e), $e->getCode());
-		}
-	}
-
 	if ($action == 'getAccount') {
 		$id = init('id');
 		if ($id == '') {

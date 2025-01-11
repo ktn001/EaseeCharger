@@ -43,22 +43,6 @@ class EaseeAccount {
 	}
 
 	/*
-	 * Création d'un account
-	 */
-	public static function create($name) {
-		$key = 'account::' . $name;
-		$config = config::byKey($key, 'EaseeCharger');
-		if ($config != '') {
-			log::add('EaseeCharger','warning',sprintf(__('Un compte nommé %s existe déjà',__FILE__),$name));
-			throw new Exception (sprintf(__('Un compte nommé %s existe déjà!',__FILE__),$name));
-		}
-		$account = new self();
-		$account->setName($name);
-		$account->save();
-		return $account;
-	}
-
-	/*
 	 * byName
 	 */
 	public static function byName($name) {
@@ -187,11 +171,6 @@ class EaseeAccount {
 	 * Enregistrement du compte
 	 */
 	public function save() {
-		$create = false;
-		if ($this->getId() == '') {
-			$create = true;
-			$this->setId(static::nextId());
-		}
 		if (!$this->getName()) {
 			throw new Exception (__("Le nom de l'account doit être défini!",__FILE__));
 		}
@@ -200,6 +179,11 @@ class EaseeAccount {
 			if (($account->getId() != $this->getId()) and ($account->getName() == $this->getName())) {
 				throw new Exception (__("Ce nom est déjà utilisé pour un autre compte!",__FILE__));
 			}
+		}
+		$create = false;
+		if ($this->getId() == '') {
+			$create = true;
+			$this->setId(static::nextId());
 		}
 		if (!$this->getLogin($create)) {
 			throw new Exception (__("Le login doit être défini!",__FILE__));
