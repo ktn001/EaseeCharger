@@ -424,7 +424,7 @@ class EaseeAccount {
 			$payload['expiresAt'] = $_token['expiresAt'];
 		}
 		$lifetime = 192800;
-		cache::set('EaseeAccount:'. $this->getId(), $_token, $lifetime);
+		cache::set('EaseeAccount:'. $this->getId(), json_encode($_token,JSON_UNESCAPED_UNICODE), $lifetime);
 		$this->send2daemon($payload);
 		return $this;
 	}
@@ -436,6 +436,7 @@ class EaseeAccount {
 			return false;
 		}
 		$token = $cache->getValue();
+		$token = is_json($token,$token);
 		$token['accessToken'] = utils::decrypt($token['accessToken']);
 		$token['refreshToken'] = utils::decrypt($token['refreshToken']);
 		return $token;
@@ -448,7 +449,7 @@ class EaseeAccount {
 			log::add("EaseeCharger","debug","getToken....");
 		}
 		$token = $this->readToken();
-		if ($token === false) {
+		if ($token === false or !isset($token['accessToken']) or $token['accessToken'] == '') {
 			log::add("EaseeCharger","debug","   Pas de token en cache.");
 			if ($retrying) {
 				log::add("EaseeCharger","error",sprintf(__("Erreur lors de la récupération d'un token pour %s",__FILE__),$this->getName()));
