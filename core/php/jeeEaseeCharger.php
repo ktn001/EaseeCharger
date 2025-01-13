@@ -58,7 +58,6 @@ try {
 
 	$payload = json_decode(file_get_contents("php://input"),true);
 	$payload = is_json($payload,$payload);
-	log::add("EaseeCharger","info",print_r($payload,true));
 	if (!is_array($payload)) {
 		die();
 	}
