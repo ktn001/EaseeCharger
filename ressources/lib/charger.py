@@ -19,6 +19,7 @@ import logging
 import os
 import configparser
 import threading
+import json
 from signalrcore.hub.errors import UnAuthorizedHubError
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from logfilter import *
@@ -201,13 +202,9 @@ class Charger:
             for logicalId in self.logicalIds(cmdId):
                 value = self.value_for_logicalId(logicalId, message["value"])
                 self.logger.debug(f"  - {logicalId} : {value}")
-                self.jeedom_com.send_change_immediate(
-                    {
-                        "object": "cmd",
-                        "charger": self.getId(),
-                        "logicalId": logicalId,
-                        "value": value,
-                    }
+                self.jeedom_com.add_changes(
+                    "cmds" + "::" + self.getId() + "::" + logicalId,
+                    json.dumps({ "object": "cmd", "charger": self.getId(), "logicalId": logicalId, "value": value })
                 )
 
     def on_CommandResponse(self, massages):

@@ -170,7 +170,7 @@ def register_account(id, name, accessToken, expiresAt, expiresIn):
     account = Account(id, name, accessToken, expiresAt, expiresIn)
     if account:
         jeedom_com.send_change_immediate(
-            {"object": "account", "message": "started", "accountId": account.getId()}
+            json.dumps({"object": "account", "message": "started", "accountId": account.getId()})
         )
 
 
@@ -354,7 +354,7 @@ try:
     signal.alarm(10)
 
     # Annonce à jeedom que le daemon est démarré
-    jeedom_com.send_change_immediate({"object": "daemon", "message": "started"})
+    jeedom_com.send_change_immediate(json.dumps({"object": "daemon", "message": "started"}))
 
     # Boucle de traitement des messages mis en queue par jeedom_socket
     try:

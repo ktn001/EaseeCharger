@@ -57,7 +57,7 @@ class jeedom_com:
                 if len(self._changes) == 0:
                     continue
                 changes = self._changes
-                self.changes = {}
+                self._changes = {}
                 self.__post_change(changes)
             except Exception as error:
                 logger.error('Critical error on send_changes_async %s', error)
@@ -72,21 +72,21 @@ class jeedom_com:
                 tmp_changes[k] = changes
                 changes = tmp_changes
                 tmp_changes = {}
-            if self.cycle <= 0:
+            if self._cycle <= 0:
                 self.send_change_immediate(changes)
             else:
-                self.merge_dict(self.changes, changes)
+                self.merge_dict(self._changes, changes)
         else:
-            if self.cycle <= 0:
+            if self._cycle <= 0:
                 self.send_change_immediate({key: value})
             else:
-                self.changes[key] = value
+                self._changes[key] = value
 
     def send_change_immediate(self, change):
         Thread(target=self.__post_change, args=(change,)).start()
 
     def __post_change(self, change):
-        logger.debug('Send to jeedom: %s', str(change))
+        logger.debug('Send to jeedom: %s', change)
         for i in range(self._retry):
             try:
                 r = requests.post(self._url + '?apikey=' + self._apikey, json=change, timeout=(0.5, 120), verify=False)
