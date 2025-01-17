@@ -93,9 +93,9 @@ class jeedom_com:
                 if r.status_code == requests.codes.ok:
                     return True
                 else:
-                    logging.warning('Error on send request to jeedom, return code %s', r.status_code)
+                    logger.warning('Error on send request to jeedom, return code %s', r.status_code)
             except Exception as error:
-                logging.error('Error on send request to jeedom "%s" retry: %i/%i', error, i, self._retry)
+                logger.error('Error on send request to jeedom "%s" retry: %i/%i', error, i, self._retry)
             time.sleep(0.5)
         return False
 
