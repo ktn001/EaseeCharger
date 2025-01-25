@@ -9,9 +9,6 @@
 		"it_IT": "Plugin per caricabatterie per veicoli elettrici *Easee",
 		"pt_PT": "Plugin para carregadores de veículos eléctricos *Easee"
 	},
-	"utilization": {
-		"fr_FR": "Fonctionalités très basiques pour le moment. Le plugin est en cours d'évolution"
-	},
 	"licence": "GNU",
 	"author": "ktn",
 	"require": "4.4.9",
