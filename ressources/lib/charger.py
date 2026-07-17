@@ -45,9 +45,7 @@ class Charger:
 
     @classmethod
     def byId(cls, id):
-        if id in cls.chargers:
-            return cls.chargers[id]
-        return None
+        return cls.chargers.get(id, None)
 
     @classmethod
     def set_jeedom_com(cls, jeedom_com):
@@ -82,7 +80,7 @@ class Charger:
         self.serial = serial
         self.account = account
         self.state = "initialized"
-        self.chargers[id] = self
+        __class__.chargers[id] = self
         self.nbSignalrRestart = 0
         self.nbWatcherRestart = 0
         self.logger = logging.getLogger(f"[{account.getName()}][{serial}]")
@@ -179,8 +177,8 @@ class Charger:
             return
         self.state = "disconnected"
         self.logger.debug(f"Closed connection {self.getSerial()}")
-        if self.id in self.chargers:
-            del self.chargers[self.id]
+        if self.id in __class__.chargers:
+            del __class__.chargers[self.id]
 
     def on_reconnect(self):
         self.logger.warning(f"reconnecting {self.getSerial()} (status: {self.state})")
@@ -203,7 +201,7 @@ class Charger:
                 value = self.value_for_logicalId(logicalId, message["value"])
                 self.logger.debug(f"  - {logicalId} : {value}")
                 self.jeedom_com.add_changes(
-                    "cmds" + "::" + self.getId() + "::" + logicalId,
+                    "cmds" + "::" + str(self.getId()) + "::" + logicalId,
                     json.dumps({ "object": "cmd", "charger": self.getId(), "logicalId": logicalId, "value": value })
                 )
 

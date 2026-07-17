@@ -31,15 +31,13 @@ class Account:
     # ======= Méthodes statiques =======
     # ==================================
 
-    @staticmethod
-    def all():
-        return __class__.accounts.values()
+    @classmethod
+    def all(cls):
+        return cls.accounts.values()
 
-    @staticmethod
-    def byId(id):
-        if id in __class__.accounts:
-            return __class__.accounts[id]
-        return None
+    @classmethod
+    def byId(cls,id):
+        return cls.accounts.get(id, None)
 
     # ====== Méthodes d'instance =======
     # ==================================
@@ -50,15 +48,15 @@ class Account:
         self.setAccessToken(accessToken)
         self.setExpiresAt(expiresAt)
         self.setLifetime(expiresIn)
-        self.accounts[id] = self
+        __class__.accounts[id] = self
         self.logger = logging.getLogger(f"[{name}]")
         self.logger.addFilter(logFilter())
         logFilter.add_sensible(accessToken)
 
     def __del__(self):
         self.logger.debug(f"del account {self.getId()}")
-        if self.getId() in self.accounts:
-            del self.accounts[self.getId()]
+        if self.getId() in __class__.accounts:
+            del __class__.accounts[self.getId()]
 
     def getTime2renew(self):
         return self.getExpiresAt() - self.getLifetime() / 2
