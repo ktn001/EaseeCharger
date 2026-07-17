@@ -201,7 +201,17 @@ def start_charger(id, name, serial, accountId):
         logger.debug(f"Charger {id} is already running")
         return
     logger.info(f"Starting charger {name} (id: {id}) ")
-    account = Account.byId(accountId)
+    try:
+        account = Account.byId(accountId)
+        i = 50
+        while (account == None) and (i > 0):
+            account = Account.byId(accountId)
+            i-=1
+            time.sleep(0.1)
+        if account == None:
+            raise Exception(f"Account {accountId} for charger {name} not registered by daemon")
+    except:
+        return None
     charger = Charger(id, name, serial, account)
     charger.run()
 
