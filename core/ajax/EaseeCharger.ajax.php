@@ -1,5 +1,4 @@
 <?php
-
 /* This file is part of Jeedom.
  *
  * Jeedom is free software: you can redistribute it and/or modify
@@ -17,86 +16,86 @@
  */
 
 try {
-	require_once __DIR__ . '/../../../../core/php/core.inc.php';
-	require_once __DIR__ . '/../php/EaseeCharger.inc.php';
-	require_once __DIR__ . '/../class/EaseeAccount.class.php';
+    require_once __DIR__ . '/../../../../core/php/core.inc.php';
+    require_once __DIR__ . '/../php/EaseeCharger.inc.php';
+    require_once __DIR__ . '/../class/EaseeAccount.class.php';
 
-	include_file('core', 'authentification', 'php');
+    include_file('core', 'authentification', 'php');
 
-	if (!isConnect('admin')) {
-		throw new Exception(__('401 - Accès non autorisé', __FILE__));
-	}
+    if (!isConnect('admin')) {
+        throw new Exception(__('401 - Accès non autorisé', __FILE__));
+    }
 
-	$action = init('action');
-	log::add("EaseeCharger","debug","  Ajax EaseeCharger: action: " . $action);
+    $action = init('action');
+    log::add("EaseeCharger","debug","  Ajax EaseeCharger: action: " . $action);
 
-	if ($action == 'getAccount') {
-		$id = init('id');
-		if ($id == '') {
-			throw new Exception(__("L'id de l'account n'est pas défini",__FILE__));
-		}
-		$account = EaseeAccount::byId($id);
-		if (!is_object($account)) {
-			throw new Exception(sprintf(__("Le compte %s est introuvable",__FILE__),$id));
-		}
-		ajax::success(json_encode(utils::o2a($account)));
-	}
+    if ($action == 'getAccount') {
+        $id = init('id');
+        if ($id == '') {
+            throw new Exception(__("L'id de l'account n'est pas défini",__FILE__));
+        }
+        $account = EaseeAccount::byId($id);
+        if (!is_object($account)) {
+            throw new Exception(sprintf(__("Le compte %s est introuvable",__FILE__),$id));
+        }
+        ajax::success(json_encode(utils::o2a($account)));
+    }
 
-	if ($action == 'saveAccount') {
-		$data = init('account');
-		if ($data == '') {
-			throw new Exception(__("Pas de données pour la sauvegarde du compte",__FILE__));
-		}
-		$data = json_decode($data,true);
-		if ($data['id'] == '') {
-			$account = "";
-		} else {
-			$account = EaseeAccount::byId($data['id']);
-		}
-		if (!is_object($account)) {
-			$account = new EaseeAccount();
-		}
-		utils::a2o($account,$data);
-		$account->save();
-		ajax::success();
-	}
+    if ($action == 'saveAccount') {
+        $data = init('account');
+        if ($data == '') {
+            throw new Exception(__("Pas de données pour la sauvegarde du compte",__FILE__));
+        }
+        $data = json_decode($data,true);
+        if ($data['id'] == '') {
+            $account = "";
+        } else {
+            $account = EaseeAccount::byId($data['id']);
+        }
+        if (!is_object($account)) {
+            $account = new EaseeAccount();
+        }
+        utils::a2o($account,$data);
+        $account->save();
+        ajax::success();
+    }
 
-	if ($action == 'removeAccount') {
-		$id = init('id');
-		if ($id == '') {
-			throw new Exception(__("L'id du compte à supprimer n'est pas défini",__FILE__));
-		}
-		$account = EaseeAccount::byId($id);
-		if (!is_object($account)){
-			throw new Exception(sprintf(__("Le compte à supprimer (%s) est intouvable",__FILE__),$name));
-		}
-		if ($account->remove()) {
-			ajax::success();
-		}
-		ajax::error(sprintf(__("La suppression du compte %s n'a pas fonctionné correctement",__FILE__),$name));
-	}
+    if ($action == 'removeAccount') {
+        $id = init('id');
+        if ($id == '') {
+            throw new Exception(__("L'id du compte à supprimer n'est pas défini",__FILE__));
+        }
+        $account = EaseeAccount::byId($id);
+        if (!is_object($account)){
+            throw new Exception(sprintf(__("Le compte à supprimer (%s) est intouvable",__FILE__),$name));
+        }
+        if ($account->remove()) {
+            ajax::success();
+        }
+        ajax::error(sprintf(__("La suppression du compte %s n'a pas fonctionné correctement",__FILE__),$name));
+    }
 
-	if ($action == 'createCmds' || init('action') == 'updateCmds')  {
-		$id = init('id');
-		if ($id == ''){
-			throw new Exception(__("L'Id du chargeur n'est pas indiqué",__FILE__));
-		}
-		$charger = EaseeCharger::byId($id);
-		if (!is_object($charger)){
-			throw new Exception(sprintf(__("Chargeur %s introuvable.",__FILE__),$id));
-		}
-		try {
-			$charger->createOrUpdateCmds();
-			ajax::success();
-		} catch (Exception $e){
-			ajax::error(displayException($e), $e->getCode());
-		}
-	}
-		
-	throw new Exception(__("Aucune méthode correspondante à : ", __FILE__) . init('action'));
+    if ($action == 'createCmds' || init('action') == 'updateCmds')  {
+        $id = init('id');
+        if ($id == ''){
+            throw new Exception(__("L'Id du chargeur n'est pas indiqué",__FILE__));
+        }
+        $charger = EaseeCharger::byId($id);
+        if (!is_object($charger)){
+            throw new Exception(sprintf(__("Chargeur %s introuvable.",__FILE__),$id));
+        }
+        try {
+            $charger->createOrUpdateCmds();
+            ajax::success();
+        } catch (Exception $e){
+            ajax::error(displayException($e), $e->getCode());
+        }
+    }
 
-	/*     * *********Catch exeption*************** */
+    throw new Exception(__("Aucune méthode correspondante à : ", __FILE__) . init('action'));
+
+    /*     * *********Catch exeption*************** */
 } catch (Exception $e) {
-	ajax::error(displayException($e), $e->getCode());
+    ajax::error(displayException($e), $e->getCode());
 }
 
