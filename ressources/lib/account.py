@@ -53,7 +53,7 @@ class Account:
         self.logger.addFilter(logFilter())
         logFilter.add_sensible(accessToken)
 
-    def __del__(self):
+    def remove(self):
         self.logger.debug(f"del account {self.getId()}")
         if self.getId() in __class__.accounts:
             del __class__.accounts[self.getId()]

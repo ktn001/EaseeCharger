@@ -29,8 +29,8 @@ if (!isConnect('admin')) {
                 <input type="text" class="accountAttr form-control col-sm-7" data-l1key="name"/>
             </div>
             <div class="form-group">
-                <label class="col-sm-3 control-label">{{Login}}:</label>
-                <input type="text" class="accountAttr form-control col-sm-7" data-l1key="login"/>
+                <label class="col-sm-3 control-label">{{Compte}}:</label>
+                <input type="text" class="accountAttr form-control col-sm-7" data-l1key="userName"/>
             </div>
             <div class="form-group">
                 <label class="col-sm-3 control-label">{{Password}}:</label>

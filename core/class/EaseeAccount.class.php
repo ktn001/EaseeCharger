@@ -22,7 +22,7 @@ class EaseeAccount {
 
     private $id = '';
     private $name = '';
-    private $login = '';
+    private $userName = '';
     private $password = '';
     private $_site = 'https://api.easee.com/api/';
     private $_modifiedChargers = [];
@@ -104,7 +104,7 @@ class EaseeAccount {
     /*
      * cron Hourly
      */
-    public static function cron30() {
+    public static function cron5() {
         $accounts = self::all(true);
         foreach ($accounts as $account) {
             log::add("EaseeCharger","debug",sprintf(__("Vérification du token pour l'account %s",__FILE__),$account->getName()));
@@ -178,22 +178,18 @@ class EaseeAccount {
                 throw new Exception (__("Ce nom est déjà utilisé pour un autre compte!",__FILE__));
             }
         }
-        $create = false;
         if ($this->getId() == '') {
-            $create = true;
             $this->setId(static::nextId());
         }
-        if (!$this->getLogin($create)) {
-            throw new Exception (__("Le login doit être défini!",__FILE__));
+        if (!$this->getUserName()) {
+            throw new Exception (__("Le nom du compte doit être défini!",__FILE__));
         }
         $value = utils::o2a($this);
         $value['password'] = utils::encrypt($value['password']);
         $value = json_encode($value);
         $key = 'account::' . $this->id;
         config::save($key, $value, 'EaseeCharger');
-        if ($create) {
-            $this->login();
-        }
+        $this->login();
 
         if (EaseeCharger::daemon_info()['state'] == 'ok') {
             $this->register_account_on_daemon();
@@ -209,7 +205,15 @@ class EaseeAccount {
         if (count($chargers) > 0) {
             throw new Exception (sprintf(__("Le compte %s est utilisé pour le chargeur %s",__FILE__), $this->name, $chargers[0]->getName()));
         }
-        $key = 'account::' . $this->getId();
+        $message = [
+            'cmd' => 'unregisterAccount',
+        ];
+        $this->send2daemon ($message);
+        $cache = cache::byKey('EaseeAccount:' . $this->getId());
+        if ($cache) {
+            $cache->remove();
+        }
+        $key = 'account::' . $this->id;
         return config::remove($key,'EaseeCharger');
     }
 
@@ -254,14 +258,13 @@ class EaseeAccount {
     }
 
     /*
-     * Test login et password
+     * login avec UserName et password pour obtention d'un token
      */
-    public function login($checkOnly = false) {
+    public function login() {
         $data = [
-            'userName' => $this->getLogin(),
+            'userName' => $this->getUserName(),
             'password' => $this->getPassword(),
         ];
-        try {
             $result = $this->sendRequest('accounts/login', $data);
             if (isset($result['accessToken'])) {
                 $token = [
@@ -269,20 +272,15 @@ class EaseeAccount {
                     'expiresIn' => $result['expiresIn'],
                     'refreshToken' => $result['refreshToken']
                 ];
-                if ($checkOnly === false) {
-                    $this->saveToken($token);
-                }
+                $this->saveToken($token);
             }
-        } catch (EaseeCloudException $e) {
-            return false;
-        }
-        return true;
+        return 'ok';
     }
 
     /*
      * Envoi d'une requête API au cloud Easee
      */
-    private function sendRequest($path, $data = '', $accessToken='' ) {
+    private function sendRequest($path, $data = '', $token = null) {
         log::add("EaseeCharger","info","┌─" .__("Easee: envoi d'une requête au cloud", __FILE__));
 
         $method = $data == '' ? 'GET' : 'POST';
@@ -310,30 +308,23 @@ class EaseeAccount {
                 }
             }
         }
-        log::add("EaseeCharger","debug", "│       data: " . print_r($data2log,true));
+        log::add("EaseeCharger","debug", "│       data: " . json_encode($data2log));
 
         $header = [
             "Accept: application/json",
-            "Content-Type: application/*+json"
+            "Content-Type: application/json"
         ];
 
-        if (!$accessToken) {
-            if (!isset($data['userName']) && !isset($data['password'])) {
-                $accessToken = $this->getAccessToken();
+        if ($path !== "accounts/login") {
+            $accessToken = $token ?? $this->getToken();
+            if ($accessToken) {
+                $header[] = 'Authorization: Bearer ' . $accessToken;
             }
-        }
-        if ($accessToken) {
-            $header[] = 'Authorization: Bearer ' . $accessToken;
-        } else {
-            /*
-             * TODO
-             * Traitement si pas de login et password dans data
-             */
         }
 
         log::add("EaseeCharger","debug","│        URL: " . $this->_site . $path);
         log::add("EaseeCharger","debug","│     Method: " . $method);
-        log::add("EaseeCharger","debug","│     Header: " . print_r($header,true));
+        log::add("EaseeCharger","debug","│     Header: " . json_encode($header));
 
         if (is_array($data)) {
             $data = json_encode($data);
@@ -344,12 +335,9 @@ class EaseeAccount {
             throw new Exception (__("└─Erreur lors l'initialisation de CURL",__FILE__));
         }
         curl_setopt_array($curl, [
-            CURLOPT_URL => $this->_site . $path,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_URL => $this->_site . $path,
             CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HTTPHEADER => $header,
             CURLOPT_POSTFIELDS => $data,
@@ -357,17 +345,14 @@ class EaseeAccount {
 
         $response = curl_exec($curl);
         if ($response === false) {
-            curl_close($curl);
-            throw new Exception (sprintf(__("└─Erreur lor de la requête CURL %d: %s",__FILE__),curl_errno($surl),curl_error($curl)));
+            log::add("EaseeCharger","error",sprintf(__("└─Erreur lor de la requête CURL %d: %s",__FILE__),curl_errno($surl),curl_error($curl)));
+            return false;
         }
-
         if (curl_errno($curl)) {
-            curl_close($curl);
-            throw new Exception (sprintf(__("└─Erreur CURL %d: %s",__FILE__),curl_errno($surl),curl_error($curl)));
+            log::add("EaseeCharger","error",sprintf(__("└─Erreur CURL %d: %s",__FILE__),curl_errno($surl),curl_error($curl)));
         }
 
         $httpCode = curl_getinfo($curl,CURLINFO_HTTP_CODE);
-        curl_close($curl);
         if (substr($httpCode,0,1) != '2') {
             $txt = $response;
             $msg = is_json($response,$response);
@@ -375,8 +360,8 @@ class EaseeAccount {
                 $txt = $msg['title'];
             }
             $txt= sprintf(__("Code retour http: %s - %s",__FILE__) , $httpCode, $txt);
-            log::add("EaseeCharger","warning", "└─" . $txt);
-            throw new EaseeCloudException ($txt);
+            log::add("EaseeCharger","error", "└─" . $txt);
+            throw new EaseeCloudException ($msg);
         }
         log::add("EaseeCharger","debug", "│ " .  __("Code retour http: ",__FILE__) . $httpCode);
         log::add("EaseeCharger","info", "└─Requête envoyée");
@@ -450,63 +435,48 @@ class EaseeAccount {
         if ($retrying) {
             log::add("EaseeCharger","debug","getToken (retrying) ....");
         } else {
-            log::add("EaseeCharger","debug","getToken....");
+            log::add("EaseeCharger","debug","getToken ....");
         }
         $token = $this->readToken();
         if ($token === false or !isset($token['accessToken']) or $token['accessToken'] == '') {
-            log::add("EaseeCharger","debug","   Pas de token en cache.");
-            if ($retrying) {
-                log::add("EaseeCharger","error",sprintf(__("Erreur lors de la récupération d'un token pour %s",__FILE__),$this->getName()));
-                return "";
+            if ($retry) {
+                return false;
             }
+            log::add("EaseeCharger","debug","   Pas de token en cache. Tentative de login...");
             if (!$this->login()) {
-                return "";
+                return False;
             }
             log::add("EaseeCharger","debug","   ok");
             return $this->getToken(true);
         }
         log::add("EaseeCharger","debug","   token trouvé en cache.");
         $time2renew = $token['expiresAt'] - $token['expiresIn']/2;
-        if ($time2renew <= time()) {
+        if (time() >= $time2renew) {
+            if ($retry) {
+                return false;
+            }
+            log::add("EaseeCharger","info","   Le token expire bientôt, tentative de renouvellement...");
             $data = [
-                'accessToken' => $token['accessToken'],
                 'refreshToken' => $token['refreshToken']
             ];
             try {
-                if (! $retrying) {
-                    $result = $this->sendRequest('accounts/refresh_token',$data,$token['accessToken']);
-                    if (isset($result['accessToken'])) {
-                        $token = [
-                            'accessToken' => $result['accessToken'],
-                            'expiresIn' => $result['expiresIn'],
-                            'refreshToken' => $result['refreshToken']
-                        ];
-                        $this->saveToken($token);
-                        $token = $this->getToken(true);
-                        if ($token != '') {
-                            log::add("EaseeCharger","info",sprintf(__("Token renouvelé. Valable jusqu'à %s",__FILE__),date('d/m/Y H:i:s', $token['expiresAt'])));
-                        } else {
-                            log::add("EaseeCharger","warning",__("Erreur lors du renouvellement du token"));
-                        }
-                        return $token;
-                    }
-                } else {
-                    return "";
-                }
+                $result = $this->sendRequest('accounts/refresh_token',$data,$token['accessToken']);
             } catch (EaseeCloudException $e) {
+                $result = $e->getResponse();
+                log::add("EaseeCharger","warning",sprintf("%s (%s) - %s", $result['errorCodeName'], $result['errorCode'], $result['title']));
                 $this->login();
                 return $this->getToken(true);
             }
+            if (isset($result['accessToken'])) {
+                $token = [
+                    'accessToken' => $result['accessToken'],
+                    'expiresIn' => $result['expiresIn'],
+                    'refreshToken' => $result['refreshToken']
+                ];
+                $this->saveToken($token);
+            }
         }
         return $token;
-    }
-
-    public function getAccessToken() {
-        $token = $this->getToken();
-        if (isset($token['accessToken'])) {
-            return $token['accessToken'];
-        }
-        return '';
     }
 
     /*     * ******************** Exécution des commandes ********************* */
@@ -591,13 +561,13 @@ class EaseeAccount {
     /*
      * login
      */
-    public function setLogin($_login) {
-        $this->login = $_login;
+    public function setUserName($_userName) {
+        $this->userName = $_userName;
         return $this;
     }
 
-    public function getLogin() {
-        return $this->login;
+    public function getUserName() {
+        return $this->userName;
     }
 
     /*
@@ -641,10 +611,10 @@ class EaseeCloudException extends Exception {
     private $response = "";
 
     public function __construct($response, $code = 0, Throwable $previous = null) {
+        $this->response = $response;
         if (!is_array($response)) {
             $message = $response;
         } else {
-            $this->response = $response;
             $message = $response['title'];
         }
         parent::__construct($message, $code, $previous);

@@ -56,7 +56,11 @@ try {
             $account = new EaseeAccount();
         }
         utils::a2o($account,$data);
-        $account->save();
+        try {
+            $account->save();
+        } catch(EaseeCloudException $e) {
+            ajax::error($e->getMessage());
+        }
         ajax::success();
     }
 

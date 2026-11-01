@@ -334,8 +334,8 @@ class EaseeCharger extends eqLogic {
 
     /*     * ************************ Les crons **************************** */
 
-    public static function cron30() {
-        EaseeAccount::cron30();
+    public static function cron5() {
+        EaseeAccount::cron5();
     }
 
     //========================================================================

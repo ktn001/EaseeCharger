@@ -59,7 +59,7 @@ sendVarToJS('eqType', $plugin->getId());
         echo '<span class="name">';
         echo $account->getName();
         echo '</span>';
-        echo '<span class="displayTableRight hiddenAsCard hidden">' . __('Login',__FILE__) . ': <strong class="accountLogin">' . $account->getLogin() . '</strong></span>';
+        echo '<span class="displayTableRight hiddenAsCard hidden">' . __('Login',__FILE__) . ': <strong class="accountLogin">' . $account->getUserName() . '</strong></span>';
         echo '</div>' . PHP_EOL;
         }
         ?>

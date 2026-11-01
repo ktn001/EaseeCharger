@@ -47,6 +47,9 @@ _commands = {
         "expiresIn",
         "expiresAt",
     ],
+    "unregisterAccount": [
+        "accountId",
+    ],
     "newToken": [
         "accountId",
         "accountName",
@@ -175,6 +178,18 @@ def register_account(id, name, accessToken, expiresAt, expiresIn):
 
 
 # ===============================================================================
+# unregister_account
+# ...............................................................................
+# Suppression d'un account
+# ===============================================================================
+def unregister_account(id):
+    account = Account.byId(id)
+    if account:
+        logger.info(f"Suppression de l'account < {id} >")
+        account.remove()
+
+
+# ===============================================================================
 # newToken
 # ...............................................................................
 # Enregistrement d'un nouveau token
@@ -300,7 +315,6 @@ def handler(signum=None, frame=None):
         return
     if signum == signal.SIGALRM:
         signal.alarm(3600)
-        logger.debug("ALARM")
         logStatus()
         return
     logger.debug("Signal %i caught, exiting..." % int(signum))
