@@ -183,7 +183,7 @@ class EaseeCharger extends eqLogic {
             $cmd2log = $cmd;
         }
         log::add(__CLASS__, "info", $cmd2log . ' >> ' . log::getPathToLog('EaseeCharger_daemon') . ' 2>&1 &');
-        $result = exec($cmd . ' >> ' . log::getPathToLog('EaseeCharger_daemon.out') . ' 2>&1 &');
+        $result = exec($cmd . ' >> ' . log::getPathToLog('EaseeCharger_daemon') . ' 2>&1 &');
         $i = 0;
         while ($i < 20) {
             $daemon_info = self::daemon_info();

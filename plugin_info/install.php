@@ -22,6 +22,13 @@ require_once dirname(__FILE__) . '/../core/php/EaseeCharger.inc.php';
 
 // update `config` set `value` = 3 WHERE `plugin` = 'EaseeCharger' and `key`= 'plugin::level'
 
+function EaseeCharger_goto_6() {
+    $filename = "/var/www/html/log/EaseeCharger_daemon.out";
+    if (file_exists($filename)) {
+        unlink ($filename);
+    }
+}
+
 function EaseeCharger_goto_5() {
 	$chargers = EaseeCharger::byType('EaseeCharger');
 	foreach ($chargers as $charger) {
@@ -89,7 +96,7 @@ function EaseeCharger_upgrade() {
 		system('rm -rf ' . __DIR__ . '/../resources', $retval);
 	}
 
-	$lastLevel = 5;
+	$lastLevel = 6;
 	$pluginLevel = config::byKey('plugin::level','EaseeCharger', 0);
 	for ($level = 1; $level <= $lastLevel; $level++) {
 		if ($pluginLevel  < $level) {
