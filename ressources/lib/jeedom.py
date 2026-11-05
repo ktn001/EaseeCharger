@@ -18,6 +18,7 @@
 import time
 import logging
 from threading import Thread
+import asyncio
 import requests
 from collections.abc import Mapping
 import os
@@ -25,7 +26,7 @@ from queue import Queue
 import socketserver
 from socketserver import TCPServer, StreamRequestHandler
 import unicodedata
-
+import traceback
 import datetime
 from os.path import join
 import socket
@@ -44,10 +45,10 @@ class jeedom_com:
         self._retry = retry
         self._changes = {}
         if self._cycle > 0:
-            Thread(target=self.__thread_changes_async, daemon=True).start()
+            Thread(target=self.__changes_async, daemon=True).start()
         logger.debug("Init request module v%s" % (str(requests.__version__),))
 
-    def __thread_changes_async(self):
+    def __changes_async(self):
         if self._cycle <= 0:
             return
         logger.info('Start changes async thread')
@@ -210,46 +211,63 @@ class jeedom_utils:
 
 # ------------------------------------------------------------------------------
 
-JEEDOM_SOCKET_MESSAGE = Queue()
-
-
-class jeedom_socket_handler(StreamRequestHandler):
-    def handle(self):
-        global JEEDOM_SOCKET_MESSAGE
-        logger.debug("Client connected from [%s:%d]" % self.client_address)
-        lg = self.rfile.readline()
-        JEEDOM_SOCKET_MESSAGE.put(lg)
-        logger.debug("Message read from socket")
-        self.netAdapterClientConnected = False
-        logger.debug("Client disconnected from [%s:%d]" % self.client_address)
-
+JEEDOM_SOCKET_MESSAGE = asyncio.Queue()
 
 class jeedom_socket:
 
     def __init__(self, address="localhost", port=-1):
         self.address = address
         self.port = port
-        socketserver.TCPServer.allow_reuse_address = True
+        self._server = None
 
-    def open(self):
-        self.netAdapter = TCPServer((self.address, self.port), jeedom_socket_handler)
-        if self.netAdapter:
-            logger.debug("Socket interface started")
-            Thread(target=self.loopNetServer, args=()).start()
-        else:
-            logger.debug("Cannot start socket interface")
+    async def open(self):
+        try:
+            self._server = await asyncio.start_server(self.handler, self.address, self.port)
+            logger.debug(f"Client listen [{self.address}:{self.port}]")
+        except OSError as e:
+            if e.errno == errno.EADDRINUSE:
+                logger.error(f"Le port {self.port} est déjà utilisé")
+            else:
+                logger.error(f"[jeedom_socket] Erreur system lors de l'ouverture: {e}")
+            raise e
 
-    def loopNetServer(self):
-        logger.debug("LoopNetServer Thread started")
-        logger.debug("Listening on: [%s:%d]" % (self.address, self.port))
-        self.netAdapter.serve_forever()
-        logger.debug("LoopNetServer Thread stopped")
+        try:
+            async with self._server:
+                await self._server.serve_forever()
+        except asyncio.CancelledError:
+            logger.error("[jeedom_socket] Boucle d'écoute interrompue.")
 
-    def close(self):
-        self.netAdapter.shutdown()
 
-    def getMessage(self):
-        return self.message
+    async def handler(self, reader, writer):
+        adresse_client = writer.get_extra_info("peername")
+        logger.debug(f"[jeedom_socket] Connexion établie depuis {adresse_client}")
+
+        try:
+            while True:
+                message = await reader.readline()
+                if not message:
+                    break
+                await JEEDOM_SOCKET_MESSAGE.put(message)
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            logger.warning(f"[jeedom_socket] Erreur avec le client {adresse_client} : {e}")
+        finally:
+            writer.close()
+            try:
+                await writer.wait_closed()
+            except Exception:
+                pass
+
+
+    async def close(self):
+        if self._server:
+            logger.debug("[jeedom_socket] Arrêt en cours...")
+            self._serveur.close()
+            await self._server.wait_closed()
+            logger.info("[jeedom_socket] Serveur éteint.")
+
+
 
 
 # ------------------------------------------------------------------------------

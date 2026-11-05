@@ -1,4 +1,3 @@
-# vim: tabstop=4 autoindent expandtab
 # This file is part of Jeedom.
 #
 # Jeedom is free software: you can redistribute it and/or modify
@@ -16,7 +15,6 @@
 #
 
 import logging
-import signalrcore.helpers
 import re
 import sys
 
@@ -75,6 +73,5 @@ class logFilter(logging.Filter):
         return True
 
 
-signalrcore.helpers.Helpers.get_logger().addFilter(logFilter())
 logging.getLogger("websocket").addFilter(logFilter())
 logging.getLogger("urllib3.connectionpool").addFilter(logFilter())

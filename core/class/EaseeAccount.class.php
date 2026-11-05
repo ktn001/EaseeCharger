@@ -253,7 +253,7 @@ class EaseeAccount {
 
     public function account_on_daemon_started() {
         foreach (EaseeCharger::byAccount($this->getId(),true) as $charger){
-            $charger->start_daemon_thread();
+            $charger->register_on_daemon();
         }
     }
 
@@ -397,6 +397,8 @@ class EaseeAccount {
         $payload = array (
             'cmd' => 'newToken',
             'expiresIn' => $_token['expiresIn'],
+            'expiresAt' => $token['expiresAt'],
+            'expiresIn' => $token['expiresIn']
         );
         if (array_key_exists('accessToken',$_token)) {
             $payload['accessToken'] = $_token['accessToken'];

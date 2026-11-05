@@ -213,11 +213,11 @@ class EaseeCharger extends eqLogic {
      */
     public static function daemon_stop() {
         if (self::daemon_info()['state'] == 'ok') {
-            log::add("EaseeCharger","debug",__("Envoi de la commande d'arrêt au daemon",__FILE__));
+            log::add(__CLASS__,"debug",__("Envoi de la commande d'arrêt au daemon",__FILE__));
             self::send2daemon(['cmd' => 'shutdown']);
             foreach (range(0,10) as $i) {
                 if (self::daemon_info()['state'] == 'nok'){
-                    log::add("EaseeCharger","debug",__("Le daemon s'est arrêté",__FILE__));
+                    log::add(__CLASS__,"debug",__("Le daemon s'est arrêté",__FILE__));
                     return;
                 }
                 sleep(1);
@@ -256,7 +256,7 @@ class EaseeCharger extends eqLogic {
                 $payload2log['apikey'] = "**********";
             }
         }
-        log::add("EaseeCharger","debug",__("Envoi d'un message au daemon: " . json_encode($payload2log),__FILE__));
+        log::add(__CLASS__,"debug",__("Envoi d'un message au daemon: " . json_encode($payload2log),__FILE__));
         $payload = json_encode($payload);
         $socket = socket_create(AF_INET, SOCK_STREAM, 0);
         socket_connect($socket,'127.0.0.1',(int)config::byKey('daemon::port','EaseeCharger'));
@@ -268,7 +268,7 @@ class EaseeCharger extends eqLogic {
      * Function appelée lorsque la daemon confirme sont démarrage
      */
     public static function daemon_started() {
-        log::add("EaseeCharger","info",__("Le daemon est démarré",__FILE__));
+        log::add(__CLASS__,"info",__("Le daemon est démarré",__FILE__));
         $accounts = EaseeAccount::all(true);
         foreach ($accounts as $account) {
             $account->register_account_on_daemon();
@@ -343,7 +343,7 @@ class EaseeCharger extends eqLogic {
     //========================================================================
 
     function toHtml($_version = 'dashboard') {
-        log::add("EaseeCharger","debug",$this->getName() . ":  widget_perso = " . $this->getConfiguration('widget_perso',1));
+        log::add(__CLASS__,"debug",$this->getName() . ":  widget_perso = " . $this->getConfiguration('widget_perso',1));
         if ($this->getConfiguration('widget_perso',1) == '0') {
            return parent::toHtml($_version);
         }
@@ -501,40 +501,38 @@ class EaseeCharger extends eqLogic {
     public function postSave() {
         if (self::daemon_info()['state'] == 'ok') {
             if ($this->getIsEnable() == 1){
-                $needDaemonRestart = false;
-                if ($this->_wasEnable !=1) {
-                    $needDaemonRestart = true;
-                }
-                if ($needDaemonRestart){
-                    log::add("EaseeCharger","debug",sprintf(__("Redémarrage du thread du daemon pour %s",__FILE__),$this->getHumanName()));
-                    $this->stop_daemon_thread();
-                    sleep (1);
-                    $this->start_daemon_thread();
-                }
-            }
-            if ($this->getIsEnable() != 1 && $this->_wasEnable ==1) {
-                $this->stop_daemon_thread();
+                $this->register_on_daemon();
+            } else {
+                $this->unregister_on_daemon();
             }
         }
     }
 
-    public function start_daemon_thread() {
-        log::add("EaseeCharger","debug",sprintf(__("Lancement du thread de daemon pour %s",__FILE__),$this->getHumanName()));
-        $this->send2daemon([
-            'cmd' => 'startCharger',
-            'id' => $this->getId(),
-            'serial' => $this->getLogicalId(),
-            'name' => $this->getHumanName(),
-            'accountId' => $this->getAccountId()
-        ]);
+    public function preRemove() {
+        $this->unregister_on_daemon();
     }
 
-    public function stop_daemon_thread() {
-        log::add("EaseeCharger","debug",sprintf(__("Arrêt du thread de daemon pour %s",__FILE__),$this->getHumanName()));
-        $this->send2daemon([
-            'cmd' => 'stopCharger',
-            'id' => $this->getId(),
-        ]);
+    public function register_on_daemon() {
+        if (self::daemon_info()['state'] == 'ok') {
+            log::add(__CLASS__,"debug",sprintf(__("Enregistrement du chargeur %s dans le daemon",__FILE__),$this->getHumanName()));
+            $this->send2daemon([
+                'cmd' => "registerCharger",
+                'chargerId' => (int)$this->getId(),
+                'chargerSerial' => $this->getLogicalId(),
+                'chargerName' => $this->getHumanName(),
+                'accountId' => $this->getAccountId()
+            ]);
+        }
+    }
+
+    public function unregister_on_daemon() {
+        if (self::daemon_info()['state'] == 'ok') {
+            log::add(__CLASS__,"debug",sprintf(__("Retrait du chargeur %s dans le daemon",__FILE__),$this->getHumanName()));
+            $this->send2daemon([
+                'cmd' => "unregisterCharger",
+                'chargerId' => (int)$this->getId(),
+            ]);
+        }
     }
 
     public function refresh() {
@@ -576,14 +574,14 @@ class EaseeCharger extends eqLogic {
             $purgedCmd = purgeDash($cmdConfig);
             $cmd = $this->getCmd(null,$purgedCmd['logicalId']);
             if (! is_object($cmd)) {
-                log::add("EaseeCharger","info",sprintf(__('Création de la commande %s',__FILE__),$purgedCmd['logicalId']));
+                log::add(__CLASS__,"info",sprintf(__('Création de la commande %s',__FILE__),$purgedCmd['logicalId']));
                 $cmd = new EaseeChargerCmd();
                 $cmd->setEqLogic_id($this->getId());
                 utils::a2o($cmd,$purgedCmd);
             } else {
                 utils::a2o($cmd,$purgedCmd);
                 if ($cmd->getChanged()) {
-                    log::add("EaseeCharger","info", sprintf(__('La commande %s a été modifiée',__FILE__),$purgedCmd['logicalId']));
+                    log::add(__CLASS__,"info", sprintf(__('La commande %s a été modifiée',__FILE__),$purgedCmd['logicalId']));
                     $cmd->save();
                 }
             }
@@ -609,7 +607,7 @@ class EaseeCharger extends eqLogic {
             }
             utils::a2o($cmd,$resolvedCmd);
             if ($cmd->getChanged()) {
-                log::add("EaseeCharger","info", sprintf(__('La commande %s a été modifiée',__FILE__),$purgedCmd['logicalId']));
+                log::add(__CLASS__,"info", sprintf(__('La commande %s a été modifiée',__FILE__),$purgedCmd['logicalId']));
                 $cmd->save();
             }
         }
