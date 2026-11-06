@@ -9,4 +9,4 @@ Sites Easse:
 - Belgique [https://easee.com/fr-be/]
 - Suisse [https://easee.com//world/?location=fr]
 
-Documentation: [https://ktn001.github.io/fr_FR/EaseeCharger/index.html]
+Documentation: [https://docsjeedom.ockolly.ch/fr_FR/EaseeCharger/index.html]

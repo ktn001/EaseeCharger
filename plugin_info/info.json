@@ -17,10 +17,8 @@
 	"hasDependency": true,
 	"hasOwnDeamon": true,
 	"maxDependancyInstallTime": 10,
-	"changelog": "https://ktn001.github.io/fr_FR/EaseeCharger/changelog.html",
-	"documentation": "https://ktn001.github.io/fr_FR/EaseeCharger/index.html",
-	"changelog_beta": "https://ktn001.github.io/fr_FR/EaseeCharger/changelog.html",
-	"documentation_beta": "https://ktn001.github.io/fr_FR/EaseeCharger/index.html",
+	"changelog": "https://docsjeedom.ockolly.ch/fr_FR/EaseeCharger/changelog.html",
+	"documentation": "https://docsjeedom.ockolly.ch/fr_FR/EaseeCharger/index.html",
 	"language": [
 		"de_DE",
 		"en_US",
