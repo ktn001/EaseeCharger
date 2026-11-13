@@ -22,6 +22,16 @@ require_once dirname(__FILE__) . '/../core/php/EaseeCharger.inc.php';
 
 // update `config` set `value` = 3 WHERE `plugin` = 'EaseeCharger' and `key`= 'plugin::level'
 
+function EaseeCharger_goto_7() {
+    $configs = config::searchKey('account::%', 'EaseeCharger');
+    foreach($configs as $config) {
+        log::add("EaseeCharger","warning",print_r($config,true));
+        $config['value']['UserName'] = $config['value']['login'];
+        unset($config['value']['login']);
+        config::save($config['key'], $config['value'], 'EaseeCharger');
+    }
+}
+
 function EaseeCharger_goto_6() {
     $filename = "/var/www/html/log/EaseeCharger_daemon.out";
     if (file_exists($filename)) {
@@ -122,7 +132,7 @@ function EaseeCharger_upgrade() {
 		system('rm -rf ' . __DIR__ . '/../resources', $retval);
 	}
 
-	$lastLevel = 6;
+	$lastLevel = 7;
 	$pluginLevel = config::byKey('plugin::level','EaseeCharger', 0);
 	for ($level = 1; $level <= $lastLevel; $level++) {
 		if ($pluginLevel  < $level) {
@@ -131,7 +141,7 @@ function EaseeCharger_upgrade() {
 				log::add('EaseeCharger','info','execution de ' . $function . '()');
 				$function();
 			}
-			config::save('plugin::level',$level,'EaseeCharger');
+			#config::save('plugin::level',$level,'EaseeCharger');
 			$pluginLevel = $level;
 			log::add('EaseeCharger','info','pluginlevel: ' . $pluginLevel);
 		}
