@@ -25,9 +25,10 @@ require_once dirname(__FILE__) . '/../core/php/EaseeCharger.inc.php';
 function EaseeCharger_goto_7() {
     $configs = config::searchKey('account::%', 'EaseeCharger');
     foreach($configs as $config) {
-        log::add("EaseeCharger","warning",print_r($config,true));
+        log::add("EaseeCharger","debug",print_r($config,true));
         $config['value']['UserName'] = $config['value']['login'];
         unset($config['value']['login']);
+        log::add("EaseeCharger","debug",print_r($config,true));
         config::save($config['key'], $config['value'], 'EaseeCharger');
     }
 }
@@ -83,15 +84,15 @@ function EaseeCharger_goto_4() {
 	foreach ($accounts as $account) {
 		if ($account->getId() == '') {
 			$account->save();
-		}
-		config::remove('account::' . $account->getName(), 'EaseeCharger');
-		$mapNames[$account->getName()] = $account->getId();
-		$cache=cache::byKey('EaseeAccount:' . $this->getName());
-		if (is_object($cache)) {
-			$token = $cache->getValue();
-			cache::set("EaseeAccount:" . $this->getId(), $token, 192800);
-			$cache->remove();
-		}
+		    config::remove('account::' . $account->getName(), 'EaseeCharger');
+		    $mapNames[$account->getName()] = $account->getId();
+		    $cache=cache::byKey('EaseeAccount:' . $this->getName());
+		    if (is_object($cache)) {
+			    $token = $cache->getValue();
+			    cache::set("EaseeAccount:" . $this->getId(), $token, 192800);
+			    $cache->remove();
+		    }
+        }
 	}
 	$chargers = EaseeCharger::byType('EaseeCharger');
 	foreach ($chargers as $charger) {
