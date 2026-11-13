@@ -1,0 +1,30 @@
+{
+  "1": {
+    "signalr": "Binary",
+    "jeedom": "binary"
+  },
+  "2": {
+    "signalr": "Boolean",
+    "jeedom": "binary"
+  },
+  "3": {
+    "signalr": "Double",
+    "jeedom": "numeric"
+  },
+  "4": {
+    "signalr": "Integer",
+    "jeedom": "numeric"
+  },
+  "5": {
+    "signalr": "Position",
+    "jeedom": "string"
+  },
+  "6": {
+    "signalr": "String",
+    "jeedom": "string"
+  },
+  "7": {
+    "signalr": "Statistics",
+    "jeedom": "string"
+  }
+}

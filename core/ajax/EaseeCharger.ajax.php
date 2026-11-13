@@ -89,7 +89,7 @@ try {
             throw new Exception(sprintf(__("Chargeur %s introuvable.",__FILE__),$id));
         }
         try {
-            $charger->createOrUpdateCmds();
+            $charger->createCmds();
             ajax::success();
         } catch (Exception $e){
             ajax::error(displayException($e), $e->getCode());

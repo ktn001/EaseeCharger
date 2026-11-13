@@ -84,6 +84,7 @@ class jeedom_com:
                 self._changes[key] = value
 
     def send_change_immediate(self, change):
+        logger.warning(change)
         Thread(target=self.__post_change, args=(change,)).start()
 
     def __post_change(self, change):

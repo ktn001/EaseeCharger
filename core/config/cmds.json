@@ -7,19 +7,6 @@
     "order": "0"
   },
   {
-    "logicalId": "status",
-    "name": "{{Etat}}",
-    "type": "info",
-    "subType": "numeric",
-    "template": {
-      "dashboard": "EaseeCharger::etat"
-    },
-    "display": {
-      "showNameOndashboard": "0"
-    },
-    "order": "1"
-  },
-  {
     "logicalId": "pause_ON",
     "name": "{{Pause ON}}",
     "type": "action",
@@ -30,8 +17,8 @@
     "display": {
       "showNameOndashboard": "0"
     },
-    "value": "#paused#",
-    "order": "2"
+    "_value": ["paused"],
+    "order": "1"
   },
   {
     "logicalId": "pause_OFF",
@@ -45,8 +32,8 @@
       "showNameOndashboard": "0",
       "forceReturnLineAfter": "1"
     },
-    "value": "#paused#",
-    "order": "3"
+    "_value": ["paused"],
+    "order": "2"
   },
   {
     "logicalId": "paused",
@@ -54,23 +41,7 @@
     "type": "info",
     "subType": "binary",
     "isVisible": "0",
-    "order": "4"
-  },
-  {
-    "logicalId": "cable_locked_permanently",
-    "name": "{{Câble verrouillé en permanence}}",
-    "type": "info",
-    "subType": "binary",
-    "isVisible": "0",
-    "order": "5"
-  },
-  {
-    "logicalId": "cable_locked",
-    "name": "{{Câble verrouillé}}",
-    "type": "info",
-    "subType": "binary",
-    "isVisible": "0",
-    "order": "6"
+    "order": "3"
   },
   {
     "logicalId": "cable_state",
@@ -78,36 +49,32 @@
     "type": "info",
     "subType": "numeric",
     "isVisible": "0",
-    "configuration": {
-      "calcul": "#cable_locked# + 2 * #cable_locked_permanently#"
-    },
-    "order": "7"
+    "_value": ["#30#", "#103#"],
+    "order": "4"
   },
   {
     "logicalId": "cable_lock",
     "name": "{{Verrouillage permanent ON}}",
     "type": "action",
     "subType": "other",
-    "value": "#cable_state#",
     "isVisible": "1",
     "template": {
       "dashboard": "EaseeCharger::cable_lock"
     },
-    "value": "#cable_state#",
-    "order": "8"
+    "_value": ["cable_state"],
+    "order": "5"
   },
   {
     "logicalId": "cable_unlock",
     "name": "{{Verrouillage permanent OFF}}",
     "type": "action",
     "subType": "other",
-    "value": "#cable_state#",
     "isVisible": "1",
     "template": {
       "dashboard": "EaseeCharger::cable_lock"
     },
-    "value": "#cable_state#",
-    "order": "9"
+    "_value": ["cable_state"],
+    "order": "6"
   },
   {
     "logicalId": "plugged",
@@ -117,175 +84,6 @@
     "template": {
       "dashboard": "core::prise"
     },
-    "order": "10"
-  },
-  {
-    "logicalId": "power",
-    "name": "{{Puissance}}",
-    "type": "info",
-    "subType": "numeric",
-    "display::graphStep": "1",
-    "unite": "kW",
-    "configuration": {
-      "historizeRound": "2",
-      "minValue": "0",
-      "maxValue": "25"
-    },
-    "template": {
-      "dashboard":"core::gauge",
-      "mobile":"core::gauge"
-    },
-    "order": "11"
-  },
-  {
-    "logicalId": "current_1",
-    "name": "{{Courant phase 1}}",
-    "type": "info",
-    "subType": "numeric",
-    "generic_type": "CURRENT",
-    "display::graphStep": "1",
-    "template": {
-      "dashboard": "EaseeCharger::phase"
-    },
-    "unite": "A",
-    "configuration": {
-      "historizeRound": "1",
-      "minValue": "0",
-      "maxValue": "35",
-      "phaseId": "in1",
-      "widgetTitle": "Phase 1"
-    },
-    "order": "12"
-  },
-  {
-    "logicalId": "current_2",
-    "name": "{{Courant phase 2}}",
-    "type": "info",
-    "subType": "numeric",
-    "generic_type": "CURRENT",
-    "display::graphStep": "1",
-    "template": {
-      "dashboard": "EaseeCharger::phase"
-    },
-    "unite": "A",
-    "configuration": {
-      "historizeRound": "1",
-      "minValue": "0",
-      "maxValue": "35",
-      "phaseId": "in2",
-      "widgetTitle": "Phase 2"
-    },
-    "order": "13"
-  },
-  {
-    "logicalId": "current_3",
-    "name": "{{Courant phase 3}}",
-    "type": "info",
-    "subType": "numeric",
-    "generic_type": "CURRENT",
-    "display::graphStep": "1",
-    "template": {
-      "dashboard": "EaseeCharger::phase"
-    },
-    "unite": "A",
-    "configuration": {
-      "historizeRound": "1",
-      "minValue": "0",
-      "maxValue": "35",
-      "phaseId": "in3",
-      "widgetTitle": "Phase 3"
-    },
-    "order": "14"
-  },
-  {
-    "logicalId": "voltage_1",
-    "name": "{{tension phase 1}}",
-    "type": "info",
-    "subType": "numeric",
-    "generic_type": "VOLTAGE",
-    "template": {
-      "dashboard": "EaseeCharger::phase"
-    },
-    "unite": "V",
-    "configuration": {
-      "historizeRound": "0",
-      "minValue": "0",
-      "maxValue": "250",
-      "phaseId": "in1"
-    },
-    "order": "15"
-  },
-  {
-    "logicalId": "voltage_2",
-    "name": "{{Tension phase 2}}",
-    "type": "info",
-    "subType": "numeric",
-    "generic_type": "VOLTAGE",
-    "template": {
-      "dashboard": "EaseeCharger::phase"
-    },
-    "unite": "V",
-    "configuration": {
-      "historizeRound": "0",
-      "minValue": "0",
-      "maxValue": "250",
-      "phaseId": "in2"
-    },
-    "order": "16"
-  },
-  {
-    "logicalId": "voltage_3",
-    "name": "{{Tension phase 3}}",
-    "type": "info",
-    "subType": "numeric",
-    "generic_type": "VOLTAGE",
-    "template": {
-      "dashboard": "EaseeCharger::phase"
-    },
-    "unite": "V",
-    "configuration": {
-      "historizeRound": "0",
-      "minValue": "0",
-      "maxValue": "250",
-      "phaseId": "in3"
-    },
-    "order": "17"
-  },
-  {
-    "logicalId": "wifiRSSI",
-    "name": "{{signal wifi}}",
-    "type": "info",
-    "subType": "numeric",
-    "unite": "db",
-    "configuration": {
-      "minValue": "-100",
-      "maxValue": "-0"
-    },
-    "template": {
-      "dashboard": "core::badge"
-    },
-    "order": "18"
-  },
-  {
-    "logicalId": "cellRSSI",
-    "name": "{{signal cellulaire}}",
-    "type": "info",
-    "subType": "numeric",
-    "unite": "db",
-    "configuration": {
-      "minValue": "-100",
-      "maxValue": "-0"
-    },
-    "template": {
-      "dashboard": "core::badge"
-    },
-    "order": "19"
-  },
-  {
-    "logicalId": "WIFI",
-    "name": "{{communication wifi}}",
-    "type": "info",
-    "subType": "binary",
-    "order": "20"
+    "order": "7"
   }
 ]

@@ -18,6 +18,15 @@
 /* * *************************** Includes ********************************* */
 require_once __DIR__  . '/../../../../core/php/core.inc.php';
 
+/*
+ * pour PHP 7.x
+ */
+if (!function_exists('str_ends_with')) {
+  function str_ends_with($str, $end) {
+    return (@substr_compare($str, $end, -strlen($end))==0);
+  }
+}
+
 class EaseeCharger extends eqLogic {
 
     //========================================================================
@@ -54,6 +63,9 @@ class EaseeCharger extends eqLogic {
             ),
         ),
     );
+    private static $_observations = null;
+    private static $_dataTypes = null;
+    private static $_enumerations = null;
 
     //========================================================================
     //========================== METHODES STATIQUES ==========================
@@ -338,12 +350,74 @@ class EaseeCharger extends eqLogic {
         EaseeAccount::cron5();
     }
 
+    /*     * ***************** infos pour création cmds ******************** */
+
+    /*
+     * Les observations
+     */
+    public static function getObservation($id = null) {
+        if (self::$_observations == null) {
+            $observationsFileName = __DIR__ . "/../config/observations.json";
+            $observations = translate::exec(file_get_contents($observationsFileName),$observationsFileName);
+            $observations = json_decode($observations, true);
+            self::$_observations = [];
+            foreach ($observations as $observation) {
+                self::$_observations[$observation['id']] = $observation;
+            }
+        }
+        if (!is_array(self::$_observations)) {
+            log::add(__CLASS__,"error", "Observations " . __("introuvables",__FILE__));
+            return null;
+        }
+        if ($id) {
+            return self::$_observations[$id] ?? null;
+        }
+        return self::$_observations;
+    }
+
+    /*
+     * Les types de données
+     */
+    public static function getDataType($id = null) {
+        if (self::$_dataTypes == null) {
+            $dataTypesFileName = __DIR__ . "/../config/datatype.json";
+            $dataTypes = file_get_contents($dataTypesFileName);
+            self::$_dataTypes = json_decode($dataTypes,true);
+        }
+        if (!is_array(self::$_dataTypes)) {
+            log::add(__CLASS__,"error", "dataTypes " . __("introuvables",__FILE__));
+            return null;
+        }
+        if ($id) {
+            return self::$_dataTypes[$id] ?? null;
+        }
+        return self::$_dataTypes;
+    }
+
+    /*
+     * Les énumerations
+     */
+    public static function getEnumeration($id = null) {
+        if (self::$_enumerations == null) {
+            $enumerationsFileName = __DIR__ . "/../config/enums.json";
+            $enumerations = translate::exec(file_get_contents($enumerationsFileName),$enumerationsFileName);
+            self::$_enumerations = json_decode($enumerations,true);
+        }
+        if (!is_array(self::$_enumerations)) {
+            log::add(__CLASS__,"error", "enumerations " . __("introuvables",__FILE__));
+            return null;
+        }
+        if ($id) {
+            return self::$_enumerations[$id] ?? null;
+        }
+        return self::$_enumerations;
+    }
+
     //========================================================================
     //========================= METHODES D'INSTANCE ==========================
     //========================================================================
 
     function toHtml($_version = 'dashboard') {
-        log::add(__CLASS__,"debug",$this->getName() . ":  widget_perso = " . $this->getConfiguration('widget_perso',1));
         if ($this->getConfiguration('widget_perso',1) == '0') {
            return parent::toHtml($_version);
         }
@@ -492,7 +566,7 @@ class EaseeCharger extends eqLogic {
      * Ajout des cmds après création du chargeur
      */
     public function postInsert() {
-        $this->createOrUpdateCmds();
+        $this->createCmds();
     }
 
     /*
@@ -553,61 +627,71 @@ class EaseeCharger extends eqLogic {
         return $image;
     }
 
-    public function createOrUpdateCmds() {
-        function purgeDash ($array) {
-            $return = array();
-            foreach($array as $key => $value) {
-                if (is_array($value)) {
-                    $return[$key] = purgeDash($value);
-                    continue;
-                }
-                if (strpos($value,'#') === false) {
-                    $return[$key] = $value;
-                }
-            }
-            return $return;
+    /*
+     * Création d'une commande sur la base d'infos reçue du deamon
+     */
+    public function createAndUpdateCmd($message) {
+        log::add(__CLASS__,"debug",__("Création d'une commande sur la base de ",__FILE__) . print_r($message,true));
+        $observation = self::getObservation($message['id']);
+        if (!$observation) {
+            log::add(__CLASS__,"debug","Observation " . $message['id'] . " " . __("introuvable",__FILE__));
+            return;
+        }
+        $dataType = self::getdataType($message['dataType']);
+        if (!$observation) {
+            log::add(__CLASS__,"debug","dataType " . $message['dataType'] . " " . __("introuvable",__FILE__));
+            return;
         }
 
+        $cmd = new EaseeChargerCmd();
+        $cmd->setEqLogic_id($this->getId());
+        $cmd->setLogicalId($observation['id']);
+        $cmd->setName($observation['code']);
+        $cmd->setType('info');
+        $cmd->setSubType($dataType['jeedom']);
+        $cmd->setConfiguration("description",$observation['txt']);
+        if (isset($observation['cmd_configs'])) {
+            utils::a2o($cmd,$observation['cmd_configs']);
+        }
+        $cmd->save();
+        $enumeration = self::getEnumeration($cmd->getLogicalId());
+        if ($enumeration) {
+            $enumCmd = new EaseeChargerCmd();
+            $enumCmd->setEqLogic_id($this->getId());
+            $enumCmd->setLogicalId($cmd->getLogicalId() . "::txt");
+            $enumCmd->setName($cmd->getName() . "::txt");
+            $enumCmd->setType('info');
+            $enumCmd->setSubType('string');
+            $enumCmd->setConfiguration("description",$observation['txt']);
+            $enumCmd->setValue("#" . $cmd->getId() . "#");
+            $enumCmd->save();
+        }
+        $this->checkAndUpdateCmd($cmd, $message['value'], $message['timestamp']);
+    }
+
+    public function createCmds() {
         $cmdsFile = realpath(__DIR__ . '/../config/cmds.json');
         $cmds = json_decode(translate::exec(file_get_contents($cmdsFile),$cmdsFile),true);
         foreach($cmds as $cmdConfig) {
-            $purgedCmd = purgeDash($cmdConfig);
-            $cmd = $this->getCmd(null,$purgedCmd['logicalId']);
+            $cmd = $this->getCmd(null,$cmdConfig['logicalId']);
             if (! is_object($cmd)) {
-                log::add(__CLASS__,"info",sprintf(__('Création de la commande %s',__FILE__),$purgedCmd['logicalId']));
+                log::add(__CLASS__,"info",sprintf(__('Création de la commande %s',__FILE__),$cmdConfig['logicalId']));
                 $cmd = new EaseeChargerCmd();
                 $cmd->setEqLogic_id($this->getId());
-                utils::a2o($cmd,$purgedCmd);
-            } else {
-                utils::a2o($cmd,$purgedCmd);
-                if ($cmd->getChanged()) {
-                    log::add(__CLASS__,"info", sprintf(__('La commande %s a été modifiée',__FILE__),$purgedCmd['logicalId']));
-                    $cmd->save();
+                utils::a2o($cmd,$cmdConfig);
+                if (isset($cmdConfig['_value'])) {
+                    $value = "";
+                    foreach ($cmdConfig['_value'] as $_value) {
+                        $_value_logicalId = str_replace("#", "", $_value);
+                        $valueCmd = $this->getCmd(null, $_value_logicalId);
+                        if (is_object($valueCmd)) {
+                            $value .= str_replace($_value_logicalId, $valueCmd->getId(), $_value);
+                        } else {
+                            $value .= str_replace($_value_logicalId, "logicalid::" . $this->getId() . "::" . $_value_logicalId, $_value);
+                        }
+                    }
+                    $cmd->setValue($value);
                 }
-            }
-        }
-        foreach($cmds as $cmdConfig) {
-            $json = json_encode($cmdConfig);
-            preg_match_all("/#(\S*?)#/", $json, $matches);
-            $replace = array();
-            foreach ($matches[1] as $match) {
-                if (isset($replace[$match])) {
-                    continue;
-                }
-                $cmd = $this->getCmd(null,$match);
-                if (is_object($cmd)) {
-                    $replace['#' . $match . '#'] = '#' . $cmd->getId() . '#';
-                }
-            }
-            $resolvedCmd = json_decode(str_replace(array_keys($replace), $replace, $json),true);
-            $cmd = $this->getCmd(null,$resolvedCmd['logicalId']);
-            if (! is_object($cmd)) {
-                $cmd = new EaseeChargerCmd();
-                $cmd->setEqLogic_id($this->getId());
-            }
-            utils::a2o($cmd,$resolvedCmd);
-            if ($cmd->getChanged()) {
-                log::add(__CLASS__,"info", sprintf(__('La commande %s a été modifiée',__FILE__),$purgedCmd['logicalId']));
                 $cmd->save();
             }
         }
@@ -665,42 +749,61 @@ class EaseeChargerCmd extends cmd {
         return parent::toHtml($_version, $options);
     }
 
-    public function preUpdate() {
-        if ($this->getType() == 'info') {
-            $calcul = $this->getConfiguration('calcul');
-            if ($calcul) {
-                if (strpos($calcul, '#' . $this->getId() . '#') !== false) {
-                    throw new Exception(__('Vous ne pouvez appeler la commande elle-même (boucle infinie) sur',__FILE__) . ' : ' . $this->getName());
-                }
-                $added_value = [];
-                preg_match_all('/#(\d+)#/', $calcul, $matches);
-                $value = '';
-                foreach ($matches[1] as $cmd_id) {
-                    $cmd = cmd::byId($cmd_id);
-                    if (is_object($cmd) && $cmd->getType() == 'info') {
-                        if (isset($added_value[$cmd_id])) {
-                            continue;
-                        }
-                        $value .= '#' . $cmd_id . '#';
-                        $added_value[$cmd_id] = $cmd_id;
-                    }
-                }
-                $this->setValue($value);
-            }
+    public function postSave() {
+        $searchValue = "logicalid::" . $this->getEqLogic_id() . "::" . $this->getLogicalId();
+        $valueCmds = self::byValue($searchValue);
+        foreach ($valueCmds as $valueCmd) {
+            $newValue = str_replace($searchValue, $this->getId(), $valueCmd->getValue());
+            $valueCmd->setValue($newValue);
+            $valueCmd->save();
         }
     }
 
     public function execute($_options = []) {
         switch ($this->getType()) {
         case 'info':
-            $calcul = $this->getConfiguration('calcul');
-            if ($calcul != '') {
-                return jeedom::evaluateExpression($calcul);
+            if (str_ends_with($this->getLogicalId(), "::txt")) {
+                $sourceCmdId = str_replace("#", "", $this->getValue());
+                $sourceCmd = self::byId($sourceCmdId);
+                if (!is_object($sourceCmd)) {
+                    return "??";
+                }
+                $enumeration = $this->getEqlogic()->getEnumeration($sourceCmd->getLogicalId());
+                $sourceValue = $sourceCmd->execCmd();
+                return $enumeration[$sourceValue] ?? "?";
             }
-            return $this->execCmd();
+            if ($this->getLogicalId() == 'cable_state') {
+                $cmdCableLock = $this->getEqLogic()->getCmd('info','103');
+                if (!is_object($cmdCableLock)) {
+                    return 0;
+                }
+                $cmdCablePermanentlyLocked = $this->getEqLogic()->getCmd('info','30');
+                if (!is_object($cmdCablePermanentlyLocked)) {
+                    return 0;
+                }
+                $locked = $cmdCableLock->execCmd();
+                $permanentlyLocked = $cmdCablePermanentlyLocked->execCmd();
+                return intval($locked) + 2 * intval($permanentlyLocked);
+            }
+            break;
 
         case 'action':
-            $this->getEqLogic()->getAccount()->execute($this);
+            try {
+               $this->getEqLogic()->getAccount()->execute($this);
+            } catch (EaseeCloudException $e) {
+                $response = $e->getResponse();
+                event::add('notify',[
+                    'type'    => 'error',
+                    'title'   => 'EaseeCharger - ' . $response['title'],
+                    'message' => $response['title'],
+                ]);
+            } catch (Exception $e) {
+                event::add('notify',[
+                    'type'    =>'error',
+                    'title'   => "EaseeCharger",
+                    'message' => $e->getMessage(),
+                ]);
+            }
         }
     }
 

@@ -22,6 +22,7 @@ import argparse
 import datetime
 import asyncio
 import time
+import signal
 
 libDir = os.path.realpath(os.path.dirname(os.path.abspath(__file__)) + "/../lib")
 sys.path.append(libDir)
@@ -136,39 +137,44 @@ def options():
 
 
 # ===============================================================================
-# logStatus
+# log_status
 # ...............................................................................
 # Log l'état interne du daemon
 # ===============================================================================
-async def log_status():
+def log_status():
+    try:
+        logger.info("┌── Daemon state: ──────────────────────────────────────────")
+        logger.info("│ Daemon:")
+        logger.info(f"│   - Started at : {startTime}")
+        logger.info("│ Accounts:")
+        for account in Account.all():
+            if account.expire_at:
+                expiresAt = datetime.datetime.fromtimestamp(account.expire_at)
+            else:
+                expiresAt = '??'
+            lifetime = account.lifetime
+            time2renew = datetime.datetime.fromtimestamp(account.time_to_renew)
+            logger.info(f"│ - {account.name} ({account.id})")
+            logger.info(f"│   - State: {account.state}")
+            logger.info(f"│   - Token expires at {expiresAt}")
+            logger.info(f"│   - Lifetime: {lifetime}")
+            logger.info(f"│   - Time to renew: {time2renew}")
+            logger.info(f"│   - Chargers:")
+            for charger in account.chargers.values():
+                logger.info(f"│     - {charger}")
+        logger.info("└──────────────────────────────────────────────────────────")
+    except Exception as e:
+        logger.warning(e)
+
+# ===============================================================================
+# log_status_loop
+# ...............................................................................
+# logging régulier de status
+# ===============================================================================
+async def log_status_loop():
     while True:
-        try:
-            logger.info("┌── Daemon state: ──────────────────────────────────────────")
-            logger.info("│ Daemon:")
-            logger.info(f"│   - Started at : {startTime}")
-            logger.info("│ Accounts:")
-            for account in Account.all():
-                if account.expire_at:
-                    expiresAt = datetime.datetime.fromtimestamp(account.expire_at)
-                else:
-                    expiresAt = '??'
-                lifetime = account.lifetime
-                time2renew = datetime.datetime.fromtimestamp(account.time_to_renew)
-                logger.info(f"│ - {account.name} ({account.id})")
-                logger.info(f"│   - State: {account.state}")
-                logger.info(f"│   - Token expires at {expiresAt}")
-                logger.info(f"│   - Lifetime: {lifetime}")
-                logger.info(f"│   - Time to renew: {time2renew}")
-                logger.info(f"│   - Chargers:")
-                for charger in account.chargers.values():
-                    logger.info(f"│     - {charger}")
-            logger.info("└──────────────────────────────────────────────────────────")
-        except:
-            pass
-        #await asyncio.sleep(600)
-        await asyncio.sleep(10)
-
-
+        log_status()
+        await asyncio.sleep(600)
 # ===============================================================================
 # register_account
 # ...............................................................................
@@ -303,24 +309,38 @@ async def read_socket():
                 #accountManager->stop_all();
                 shutdown()
         except Exception as e:
-            logger.error("Fatal error: " + str(e))
+            logger.error("Error: " + str(e))
             logger.error(traceback.format_exc())
     return
 
+# ===============================================================================
+# transmite_sr_messages_to_jeedom
+# ...............................................................................
+# ===============================================================================
+async def transmite_sr_messages_to_jeedom():
+    queue = Account.get_messages_queue()
+    while True:
+        try:
+            messages = await queue.get()
+            for message in messages:
+                message['object'] = "cmd"
+                key = "cmds" + "::" + message['mid'] + "::" + str(message['id'])
+                jeedom_com.add_changes(key, json.dumps(message))
+
+
+        except Exception as e:
+            logger.error("Error: " + str(e))
+            logger.error(traceback.format_exc())
 
 # ===============================================================================
-# handler
+# signal_handler
 # ...............................................................................
 # Procédure appelée pour trapper divers signaux
 # ===============================================================================
-def handler(signum=None, frame=None):
+def signal_handler(signum=None):
 
     if signum == signal.SIGUSR1:
-        logStatus()
-        return
-    if signum == signal.SIGALRM:
-        signal.alarm(3600)
-        logStatus()
+        log_status()
         return
     logger.debug("Signal %i caught, exiting..." % int(signum))
     shutdown()
@@ -337,8 +357,6 @@ def shutdown():
         jeedom_socket.close()
     except:
         pass
-    #for charger in list(Charger.all()):
-    #    charger.stop()
     logger.debug("Removing PID file " + pidFile)
     try:
         os.remove(pidFile)
@@ -357,12 +375,18 @@ def shutdown():
 async def run():
     global jeedom_com
 
+    loop = asyncio.get_running_loop()
     jeedom_com = jeedom.jeedom_com(apikey=apiKey, url=callback)
 
     jeedom_socket = jeedom.jeedom_socket(port=socketPort)
     asyncio.create_task(jeedom_socket.open())
 
-    asyncio.create_task(log_status())
+    asyncio.create_task(log_status_loop())
+    asyncio.create_task(transmite_sr_messages_to_jeedom())
+
+    for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGUSR1):
+        loop.add_signal_handler(sig, lambda s=sig: signal_handler(s))
+
     # Annonce à jeedom que le daemon est démarré
     jeedom_com.send_change_immediate(json.dumps({"object": "daemon", "message": "started"}))
 
@@ -390,39 +414,3 @@ except Exception as e:
     logger.error("Fatal error: " + str(e))
     logger.info(traceback.format_exc())
     shutdown()
-
-#signal.signal(signal.SIGINT, handler)
-#signal.signal(signal.SIGUSR1, handler)
-#signal.signal(signal.SIGALRM, handler)
-#
-#try:
-#    jeedom_utils.write_pid(pidFile)
-#
-#    # Configuration du canal pour l'envoi de messages a Jeedom
-#    jeedom_com = jeedom_com(apikey=apiKey, url=callback)
-#    if not jeedom_com.test():
-#        logger.error("Network communication issue. Unable to send messages to Jeedom")
-#        shutdown()
-#    Charger.set_jeedom_com(jeedom_com)
-#
-#    # Réception des message de jeedom qui seont mis en queue dans JEEDOM_SOCKET_MESSAGE
-#    jeedom_socket = jeedom_socket(port=socketPort, address=socketHost)
-#    jeedom_socket.open()
-#
-#    signal.alarm(10)
-#
-#    # Annonce à jeedom que le daemon est démarré
-#    jeedom_com.send_change_immediate(json.dumps({"object": "daemon", "message": "started"}))
-#
-#    # Boucle de traitement des messages mis en queue par jeedom_socket
-#    try:
-#        while 1:
-#            time.sleep(0.5)
-#            read_socket()
-#    except KeyboardInterrupt:
-#        shutdown()
-#
-#except Exception as e:
-#    logger.error("Fatal error: " + str(e))
-#    logger.info(traceback.format_exc())
-#    shutdown()

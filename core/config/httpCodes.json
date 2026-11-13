@@ -1,0 +1,127 @@
+{
+  "100": {
+    "intitule": "Continue",
+    "categorie": "Information",
+    "signification": "{{Le serveur a reçu les en-têtes et le client peut envoyer le corps de la requête.}}"
+  },
+  "101": {
+    "intitule": "Switching Protocols",
+    "categorie": "Information",
+    "signification": "{{Le serveur accepte de changer de protocole (par exemple vers WebSocket).}}"
+  },
+  "200": {
+    "intitule": "OK",
+    "categorie": "Succès",
+    "signification": "{{La requête a réussi et la réponse contient les données demandées.}}"
+  },
+  "201": {
+    "intitule": "Created",
+    "categorie": "Succès",
+    "signification": "{{La requête a réussi et une nouvelle ressource a été créée (souvent après un POST).}}"
+  },
+  "202": {
+    "intitule": "Accepted",
+    "categorie": "Succès",
+    "signification": "{{La requête a été acceptée pour traitement, mais celui-ci n'est pas encore terminé.}}"
+  },
+  "204": {
+    "intitule": "No Content",
+    "categorie": "Succès",
+    "signification": "{{La requête a réussi, mais le serveur ne renvoie aucun contenu dans le corps de réponse.}}"
+  },
+  "206": {
+    "intitule": "Partial Content",
+    "categorie": "Succès",
+    "signification": "{{Le serveur ne livre qu'une partie de la ressource (utilisé pour le streaming ou les téléchargements).}}"
+  },
+  "301": {
+    "intitule": "Moved Permanently",
+    "categorie": "Redirection",
+    "signification": "{{La ressource a été déplacée définitivement vers une nouvelle URL.}}"
+  },
+  "302": {
+    "intitule": "Found",
+    "categorie": "Redirection",
+    "signification": "{{La ressource est temporairement accessible à une autre adresse.}}"
+  },
+  "304": {
+    "intitule": "Not Modified",
+    "categorie": "Redirection",
+    "signification": "{{La ressource n'a pas changé depuis la dernière visite et peut être lue depuis le cache.}}"
+  },
+  "307": {
+    "intitule": "Temporary Redirect",
+    "categorie": "Redirection",
+    "signification": "{{Redirection temporaire qui conserve strictement la méthode HTTP initiale (GET ou POST).}}"
+  },
+  "308": {
+    "intitule": "Permanent Redirect",
+    "categorie": "Redirection",
+    "signification": "{{Redirection permanente qui conserve strictement la méthode HTTP initiale.}}"
+  },
+  "400": {
+    "intitule": "Bad Request",
+    "categorie": "Erreur client",
+    "signification": "{{Le serveur ne comprend pas la requête en raison d'une syntaxe invalide.}}"
+  },
+  "401": {
+    "intitule": "Unauthorized",
+    "categorie": "Erreur client",
+    "signification": "{{Une authentification est nécessaire pour accéder à la ressource.}}"
+  },
+  "403": {
+    "intitule": "Forbidden",
+    "categorie": "Erreur client",
+    "signification": "{{Le serveur comprend la requête mais refuse d'autoriser l'accès, même authentifié.}}"
+  },
+  "404": {
+    "intitule": "Not Found",
+    "categorie": "Erreur client",
+    "signification": "{{La ressource demandée est introuvable sur le serveur.}}"
+  },
+  "405": {
+    "intitule": "Method Not Allowed",
+    "categorie": "Erreur client",
+    "signification": "{{La méthode HTTP utilisée (ex. POST au lieu de GET) n'est pas autorisée pour cette URL.}}"
+  },
+  "408": {
+    "intitule": "Request Timeout",
+    "categorie": "Erreur client",
+    "signification": "{{Le client a mis trop de temps à transmettre sa requête au serveur.}}"
+  },
+  "409": {
+    "intitule": "Conflict",
+    "categorie": "Erreur client",
+    "signification": "{{La requête entre en conflit avec l'état actuel de la ressource sur le serveur.}}"
+  },
+  "410": {
+    "intitule": "Gone",
+    "categorie": "Erreur client",
+    "signification": "{{La ressource demandée n'existe plus définitivement et aucune redirection n'est prévue.}}"
+  },
+  "429": {
+    "intitule": "Too Many Requests",
+    "categorie": "Erreur client",
+    "signification": "{{L'utilisateur a envoyé trop de requêtes dans un laps de temps donné (rate limiting).}}"
+  },
+  "500": {
+    "intitule": "Internal Server Error",
+    "categorie": "Erreur serveur",
+    "signification": "{{Le serveur a rencontré une erreur interne imprévue qui l'empêche de répondre.}}"
+  },
+  "502": {
+    "intitule": "Bad Gateway",
+    "categorie": "Erreur serveur",
+    "signification": "{{Le serveur agissant comme passerelle ou proxy a reçu une réponse invalide du serveur en amont.}}"
+  },
+  "503": {
+    "intitule": "Service Unavailable",
+    "categorie": "Erreur serveur",
+    "signification": "{{Le serveur est temporairement indisponible (maintenance ou surcharge).}}"
+  },
+  "504": {
+    "intitule": "Gateway Timeout",
+    "categorie": "Erreur serveur",
+    "signification": "{{Le serveur agissant comme passerelle n'a pas reçu de réponse à temps du serveur en amont.}}"
+  }
+}

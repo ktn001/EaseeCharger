@@ -32,6 +32,7 @@ class Account:
     logger = logging.getLogger("ACCOUNT")
     accounts = {}
     sr_base = 'https://streams.easee.com/hubs/products'
+    _messages_queue = None
 
     # ======= Méthodes statiques =======
     # ==================================
@@ -50,6 +51,12 @@ class Account:
             if charger_id in account._chargers:
                 return account
         return None
+
+    @classmethod
+    def get_messages_queue(cls):
+        if cls._messages_queue == None:
+            cls._messages_queue = asyncio.Queue()
+        return cls._messages_queue
 
     @classmethod
     def stop_all(cls):
@@ -102,6 +109,7 @@ class Account:
             await self._sr_close()
 
     async def _start_sr_connection(self):
+        self.get_messages_queue()
         if self._state != 'idle':
             self.logger.debug(f"L'account {self._name} n'est pas <idle>")
             return
@@ -116,10 +124,10 @@ class Account:
         self._state = 'idle'
         
     async def _sr_error_cb(self, message):
-        self.logger.error(f"SR for {self._name} eror: {message.error}")
+        self.logger.error(f"SR for {self._name} error: {message.error}")
 
     async def _sr_product_update_cb(self, data):
-        self.logger.warning(data)
+        await self._messages_queue.put(data)
 
     async def _sr_connect_loop(self):
         if self._sr_connection is not None:

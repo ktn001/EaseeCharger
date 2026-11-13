@@ -254,10 +254,10 @@ sendVarToJS('eqType', $plugin->getId());
             <thead>
                 <tr>
                 <th class="hidden-xs" style="min-width:50px;width:70px"> ID</th>
-                <th style="min-width:200px;width:280px">{{Nom}}</th>
+                <th style="min-width:200px;width:280px">{{Nom}}<br>{{Commande liée}}</th>
                 <th style="width:80px">{{Type}}</br>{{Sous-type}}</th>
                 <th style="width:180px">LogicalId</th>
-                <th>{{Valeur}}</th>
+                <th>{{Description}}<br>{{calcul}}</th>
                 <th style="min-width:260px;width:280px">{{Options}}</th>
                 <th style="width:100px">{{Etat}}</th>
                 <th style="min-width:80px;width:140px">{{Action}}</th>

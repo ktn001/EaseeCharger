@@ -19,6 +19,7 @@ class EaseeAccount {
 
     private static $_mapping = null;
     private static $_transforms = null;
+    private static $_httpCodes = null;
 
     private $id = '';
     private $name = '';
@@ -161,6 +162,25 @@ class EaseeAccount {
         return $value;
     }
 
+    /*
+     * La liste des codes HTTP
+     */
+    public static function getHttpCode($code = null) {
+        if (self::$_httpCodes == null) {
+            $httpCodesFileName = __DIR__ . "/../config/httpCodes.json";
+            $httpCodes = translate::exec(file_get_contents($httpCodesFileName),$httpCodesFileName);
+            self::$_httpCodes = json_decode($httpCodes,true);
+        }
+        if (!is_array(self::$_httpCodes)) {
+            log::add("EaseeCharger","error", "httpCodes " . __("introuvables",__FILE__));
+            return null;
+        }
+        if ($code) {
+            return self::$_httpCodes[$code] ?? null;
+        }
+        return self::$_httpCodes;
+    }
+
     /*     * ********************************************************************** */
     /*     * ********************** Méthodes d'instance *************************** */
     /*     * ********************************************************************** */
@@ -281,7 +301,7 @@ class EaseeAccount {
      * Envoi d'une requête API au cloud Easee
      */
     private function sendRequest($path, $data = '', $token = null) {
-        log::add("EaseeCharger","info","┌─" .__("Easee: envoi d'une requête au cloud", __FILE__));
+        log::add("EaseeCharger","debug","┌─" .__("Easee: envoi d'une requête au cloud", __FILE__));
 
         $method = $data == '' ? 'GET' : 'POST';
         if ($data == 'POST') {
@@ -308,7 +328,6 @@ class EaseeAccount {
                 }
             }
         }
-        log::add("EaseeCharger","debug", "│       data: " . json_encode($data2log));
 
         $header = [
             "Accept: application/json",
@@ -316,15 +335,16 @@ class EaseeAccount {
         ];
 
         if ($path !== "accounts/login") {
-            $accessToken = $token ?? $this->getToken();
+            $accessToken = $token ?? $this->getAccessToken();
             if ($accessToken) {
                 $header[] = 'Authorization: Bearer ' . $accessToken;
             }
         }
 
-        log::add("EaseeCharger","debug","│        URL: " . $this->_site . $path);
-        log::add("EaseeCharger","debug","│     Method: " . $method);
-        log::add("EaseeCharger","debug","│     Header: " . json_encode($header));
+        log::add("EaseeCharger", "debug", "│       data: " . json_encode($data2log));
+        log::add("EaseeCharger", "debug", "│        URL: " . $this->_site . $path);
+        log::add("EaseeCharger", "debug", "│     Method: " . $method);
+        log::add("EaseeCharger", "debug", "│     Header: " . json_encode($header));
 
         if (is_array($data)) {
             $data = json_encode($data);
@@ -354,14 +374,22 @@ class EaseeAccount {
 
         $httpCode = curl_getinfo($curl,CURLINFO_HTTP_CODE);
         if (substr($httpCode,0,1) != '2') {
-            $txt = $response;
-            $msg = is_json($response,$response);
-            if (isset($msg['title'])) {
-                $txt = $msg['title'];
+            $response = is_json($response,$response);
+            if (is_array($response)) {
+                $txt = sprintf(__("Code HTTP: %s - [%s]%s",__FILE__), $httpCode, $response['errorCode'], $response['title']);
+                log::add("EaseeCharger","error", "└─" . $txt);
+                throw new EaseeCloudException ($response);
+            } else {
+                if (!$response) {
+                    $infos = self::getHttpCode($httpCode);
+                    if (is_array($infos)) {
+                        $response = sprintf("%s - %s", $infos['intitule'] ,$infos['signification']);
+                    }
+                }
+                $txt = sprintf("%s: %s", $httpCode, $response);
+                log::add("EaseeCharger","error", "└─" . $txt);
+                throw new Exception ($txt);
             }
-            $txt= sprintf(__("Code retour http: %s - %s",__FILE__) , $httpCode, $txt);
-            log::add("EaseeCharger","error", "└─" . $txt);
-            throw new EaseeCloudException ($msg);
         }
         log::add("EaseeCharger","debug", "│ " .  __("Code retour http: ",__FILE__) . $httpCode);
         log::add("EaseeCharger","info", "└─Requête envoyée");
@@ -373,7 +401,7 @@ class EaseeAccount {
      */
     public function execute ($cmd) {
         $charger = $cmd->getEqLogic();
-        log::add("EaseeCharger","debug","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->getName() , $cmd->getLogicalId()));
+        log::add("EaseeCharger","info","┌─" . sprintf(__("%s: execution de %s",__FILE__), $this->getName() , $cmd->getLogicalId()));
         log::add("EaseeCharger","debug","│ " . __("Chargeur",__FILE__) . sprintf(": %s (%s)", $charger->getName(), $charger->getLogicalId()));
         if (! is_a($cmd, "EaseeChargerCmd")){
             throw new Exception (sprintf(__("└─La commande %s n'est pas une commande de type %s",__FILE__),$cmd->getId(), "EaseeChargerCmd"));
@@ -382,8 +410,8 @@ class EaseeAccount {
         $method = 'execute_' . $cmd->getLogicalId();
         if (!method_exists($this, $method)) {
             $msg = sprintf(__("La méthode %s est introuvable",__FILE__),$method);
-            log::add("EaseeCharger","debug","└─" . $msg);
-            throw new Exception ($msg);
+            log::add("EaseeCharger","error","└─" . $msg);
+            return;
         }
         $this->$method($cmd);
         log::add("EaseeCharger","debug","└─" . __("OK",__FILE__));
@@ -433,8 +461,8 @@ class EaseeAccount {
         return $token;
     }
 
-    public function getToken($retrying = false) {
-        if ($retrying) {
+    public function getToken($retry = false) {
+        if ($retry) {
             log::add("EaseeCharger","debug","getToken (retrying) ....");
         } else {
             log::add("EaseeCharger","debug","getToken ....");
@@ -481,6 +509,10 @@ class EaseeAccount {
         return $token;
     }
 
+    public function getAccessToken() {
+        $token = $this->getToken();
+        return $token['accessToken'];
+    }
     /*     * ******************** Exécution des commandes ********************* */
 
     /*
@@ -511,7 +543,7 @@ class EaseeAccount {
     public function execute_cable_lock($cmd) {
         $serial = $cmd->getEqLogic()->getLogicalId();
         $path = 'chargers/' . $serial . '/commands/lock_state';
-        $data = ['state' => 'true'];
+        $data = ['state' => true];
         $this->sendrequest($path, $data);
     }
 
@@ -521,7 +553,7 @@ class EaseeAccount {
     public function execute_cable_unlock($cmd) {
         $serial = $cmd->getEqLogic()->getLogicalId();
         $path = 'chargers/' . $serial . '/commands/lock_state';
-        $data = ['state' => 'false'];
+        $data = ['state' => false];
         $this->sendrequest($path, $data);
     }
 
@@ -617,7 +649,7 @@ class EaseeCloudException extends Exception {
         if (!is_array($response)) {
             $message = $response;
         } else {
-            $message = $response['title'];
+            $message = $response['title'] ?? $message;
         }
         parent::__construct($message, $code, $previous);
     }

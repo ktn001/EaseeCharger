@@ -4,12 +4,18 @@ try {
     require_once __DIR__ . '/../class/EaseeCharger.class.php';
     require_once __DIR__ . '/../php/EaseeCharger.inc.php';
 
+    /**
+     ** Traitement des messages relatifs au daemon
+     **/
     function process_daemon_message($message) {
         if ($message['message'] == 'started'){
             EaseeCharger::daemon_started();
         }
     }
 
+    /**
+     ** Traitement des messages relatifs aux accounts
+     **/
     function process_account_message($message) {
         if (isset($message['message']) && $message['message'] == 'started') {
             if (!isset($message['accountId'])){
@@ -25,27 +31,53 @@ try {
         }
     }
 
+    /**
+     ** Traitement des messages relatifs aux chargers
+     **/
     function process_charger_message($message) {
         if ($message['info'] == 'closed'){
             log::add('EaseeCharger','info','[jeeEaseeCharger] [' . $message['modelId'] . '][' . $message['charger'] . __('Connection du démon fermée',__FILE__));
         }
     }
 
+    /**
+     ** Traitement des messages relatifs aux commandes
+     **/
     function process_cmd_message($message) {
-        if (!array_key_exists('charger',$message)) {
-            log::add('EaseeCharger','error',"[jeeEaseeCharger] " .  __("Message du demon de modèle <cmd> mais sans identifiant de chargeur!",__FILE__));
+        log::add("EaseeCharger","debug",__("Traitement du message: ",__FILE__) . json_encode($message));
+        if (!isset($message['mid'])) {
+            return;
         }
-        if (!array_key_exists('logicalId',$message)) {
-            log::add('EaseeCharger','error',"[jeeEaseeCharger] " . __("Message du demon de modèle <cmd> mais sans <logicalId>!",__FILE__));
-        }
-        $charger = EaseeCharger::byId($message['charger']);
+        $charger = EaseeCharger::byLogicalId($message['mid'],'EaseeCharger');
         if (!is_object($charger)) {
-            log::add('EaseeCharger','error',sprintf("[jeeEaseeCharger] " . __("Message du daemon de modèle <cmd> pour le chargeur %s qui est introuvable",__FILE__),$message['charger']));
+            log::add("EaseeCharger","warning",sprintf(__("Chargeur %s introuvable",__FILE__),$message['mid']));
+            return;
         }
-        $charger->checkAndUpdateCmd($message['logicalId'],$message['value']);
-        return;
+        if (!isset($message['id'])) {
+            return;
+        }
+        $cmd = $charger->getCmd('info',$message['id']);
+        if (isset($message['timestamp'])){
+            $message['timestamp'] = date('Y-m-d H:i:s', strtotime($message['timestamp']));
+        }
+        if (is_object($cmd)) {
+            $charger->checkAndUpdateCmd($message['id'],$message['value'], $message['timestamp'] ?? '');
+        } else {
+            $charger->createAndUpdateCmd($message);
+        }
     }
 
+
+      ###############################
+     #                                #
+    #  #    #    ##       #    #    #  #
+    #  ##  ##   #  #      #    ##   #  #
+    #  # ## #  #    #     #    # #  #  #
+    #  #    #  ######     #    #  # #  #
+    #  #    #  #    #     #    #   ##  #
+    #  #    #  #    #     #    #    #  #
+     #                                #
+      ###############################
     if (!jeedom::apiAccess(init('apikey'), 'EaseeCharger')) {
         echo __('Vous n\'êtes pas autorisé à effectuer cette action', __FILE__);
         die();
@@ -60,7 +92,6 @@ try {
     if (!is_array($payload)) {
         die();
     }
-    log::add("EaseeCharger","debug","[jeeEaseeCharger] Message reçu du démon: " . print_r($payload,true));
 
     $messages = array();
     if (array_key_exists('cmds',$payload)) {
@@ -75,8 +106,8 @@ try {
 
     foreach ($messages as $message) {
         if (!array_key_exists('object',$message)){
-            log::error('EaseeCharger','error','[jeeEaseeCharger] Message reçu du daemon sans champ "object"');
-            die();
+            log::add('EaseeCharger','error','[jeeEaseeCharger] Message reçu du daemon sans champ "object"');
+            continue;
         }
         switch ($message['object']) {
         case 'daemon':

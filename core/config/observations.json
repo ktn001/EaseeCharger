@@ -1,0 +1,1002 @@
+[
+  {
+    "id": 1,
+    "code": "SELF TEST RESULT",
+    "txt": "{{Résultat de l'auto-test (RÉUSSI ou codes d'erreur).}}"
+  },
+  {
+    "id": 2,
+    "code": "SELF TEST DETAILS",
+    "txt": "{{JSON contenant les détails de l'auto-test.}}"
+  },
+  {
+    "id": 10,
+    "code": "WIFI EVENT",
+    "txt": "{{Événement Wi-Fi.}}"
+  },
+  {
+    "id": 11,
+    "code": "CHARGER OFFLINE REASON",
+    "txt": "{{Énumération décrivant pourquoi le chargeur est hors ligne.}}"
+  },
+  {
+    "id": 15,
+    "code": "LOCAL PRE AUTHORIZE ENABLED",
+    "txt": "{{Pré-autorisation avec liste blanche activée. Lecture de la configuration.}}"
+  },
+  {
+    "id": 16,
+    "code": "LOCAL AUTHORIZE OFFLINE ENABLED",
+    "txt": "{{Autoriser la charge hors ligne pour les badges RFID de la liste blanche. Lecture de la configuration.}}"
+  },
+  {
+    "id": 17,
+    "code": "ALLOW OFFLINE TX FOR UNKNOWN ID",
+    "txt": "{{Autoriser la charge hors ligne pour tous les badges RFID. Lecture de la configuration.}}"
+  },
+  {
+    "id": 18,
+    "code": "ERRATIC EVMAX TOGGLES",
+    "txt": "{{0 = vérification erratique désactivée, sinon nombre de basculements entre les états \"En charge\" et \"Charge terminée\" qui déclencheront une erreur.}}"
+  },
+  {
+    "id": 19,
+    "code": "BACKPLATE TYPE",
+    "txt": "{{Type de plaque arrière pour la vérification erratique (type 0 = chargeur commercial, type 1 = chargeur de test).}}"
+  },
+  {
+    "id": 20,
+    "code": "SITE STRUCTURE",
+    "txt": "{{Vérification de la structure du site et affichage de l'adresse, des coordonnées, de l'installateur, du propriétaire, etc.}}"
+  },
+  {
+    "id": 21,
+    "code": "DETECTED POWER GRID TYPE",
+    "txt": "{{Type de réseau électrique détecté selon la table PowerGridType.}}"
+  },
+  {
+    "id": 22,
+    "code": "Circuit Max Current P1",
+    "txt": "{{Courant maximal du circuit en Ampères sur la Phase 1.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 23,
+    "code": "Circuit Max Current P2",
+    "txt": "{{Courant maximal du circuit en Ampères sur la Phase 2.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 24,
+    "code": "Circuit Max Current P3",
+    "txt": "{{Courant maximal du circuit en Ampères sur la Phase 3.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 26,
+    "code": "Site ID String",
+    "txt": "{{Identifiant du site sous forme de chaîne de caractères.}}"
+  },
+  {
+    "id": 27,
+    "code": "Site ID Numeric",
+    "txt": "{{Identifiant numérique du site.}}"
+  },
+  {
+    "id": 28,
+    "code": "RFID TIMEOUT AUTH",
+    "txt": "{{Délai d'attente défini pour l'authentification lorsque \"Authentication == True\".}}",
+    "cmd_configs": {
+      "unite": "s"
+    }
+  },
+  {
+    "id": 30,
+    "code": "LOCK CABLE PERMANENTLY",
+    "txt": "{{Verrouiller le câble de type 2 de façon permanente.}}",
+    "old_logicalId": "cable_locked_permanently",
+    "cmd_configs": {
+      "name" : "{{Câble verrouillé en permanence}}",
+      "isVisible" : "0"
+    }
+  },
+  {
+    "id": 31,
+    "code": "IS ENABLED",
+    "txt": "{{Définir sur Vrai pour activer le chargeur, Faux pour le désactiver.}}"
+  },
+  {
+    "id": 32,
+    "code": "TEMPERATURE MONITOR STATE",
+    "txt": "{{Récupère l'état de la surveillance de la température du chargeur.}}"
+  },
+  {
+    "id": 36,
+    "code": "WIFI SSID",
+    "txt": "{{Nom du réseau (SSID) auquel les chargeurs sont connectés.}}"
+  },
+  {
+    "id": 38,
+    "code": "PHASE MODE",
+    "txt": "{{Indique le mode de phase auquel le chargeur est connecté (mode phase == 1 -> monophasé, mode phase == 3 -> triphasé).}}"
+  },
+  {
+    "id": 40,
+    "code": "LED STRIP BRIGHTNESS",
+    "txt": "{{Indique la luminosité de la bande LED sous forme d'entier.}}"
+  },
+  {
+    "id": 41,
+    "code": "LOCAL AUTHORIZATION REQUIRED",
+    "txt": "{{L'autorisation RFID locale est requise pour la charge.}}"
+  },
+  {
+    "id": 42,
+    "code": "AUTHORIZATION REQUIRED",
+    "txt": "{{L'autorisation est requise pour la charge.}}"
+  },
+  {
+    "id": 43,
+    "code": "REMOTE START REQUIRED",
+    "txt": "{{Indicateur de démarrage à distance requis.}}"
+  },
+  {
+    "id": 44,
+    "code": "SMART BUTTON ENABLED",
+    "txt": "{{Le bouton intelligent est activé.}}"
+  },
+  {
+    "id": 45,
+    "code": "OFFLINE CHARGING MODE",
+    "txt": "{{Comportement du chargeur lorsqu'il est hors ligne.}}"
+  },
+  {
+    "id": 46,
+    "code": "LEDMODE",
+    "txt": "{{Mode de la LED du chargeur.}}"
+  },
+  {
+    "id": 47,
+    "code": "MAX CHARGER CURRENT",
+    "txt": "{{Courant max que ce chargeur est autorisé à offrir à la voiture (A). Non volatile.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 48,
+    "code": "DYNAMIC CHARGER CURRENT",
+    "txt": "{{Courant max que ce chargeur est autorisé à offrir à la voiture (A). Volatile.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 50,
+    "code": "MAX CURRENT OFFLINE FALLBACK P1",
+    "txt": "{{Courant maximal du circuit P1 en cas de repli hors ligne.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 51,
+    "code": "MAX CURRENT OFFLINE FALLBACK P2",
+    "txt": "{{Courant maximal du circuit P2 en cas de repli hors ligne.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 52,
+    "code": "MAX CURRENT OFFLINE FALLBACK P3",
+    "txt": "{{Courant maximal du circuit P3 en cas de repli hors ligne.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 54,
+    "code": "RELEASE CABLE AT POWER OFF",
+    "txt": "{{Si défini sur Oui, le câble est libéré à la mise hors tension. Si Non, le câble reste verrouillé.}}"
+  },
+  {
+    "id": 60,
+    "code": "Charging Session Signed",
+    "txt": "{{Sessions de charge signées numériquement.}}"
+  },
+  {
+    "id": 62,
+    "code": "CHARGING SCHEDULE",
+    "txt": "{{Programmation / Planification de la charge.}}"
+  },
+  {
+    "id": 65,
+    "code": "PAIRED EQUALIZER",
+    "txt": "{{Détails de l'Equalizer appairé.}}"
+  },
+  {
+    "id": 69,
+    "code": "PAIRED USER IDTOKEN",
+    "txt": "{{Jeton d'utilisateur observé lorsque le chargeur est mis en mode d'appairage RFID.}}"
+  },
+  {
+    "id": 70,
+    "code": "Circuit Total Allocated Phase Conductor Current L1",
+    "txt": "{{Courant total alloué au conducteur de phase du circuit L1.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 71,
+    "code": "Circuit Total Allocated Phase Conductor Current L2",
+    "txt": "{{Courant total alloué au conducteur de phase du circuit L2.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 72,
+    "code": "Circuit Total Allocated Phase Conductor Current L3",
+    "txt": "{{Courant total alloué au conducteur de phase du circuit L3.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 73,
+    "code": "Circuit Total Phase Conductor Current L1",
+    "txt": "{{Courant total du conducteur de phase du circuit L1.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 74,
+    "code": "Circuit Total Phase Conductor Current L2",
+    "txt": "{{Courant total du conducteur de phase du circuit L2.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 75,
+    "code": "Circuit Total Phase Conductor Current L3",
+    "txt": "{{Courant total du conducteur de phase du circuit L3.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 76,
+    "code": "NUMBER OF CARS CONNECTED",
+    "txt": "{{Nombre de voitures connectées à ce circuit.}}"
+  },
+  {
+    "id": 77,
+    "code": "NUMBER OF CARS CHARGING",
+    "txt": "{{Nombre de voitures en cours de charge.}}"
+  },
+  {
+    "id": 78,
+    "code": "NUMBER OF CARS IN QUEUE",
+    "txt": "{{Nombre de voitures actuellement en file d'attente, en attente d'attribution de puissance.}}"
+  },
+  {
+    "id": 79,
+    "code": "NUMBER OF CARS FULLY CHARGED",
+    "txt": "{{Nombre de voitures qui semblent être entièrement chargées.}}"
+  },
+  {
+    "id": 80,
+    "code": "SOFTWARE RELEASE",
+    "txt": "{{Version du firmware du chargeur.}}"
+  },
+  {
+    "id": 81,
+    "code": "ICCID",
+    "txt": "{{Numéro ICCID (carte SIM).}}"
+  },
+  {
+    "id": 84,
+    "code": "Mobile Network Operator",
+    "txt": "{{Nom de l'opérateur de réseau mobile.}}"
+  },
+  {
+    "id": 89,
+    "code": "REBOOT REASON",
+    "txt": "{{Raison du redémarrage (masque de bits).}}"
+  },
+  {
+    "id": 96,
+    "code": "REASON FOR NO CURRENT",
+    "txt": "{{Énumération décrivant pourquoi un chargeur connecté à une voiture ne lui fournit pas de courant.}}"
+  },
+  {
+    "id": 97,
+    "code": "LOAD BALANCING NUMBER OF CONNECTED CHARGERS",
+    "txt": "{{Nombre de chargeurs connectés dans l'équilibrage de charge (Maître inclus). Envoyé par le Maître uniquement.}}"
+  },
+  {
+    "id": 98,
+    "code": "UDP NUM OF CONNECTED NODES",
+    "txt": "{{Nombre de chargeurs connectés au maître via UDP et Wi-Fi.}}"
+  },
+  {
+    "id": 99,
+    "code": "Local Connection",
+    "txt": "{{Chargeurs secondaires uniquement. Connexion actuelle au maître (0 = Aucune, 1 = Radio, 2 = Wi-Fi UDP, 3 = Radio et Wi-Fi UDP).}}"
+  },
+  {
+    "id": 100,
+    "code": "PILOT MODE",
+    "txt": "{{Lettre de l'état du fil pilote (A-F) selon la norme IEC 61851.}}"
+  },
+  {
+    "id": 102,
+    "code": "SMART CHARGING",
+    "txt": "{{État de la charge intelligente activé par le bouton tactile capacitif.}}"
+  },
+  {
+    "id": 103,
+    "code": "CABLE LOCKED",
+    "txt": "{{État de verrouillage du câble.}}",
+    "old_logicalId": "cable_locked",
+    "cmd_configs" : {
+      "name" : "{{Câble verrouillé}}",
+      "isVisible" : "0"
+    }
+  },
+  {
+    "id": 104,
+    "code": "CABLE RATING",
+    "txt": "{{Capacité maximale détectée du câble (Ampères).}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 107,
+    "code": "BACKPLATE ID",
+    "txt": "{{Identifiant de la plaque arrière.}}"
+  },
+  {
+    "id": 108,
+    "code": "USER IDTOKEN REVERSED",
+    "txt": "{{Chaîne du jeton RFID inversée (Attention : vous devez inverser ces chaînes dans votre code).}}"
+  },
+  {
+    "id": 109,
+    "code": "CHARGER OP MODE",
+    "txt": "{{Mode de fonctionnement du chargeur selon la table des modes de charge.}}",
+    "old_logicalId": "status",
+    "cmd_configs" : {
+      "name": "{{Etat}}",
+      "template": {
+        "dashboard" : "EaseeCharger::etat"
+      },
+      "display" : {
+        "showNameOndashboard": "0"
+      }
+    }
+  },
+  {
+    "id": 110,
+    "code": "OUTPUT PHASE",
+    "txt": "{{Phase(s) de sortie active(s) vers le véhicule selon la table des types de phases de sortie.}}"
+  },
+  {
+    "id": 111,
+    "code": "Dynamic Circuit Current P1",
+    "txt": "{{Courant dynamique du circuit sur P1 en Ampères.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 112,
+    "code": "Dynamic Circuit Current P2",
+    "txt": "{{Courant dynamique du circuit sur P2 en Ampères.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 113,
+    "code": "Dynamic Circuit Current P3",
+    "txt": "{{Courant dynamique du circuit sur P3 en Ampères.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 114,
+    "code": "Output Current",
+    "txt": "{{Courant disponible signalé à la voiture par le signal pilote (PWM) en Ampères.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 115,
+    "code": "Derated Current",
+    "txt": "{{Courant disponible après réduction de puissance (bridage thermique).}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 116,
+    "code": "DERATING ACTIVE",
+    "txt": "{{Le courant disponible est limité par le chargeur en raison d'une température élevée.}}"
+  },
+  {
+    "id": 118,
+    "code": "Error String",
+    "txt": "{{Chaîne de caractères descriptive de l'erreur.}}"
+  },
+  {
+    "id": 119,
+    "code": "ERROR CODE",
+    "txt": "{{Code d'erreur selon la table des codes d'erreur.}}"
+  },
+  {
+    "id": 120,
+    "code": "TOTAL POWER",
+    "txt": "{{Puissance totale instantanée (kW).}}",
+    "old_logicalId": "power",
+    "cmd_configs" : {
+      "name": "{{Puissance}}",
+      "display": {
+        "graphStep": "1"
+      },
+      "unite": "kW",
+      "configuration": {
+        "historizeRound": "2",
+        "minValue": "0",
+        "maxValue": "25"
+      },
+      "template": {
+        "dashboard":"core::gauge",
+        "mobile":"core::gauge"
+      }
+    }
+  },
+  {
+    "id": 121,
+    "code": "SESSION ENERGY",
+    "txt": "{{Énergie accumulée durant la session en cours (kWh).}}",
+    "cmd_configs": {
+      "unite": "kWh"
+    }
+  },
+  {
+    "id": 122,
+    "code": "ENERGY PER HOUR",
+    "txt": "{{Énergie accumulée par heure (kWh).}}",
+    "cmd_configs": {
+      "unite": "kWh"
+    }
+  },
+  {
+    "id": 123,
+    "code": "LEGACY EV STATUS",
+    "txt": "{{0 = pas un VE ancien, 1 = VE ancien détecté, 2 = réactivation du VE.}}"
+  },
+  {
+    "id": 124,
+    "code": "LIFETIME ENERGY",
+    "txt": "{{Énergie cumulée sur la durée de vie globale du chargeur (kWh).}}",
+    "cmd_configs": {
+      "unite": "kWh"
+    }
+  },
+  {
+    "id": 125,
+    "code": "LIFETIME RELAY SWITCHES",
+    "txt": "{{Nombre total de commutations des relais sur la durée de vie du chargeur.}}"
+  },
+  {
+    "id": 126,
+    "code": "LIFETIME HOURS",
+    "txt": "{{Nombre total d'heures de fonctionnement.}}",
+    "cmd_configs": {
+      "unite": "h"
+    }
+  },
+  {
+    "id": 128,
+    "code": "USER IDTOKEN",
+    "txt": "{{Chaîne du jeton d'identification de l'utilisateur issu de la lecture RFID.}}"
+  },
+  {
+    "id": 129,
+    "code": "CHARGING SESSION",
+    "txt": "{{Données de la session de charge (Format JSON).}}"
+  },
+  {
+    "id": 130,
+    "code": "CELL RSSI",
+    "txt": "{{Force du signal cellulaire.}}",
+    "old_logicalId": "cellRSSI",
+    "cmd_config" : {
+      "name": "{{signal cellulaire}}",
+      "unite": "dBm",
+      "configuration": {
+        "minValue": "-100",
+        "maxValue": "-0"
+      },
+      "template": {
+        "dashboard": "core::badge"
+      }
+    }
+  },
+  {
+    "id": 131,
+    "code": "CELL RAT",
+    "txt": "{{Technologie d'accès radio cellulaire selon la table RAT (2G, 4G, etc.).}}"
+  },
+  {
+    "id": 132,
+    "code": "WI FI RSSI",
+    "txt": "{{Force du signal Wi-Fi.}}",
+    "old_logicalId": "wifiRSSI",
+    "cmd_config" : {
+      "name": "{{signal wifi}}",
+      "unite": "dBm",
+      "configuration": {
+        "minValue": "-100",
+        "maxValue": "-0"
+      },
+      "template": {
+        "dashboard": "core::badge"
+      }
+    }
+  },
+  {
+    "id": 133,
+    "code": "CELL ADDRESS",
+    "txt": "{{Adresse IP attribuée par le réseau cellulaire.}}"
+  },
+  {
+    "id": 134,
+    "code": "WIFI ADDRESS",
+    "txt": "{{Adresse IP attribuée par le réseau Wi-Fi.}}"
+  },
+  {
+    "id": 136,
+    "code": "LOCAL RSSI",
+    "txt": "{{Force du signal radio local (inter-bornes).}}",
+    "cmd_configs": {
+      "unite": "dBm"
+    }
+  },
+  {
+    "id": 138,
+    "code": "LOCAL TX POWER",
+    "txt": "{{Puissance de transmission radio locale.}}",
+    "cmd_configs": {
+      "unite": "dBm"
+    }
+  },
+  {
+    "id": 139,
+    "code": "LOCAL STATE",
+    "txt": "{{État de la radio locale.}}"
+  },
+  {
+    "id": 141,
+    "code": "CURRENT CONNECTION",
+    "txt": "{{Technologie d'accès réseau en cours d'utilisation (0 = Cellulaire, 1 = Wi-Fi).}}",
+    "old_logicalId": "WIFI",
+    "cmd_configs": {
+       "name": "{{communication wifi}}"
+    }
+  },
+  {
+    "id": 146,
+    "code": "LOCAL NODE TYPE",
+    "txt": "{{Type de nœud local (0 = Non configuré, 1 = Maître, 2 = Extenseur, 3 = Appareil final).}}"
+  },
+  {
+    "id": 149,
+    "code": "LOCAL PARENT ADDR OR NUM OF NODES",
+    "txt": "{{Si maître : nombre de secondaires connectés. Si secondaire : adresse du parent.}}"
+  },
+  {
+    "id": 150,
+    "code": "TEMP MAX",
+    "txt": "{{Température maximale enregistrée parmi tous les capteurs.}}",
+    "cmd_configs": {
+      "unite": "°C"
+    }
+  },
+  {
+    "id": 152,
+    "code": "TEMP INPUT T2",
+    "txt": "{{Température au niveau des borniers d'entrée physiques T2 de la plaque arrière.}}",
+    "cmd_configs": {
+      "unite": "°C"
+    }
+  },
+  {
+    "id": 153,
+    "code": "TEMP INPUT T3",
+    "txt": "{{Température au niveau des borniers d'entrée physiques T3 de la plaque arrière.}}",
+    "cmd_configs": {
+      "unite": "°C"
+    }
+  },
+  {
+    "id": 154,
+    "code": "TEMP INPUT T4",
+    "txt": "{{Température au niveau des borniers d'entrée physiques T4 de la plaque arrière.}}",
+    "cmd_configs": {
+      "unite": "°C"
+    }
+  },
+  {
+    "id": 155,
+    "code": "TEMP INPUT T5",
+    "txt": "{{Température au niveau des borniers d'entrée physiques T5 de la plaque arrière.}}",
+    "cmd_configs": {
+      "unite": "°C"
+    }
+  },
+  {
+    "id": 156,
+    "code": "TEMP MAX_POINTER",
+    "txt": "{{ID de la mesure qui a la température max.}}"
+  },
+  {
+    "id": 160,
+    "code": "TEMP OUTPUT N",
+    "txt": "{{Température au niveau du connecteur de sortie Type 2 pour le Neutre (N).}}",
+    "cmd_configs": {
+      "unite": "°C"
+    }
+  },
+  {
+    "id": 161,
+    "code": "TEMP OUTPUT L1",
+    "txt": "{{Température au niveau des connecteurs de sortie Type 2 pour la phases L1.}}",
+    "cmd_configs": {
+      "unite": "°C"
+    }
+  },
+  {
+    "id": 162,
+    "code": "TEMP OUTPUT L2",
+    "txt": "{{Température au niveau des connecteurs de sortie Type 2 pour la phases L2.}}",
+    "cmd_configs": {
+      "unite": "°C"
+    }
+  },
+  {
+    "id": 163,
+    "code": "TEMP OUTPUT L3",
+    "txt": "{{Température au niveau des connecteurs de sortie Type 2 pour la phases L3.}}",
+    "cmd_configs": {
+      "unite": "°C"
+    }
+  },
+  {
+    "id": 170,
+    "code": "TEMP AMBIENT",
+    "txt": "{{Température ambiante en degrés Celsius.}}",
+    "cmd_configs": {
+      "unite": "°C"
+    }
+  },
+  {
+    "id": 172,
+    "code": "INT REL HUMIDITY",
+    "txt": "{{Humidité relative interne du boîtier.}}",
+    "cmd_configs": {
+      "unite": "%"
+    }
+  },
+  {
+    "id": 173,
+    "code": "BACKPLATE LOCKED",
+    "txt": "{{Confirmation du verrouillage de la plaque arrière.}}"
+  },
+  {
+    "id": 182,
+    "code": "INT CURRENT T2",
+    "txt": "{{Courant RMS calculé pour l'entrée physique T2.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 183,
+    "code": "INT CURRENT T3",
+    "txt": "{{Courant RMS calculé pour l'entrée physique T2.}}",
+    "old_logicalId": "current_1",
+    "cmd_configs" : {
+      "name": "{{Courant phase 1}}",
+      "generic_type": "CURRENT",
+      "display" : {
+         "graphStep": "1"
+      },
+      "template": {
+        "dashboard": "EaseeCharger::phase"
+      },
+      "unite": "A",
+      "configuration": {
+        "historizeRound": "1",
+        "minValue": "0",
+        "maxValue": "35",
+        "phaseId": "in1",
+        "widgetTitle": "{{Phase 1}}"
+      }
+    }
+  },
+  {
+    "id": 184,
+    "code": "INT CURRENT T4",
+    "txt": "{{Courant RMS calculé pour l'entrée physique T3.}}",
+    "old_logicalId": "current_2",
+    "cmd_configs" : {
+      "name": "{{Courant phase 2}}",
+      "generic_type": "CURRENT",
+      "display" : {
+         "graphStep": "1"
+      },
+      "template": {
+        "dashboard": "EaseeCharger::phase"
+      },
+      "unite": "A",
+      "configuration": {
+        "historizeRound": "1",
+        "minValue": "0",
+        "maxValue": "35",
+        "phaseId": "in2",
+        "widgetTitle": "{{Phase 2}}"
+      }
+    }
+  },
+  {
+    "id": 185,
+    "code": "INT CURRENT T5",
+    "txt": "{{Courant RMS calculé pour l'entrée physique T4.}}",
+    "old_logicalId": "current_3",
+    "cmd_configs" : {
+      "name": "{{Courant phase 3}}",
+      "generic_type": "CURRENT",
+      "display" : {
+         "graphStep": "1"
+      },
+      "template": {
+        "dashboard": "EaseeCharger::phase"
+      },
+      "unite": "A",
+      "configuration": {
+        "historizeRound": "1",
+        "minValue": "0",
+        "maxValue": "35",
+        "phaseId": "in3",
+        "widgetTitle": "{{Phase 3}}"
+      }
+    }
+  },
+  {
+    "id": 190,
+    "code": "IN VOLT T1 à T2",
+    "txt": "{{Tension d'entrée RMS mesurée entre les différents borniers d'entrée T1T2.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 191,
+    "code": "IN VOLT T1 à T3",
+    "txt": "{{Tension d'entrée RMS mesurée entre les différents borniers d'entrée T1T3.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 192,
+    "code": "IN VOLT T1 à T4",
+    "txt": "{{Tension d'entrée RMS mesurée entre les différents borniers d'entrée T1T4.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 193,
+    "code": "IN VOLT T1 à T5",
+    "txt": "{{Tension d'entrée RMS mesurée entre les différents borniers d'entrée T1T5.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 194,
+    "code": "IN VOLT T2 à T3",
+    "txt": "{{Tension d'entrée RMS mesurée entre les différents borniers d'entrée T2T3.}}",
+    "old_logicalId": "voltage_1",
+    "cmd_configs": {
+      "name": "{{tension phase 1}}",
+      "generic_type": "VOLTAGE",
+      "template": {
+        "dashboard": "EaseeCharger::phase"
+      },
+      "unite": "V",
+      "configuration": {
+        "historizeRound": "0",
+        "minValue": "0",
+        "maxValue": "250",
+        "phaseId": "in1"
+      }
+    }
+  },
+  {
+    "id": 195,
+    "code": "IN VOLT T2 à T4",
+    "txt": "{{Tension d'entrée RMS mesurée entre les différents borniers d'entrée T2T4.}}",
+    "old_logicalId": "voltage_2",
+    "cmd_configs": {
+      "name": "{{tension phase 2}}",
+      "generic_type": "VOLTAGE",
+      "template": {
+        "dashboard": "EaseeCharger::phase"
+      },
+      "unite": "V",
+      "configuration": {
+        "historizeRound": "0",
+        "minValue": "0",
+        "maxValue": "250",
+        "phaseId": "in2"
+      }
+    }
+  },
+  {
+    "id": 196,
+    "code": "IN VOLT T2 à T5",
+    "txt": "{{Tension d'entrée RMS mesurée entre les différents borniers d'entrée T2T5.}}",
+    "old_logicalId": "voltage_3",
+    "cmd_configs": {
+      "name": "{{tension phase 3}}",
+      "generic_type": "VOLTAGE",
+      "template": {
+        "dashboard": "EaseeCharger::phase"
+      },
+      "unite": "V",
+      "configuration": {
+        "historizeRound": "0",
+        "minValue": "0",
+        "maxValue": "250",
+        "phaseId": "in3"
+      }
+    }
+  },
+  {
+    "id": 197,
+    "code": "IN VOLT T3 à T4",
+    "txt": "{{Tension d'entrée RMS mesurée entre les différents borniers d'entrée T3T4.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 198,
+    "code": "IN VOLT T3 à T5",
+    "txt": "{{Tension d'entrée RMS mesurée entre les différents borniers d'entrée T3T5.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 199,
+    "code": "IN VOLT T4 à T5",
+    "txt": "{{Tension d'entrée RMS mesurée entre les différents borniers d'entrée T4T5.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 202,
+    "code": "OUT VOLT PIN 1&2",
+    "txt": "{{Tension de sortie RMS mesurée entre les différentes broches du connecteur Type 2.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 203,
+    "code": "OUT VOLT PIN 1&3",
+    "txt": "{{Tension de sortie RMS mesurée entre les différentes broches du connecteur Type 2.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 204,
+    "code": "OUT VOLT PIN 1&4",
+    "txt": "{{Tension de sortie RMS mesurée entre les différentes broches du connecteur Type 2.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 205,
+    "code": "OUT VOLT PIN 1&5",
+    "txt": "{{Tension de sortie RMS mesurée entre les différentes broches du connecteur Type 2.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 206,
+    "code": "OUT VOLT PIN 2&3",
+    "txt": "{{Tension de sortie RMS mesurée entre les différentes broches du connecteur Type 2.}}",
+    "cmd_configs": {
+      "unite": "V"
+    }
+  },
+  {
+    "id": 223,
+    "code": "CHARGE SESSION START",
+    "txt": "{{Détails de la dernière session de charge (Format JSON).}}"
+  },
+  {
+    "id": 230,
+    "code": "EQ AVAILABLE CURRENT P1",
+    "txt": "{{Courant disponible pour la charge sur P1 selon l'Equalizer.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 231,
+    "code": "EQ AVAILABLE CURRENT P2",
+    "txt": "{{Courant disponible pour la charge sur P2 selon l'Equalizer.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 232,
+    "code": "EQ AVAILABLE CURRENT P3",
+    "txt": "{{Courant disponible pour la charge sur P3 selon l'Equalizer.}}",
+    "cmd_configs": {
+      "unite": "A"
+    }
+  },
+  {
+    "id": 250,
+    "code": "CONNECTED TO CLOUD",
+    "txt": "{{Indique si le chargeur est connecté au cloud ou non (Booléen).}}"
+  },
+  {
+    "id": 251,
+    "code": "CLOUD DISCONNECT REASON",
+    "txt": "{{Raison pour laquelle le chargeur s'est déconnecté du cloud.}}",
+    "cmd_configs": {
+      "name": "{{Raison déconnection du cloud}}"
+    }
+  },
+  {
+    "id": 250,
+    "code": "CONNECTED TO CLOUD",
+    "txt": "{{Indique si le chargeur est connecté au cloud ou non (Booléen).}}"
+  },
+  {
+    "id": 251,
+    "code": "CLOUD DISCONNECT REASON",
+    "txt": "{{Raison pour laquelle le chargeur s'est déconnecté du cloud.}}",
+    "cmd_configs": {
+      "name": "{{Raison déconnection du cloud}}"
+    }
+  }
+]

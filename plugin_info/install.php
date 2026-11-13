@@ -27,6 +27,25 @@ function EaseeCharger_goto_6() {
     if (file_exists($filename)) {
         unlink ($filename);
     }
+
+    $observations = file_get_contents(__DIR__ . "/../core/config/observations.json");
+    $observations = is_json($observations,$observations);
+    $convert = [];
+    foreach ($observations as $observation) {
+        if (isset($observation['old_logicalId'])){
+            $convert[$observation['old_logicalId']] = $observation['ID'];
+        }
+    }
+	$chargers = EaseeCharger::byType('EaseeCharger');
+    foreach ($chargers as $charger) {
+        $cmds = $charger->getCmd();
+        foreach ($cmds as $cmd) {
+            if (isset($convert[$cmd->getLogicalId()])) {
+                $cmd->setLogicalId($convert[$cmd->getLogicalId()]);
+                $cmd->save();
+            }
+        }
+    }
 }
 
 function EaseeCharger_goto_5() {
@@ -71,7 +90,7 @@ function EaseeCharger_goto_4() {
 function EaseeCharger_goto_3() {
 	$chargers = EaseeCharger::byType('EaseeCharger');
 	foreach ($chargers as $charger) {
-		$charger->createOrUpdateCmds('createOnly');
+		$charger->createCmds();
 	}
 }
 
@@ -83,7 +102,7 @@ function EaseeCharger_goto_2() {
 function EaseeCharger_goto_1() {
 	$chargers = EaseeCharger::byType('EaseeCharger');
 	foreach ($chargers as $charger) {
-		$charger->createOrUpdateCmds('createOnly');
+		$charger->createCmds();
 	}
 }
 
