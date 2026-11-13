@@ -25,6 +25,7 @@ require_once dirname(__FILE__) . '/../core/php/EaseeCharger.inc.php';
 function EaseeCharger_goto_6() {
     $filename = "/var/www/html/log/EaseeCharger_daemon.out";
     if (file_exists($filename)) {
+        log::add("EaseeCharger","info",sprintf(__("Suppression de %s",__FILE__),$filename));
         unlink ($filename);
     }
 
@@ -38,10 +39,15 @@ function EaseeCharger_goto_6() {
     }
 	$chargers = EaseeCharger::byType('EaseeCharger');
     foreach ($chargers as $charger) {
+        log::add("EaseeCharger","info",sprintf(__("upgrade du chargeur %s",__FILE__),$charger->getName()));
         $cmds = $charger->getCmd();
         foreach ($cmds as $cmd) {
             if (isset($convert[$cmd->getLogicalId()])) {
                 $cmd->setLogicalId($convert[$cmd->getLogicalId()]);
+                $cmd->save();
+            }
+            if ($cmd->getConfiguration('calcul')) {
+                $cmd->setConfiguration('calcul',null);
                 $cmd->save();
             }
         }
