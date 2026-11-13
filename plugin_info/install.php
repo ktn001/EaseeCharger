@@ -26,6 +26,7 @@ function EaseeCharger_goto_6() {
     $filename = "/var/www/html/log/EaseeCharger_daemon.out";
     if (file_exists($filename)) {
         log::add("EaseeCharger","info",sprintf(__("Suppression de %s",__FILE__),$filename));
+
         unlink ($filename);
     }
 
