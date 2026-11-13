@@ -35,7 +35,7 @@ function EaseeCharger_goto_6() {
     $convert = [];
     foreach ($observations as $observation) {
         if (isset($observation['old_logicalId'])){
-            $convert[$observation['old_logicalId']] = $observation['ID'];
+            $convert[$observation['old_logicalId']] = $observation['id'];
         }
     }
 	$chargers = EaseeCharger::byType('EaseeCharger');
