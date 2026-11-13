@@ -26,7 +26,7 @@ function EaseeCharger_goto_7() {
     $configs = config::searchKey('account::%', 'EaseeCharger');
     foreach($configs as $config) {
         log::add("EaseeCharger","debug",print_r($config,true));
-        $config['value']['UserName'] = $config['value']['login'];
+        $config['value']['userName'] = $config['value']['login'];
         unset($config['value']['login']);
         log::add("EaseeCharger","debug",print_r($config,true));
         config::save($config['key'], $config['value'], 'EaseeCharger');
