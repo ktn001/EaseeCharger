@@ -30,7 +30,6 @@ sys.path.append(libDir)
 from logfilter import *
 import jeedom
 from account import Account
-#from charger import Charger
 
 logger = logging.getLogger("EaseeChargerd")
 logger.addFilter(logFilter())
