@@ -134,114 +134,131 @@ sendVarToJS('eqType', $plugin->getId());
         <!-- Tab de configuration d'un chargeur -->
         <!-- ================================== -->
         <div role="tabpanel" class="tab-pane active" id="eqlogictab">
-        <!-- Paramètres généraux de l'équipement -->
-        <form class="form-horizontal">
-            <fieldset>
-
-            <!-- Partie gauche de l'onglet "Equipements" -->
-            <div class="col-lg-6">
-                <legend><i class="fas fa-wrench"></i> {{Général}}</legend>
-                <div class="form-group">
-                <label class="col-sm-3 control-label">{{Nom du chargeur}}</label>
-                <div class="col-sm-7">
-                    <input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;"/>
-                    <input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom du chargeur}}"/>
+            <br>
+            <div class="row">
+                <!-- Paramètres généraux de l'équipement -->
+                <div class="col-sm-6">
+                    <form class="form-horizontal">
+                        <fieldset>
+                            <legend><i class="fas fa-wrench"></i> {{Paramètres généraux}}</legend>
+                            <div class="form-group">
+                               <label class="col-sm-4 control-label">{{Nom du chargeur}}</label>
+                               <div class="col-sm-8">
+                                   <input type="text" class="eqLogicAttr form-control" data-l1key="id" style="display : none;"/>
+                                   <input type="text" class="eqLogicAttr form-control" data-l1key="name" placeholder="{{Nom du chargeur}}"/>
+                               </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" >{{Objet parent}}</label>
+                                <div class="col-sm-8">
+                                    <select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
+                                        <option value="">{{Aucun}}</option>
+                                        <?php
+                                            $options = '';
+                                            foreach ((jeeObject::buildTree(null, false)) as $object) {
+                                                $options .= '<option value="' . $object->getId() . '">' . str_repeat('&nbsp;&nbsp;', $object->getConfiguration('parentNumber')) . $object->getName() . '</option>';
+                                            }
+                                            echo $options;
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">{{Catégorie}}</label>
+                                <div class="col-sm-8">
+                                    <?php
+                                        foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
+                                            echo '<label class="checkbox-inline">';
+                                            echo '<input type="checkbox" class="eqLogicAttr" data-l1key="category" data-l2key="' . $key . '" />' . $value['name'];
+                                            echo '</label>';
+                                        }
+                                    ?>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">{{Options}}</label>
+                                <div class="col-sm-8">
+                                    <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isEnable" checked/>{{Activer}}</label>
+                                    <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked/>{{Visible}}</label>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
                 </div>
+                <div class="col-sm-6">
+                    <form class="form-horizontal">
+                        <fieldset>
+                            <!-- Informations des chargeurs -->
+                            <legend><i class="fas fa-info"></i> {{Information}}</legend>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">{{Commentaire}}</label>
+                                <div class="col-sm-7">
+                                    <textarea class="form-control eqLogicAttr aotogrow" data-l1key="comment" style="height: 39px;"></textarea>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
                 </div>
-                <div class="form-group">
-                <label class="col-sm-3 control-label" >{{Objet parent}}</label>
-                <div class="col-sm-7">
-                    <select id="sel_object" class="eqLogicAttr form-control" data-l1key="object_id">
-                    <option value="">{{Aucun}}</option>
-                    <?php
-                    $options = '';
-                    foreach ((jeeObject::buildTree(null, false)) as $object) {
-                        $options .= '<option value="' . $object->getId() . '">' . str_repeat('&nbsp;&nbsp;', $object->getConfiguration('parentNumber')) . $object->getName() . '</option>';
-                    }
-                    echo $options;
-                    ?>
-                    </select>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <form class="form-horizontal">
+                        <fieldset>
+                            <legend><i class="fas fa-cogs"></i> {{Paramètres}}</legend>
+                            <div class="form-group">
+                                <!-- Compte -->
+                                <label class="col-sm-4 control-label">{{Compte}}</label>
+                                <div class="col-sm-8">
+                                    <select id="selectAccount" class="eqLogicAttr" data-l1key="configuration" data-l2key="accountId">
+                                        <option value=''> -- <?= __('Sélectionez un compte',__FILE__); ?> -- </option>
+                                        <?php
+                                            foreach ($accounts as $account) {
+                                                $name =  $account->getName();
+                                                $id = $account->getId();
+                                                echo ("<option value='" . $id . "'>" . $name . "</option>");
+                                            }
+                                        ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <!-- Numéro de série -->
+                                <label class="col-sm-4 control-label">{{N° de série}}</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="eqLogicAttr form-control" data-l1key="logicalId"/>
+                                </div>
+                            </div>
+                            <div class='form-group'>
+                                <!-- Choix du widget -->
+                                <label class="col-sm-3 control-label">{{Widget personnalisé}}</label>
+                                <div class="col-sm-7">
+                                    <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="widget_perso"/>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
                 </div>
+                <div class="col-sm-6">
+                    <form class="form-horizontal">
+                        <fieldset>
+                            <legend><i class="fas fa-palette"></i> {{Couleur}}</legend>
+                                <div class="form-group">
+                                    <div class="text-center">
+                                        <img id="charger_icon_visu" src="/plugins/EaseeCharger/desktop/img/charger.png" style="max-width:160px;"/>
+                                        <select id="selectChargerImg" class="eqLogicAttr" data-l1key="configuration" data-l2key="image">
+                                            <option value=''> -- <?= __('Sélectionez une couleur',__FILE__); ?> -- </option>
+                                            <option value='/plugins/EaseeCharger/desktop/img/charger_noir.png'><?= __('noir',__FILE__) ?></option>
+                                            <option value='/plugins/EaseeCharger/desktop/img/charger_bleu.png'><?= __('bleu',__FILE__) ?></option>
+                                            <option value='/plugins/EaseeCharger/desktop/img/charger_blanc.png'><?= __('blanc',__FILE__) ?></option>
+                                            <option value='/plugins/EaseeCharger/desktop/img/charger_gris.png'><?= __('gris',__FILE__) ?></option>
+                                            <option value='/plugins/EaseeCharger/desktop/img/charger_rouge.png'><?= __('rouge',__FILE__) ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                        </fieldset>
+                    </form>
                 </div>
-                <div class="form-group">
-                <label class="col-sm-3 control-label">{{Catégorie}}</label>
-                <div class="col-sm-7">
-                    <?php
-                    foreach (jeedom::getConfiguration('eqLogic:category') as $key => $value) {
-                    echo '<label class="checkbox-inline">';
-                    echo '<input type="checkbox" class="eqLogicAttr" data-l1key="category" data-l2key="' . $key . '" />' . $value['name'];
-                    echo '</label>';
-                    }
-                    ?>
-                </div>
-                </div>
-                <div class="form-group">
-                <label class="col-sm-3 control-label">{{Options}}</label>
-                <div class="col-sm-7">
-                    <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isEnable" checked/>{{Activer}}</label>
-                    <label class="checkbox-inline"><input type="checkbox" class="eqLogicAttr" data-l1key="isVisible" checked/>{{Visible}}</label>
-                </div>
-                </div>
-                <br>
-
-                <legend><i class="fas fa-cogs"></i> {{Paramètres}}</legend>
-
-                <!-- Compte -->
-                <div class='form-group'>
-                <label class="col-sm-3 control-label">{{Compte}}</label>
-                <div class="col-sm-7">
-                    <select id="selectAccount" class="eqLogicAttr" data-l1key="configuration" data-l2key="accountId">
-                    <option value=''> -- <?= __('Sélectionez un compte',__FILE__); ?> -- </option>
-                    <?php
-                    foreach ($accounts as $account) {
-                        $name =  $account->getName();
-                        $id = $account->getId();
-                        echo ("<option value='" . $id . "'>" . $name . "</option>");
-                    }
-                    ?>
-                    </select>
-                </div>
-                </div>
-
-                <!-- Numéro de série -->
-                <div class='form-group'>
-                <label class="col-sm-3 control-label">{{N° de série}}</label>
-                <div class="col-sm-7">
-                    <input type="text" class="eqLogicAttr form-control" data-l1key="logicalId"/>
-                </div>
-                </div>
-
-                <!-- Choix du widget -->
-                <div class='form-group'>
-                <label class="col-sm-3 control-label">{{Widget personnalisé}}</label>
-                <div class="col-sm-7">
-                    <input type="checkbox" class="eqLogicAttr" data-l1key="configuration" data-l2key="widget_perso"/>
-                </div>
-                </div>
-
-            </div> <!-- Partie gauche de l'onglet "Equipements" -->
-
-            <!-- Partie droite de l'onglet "Équipement" -->
-            <div class="col-lg-6">
-                <!-- Informations des chargeurs -->
-                <legend><i class="fas fa-palette"></i> {{Couleur}}</legend>
-                <div class="form-group">
-                <div class="text-center">
-                    <img id="charger_icon_visu" src="/plugins/EaseeCharger/desktop/img/charger.png" style="max-width:160px;"/>
-                    <select id="selectChargerImg" class="eqLogicAttr" data-l1key="configuration" data-l2key="image">
-                    <option value=''> -- <?= __('Sélectionez une couleur',__FILE__); ?> -- </option>
-                    <option value='/plugins/EaseeCharger/desktop/img/charger_noir.png'><?= __('noir',__FILE__) ?></option>
-                    <option value='/plugins/EaseeCharger/desktop/img/charger_bleu.png'><?= __('bleu',__FILE__) ?></option>
-                    <option value='/plugins/EaseeCharger/desktop/img/charger_blanc.png'><?= __('blanc',__FILE__) ?></option>
-                    <option value='/plugins/EaseeCharger/desktop/img/charger_gris.png'><?= __('gris',__FILE__) ?></option>
-                    <option value='/plugins/EaseeCharger/desktop/img/charger_rouge.png'><?= __('rouge',__FILE__) ?></option>
-                    </select>
-                </div>
-                </div>
-            </div> <!-- Partie droite de l'onglet "Équipement" -->
-
-            </fieldset>
-        </form>
+            </div>
         </div> <!-- Tab de configuration d'un chargeur -->
 
         <!-- Onglet des commandes d'un chargeur -->
