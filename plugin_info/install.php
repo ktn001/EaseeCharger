@@ -142,7 +142,7 @@ function EaseeCharger_upgrade() {
 				log::add('EaseeCharger','info','execution de ' . $function . '()');
 				$function();
 			}
-			#config::save('plugin::level',$level,'EaseeCharger');
+			config::save('plugin::level',$level,'EaseeCharger');
 			$pluginLevel = $level;
 			log::add('EaseeCharger','info','pluginlevel: ' . $pluginLevel);
 		}
