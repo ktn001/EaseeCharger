@@ -48,22 +48,24 @@ try {
         if (!isset($message['mid'])) {
             return;
         }
-        $charger = EaseeCharger::byLogicalId($message['mid'],'EaseeCharger');
-        if (!is_object($charger)) {
+        $chargers = EaseeCharger::byLogicalId($message['mid'],'EaseeCharger', true);
+        if (!$chargers) {
             log::add("EaseeCharger","warning",sprintf(__("Chargeur %s introuvable",__FILE__),$message['mid']));
             return;
         }
         if (!isset($message['id'])) {
             return;
         }
-        $cmd = $charger->getCmd('info',$message['id']);
-        if (isset($message['timestamp'])){
-            $message['timestamp'] = date('Y-m-d H:i:s', strtotime($message['timestamp']));
-        }
-        if (is_object($cmd)) {
-            $charger->checkAndUpdateCmd($message['id'],$message['value'], $message['timestamp'] ?? '');
-        } else {
-            $charger->createAndUpdateCmd($message);
+        foreach ($chargers as $charger) {
+            $cmd = $charger->getCmd('info',$message['id']);
+            if (isset($message['timestamp'])){
+                $message['timestamp'] = date('Y-m-d H:i:s', strtotime($message['timestamp']));
+            }
+            if (is_object($cmd)) {
+                $charger->checkAndUpdateCmd($message['id'],$message['value'], $message['timestamp'] ?? '');
+            } else {
+                $charger->createAndUpdateCmd($message);
+           }
         }
     }
 
