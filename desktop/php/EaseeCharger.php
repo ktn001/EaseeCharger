@@ -264,7 +264,7 @@ sendVarToJS('eqType', $plugin->getId());
         <!-- Onglet des commandes d'un chargeur -->
         <!-- ================================== -->
         <div role="tabpanel" class="tab-pane" id="commandtab">
-        <a class="btn btn-default btn-sm pull-right cmdAction" data-action="recreateCmds" style="margin-top:5px;"><i class="fas fa-magic"></i> {{Mettre à jours les commandes}}</a>
+        <a class="btn btn-default btn-sm pull-right cmdAction" data-action="recreateCmds" style="margin-top:5px;"><i class="fas fa-magic"></i> {{Mettre à jour les commandes}}</a>
         <br/><br/>
         <div class="table-responsive">
             <table id="table_cmd" class="table table-bordered table-condensed">
@@ -274,7 +274,7 @@ sendVarToJS('eqType', $plugin->getId());
                 <th style="min-width:200px;width:280px">{{Nom}}<br>{{Commande liée}}</th>
                 <th style="width:80px">{{Type}}</br>{{Sous-type}}</th>
                 <th style="width:180px">LogicalId</th>
-                <th>{{Description}}<br>{{calcul}}</th>
+                <th>{{Description}}</th>
                 <th style="min-width:260px;width:280px">{{Options}}</th>
                 <th style="width:100px">{{Etat}}</th>
                 <th style="min-width:80px;width:140px">{{Action}}</th>
