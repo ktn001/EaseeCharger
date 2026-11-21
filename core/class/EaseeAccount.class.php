@@ -421,26 +421,24 @@ class EaseeAccount {
     /*
      * token
      */
-    public function saveToken($_token) {
+    public function saveToken($token) {
         $payload = array (
             'cmd' => 'newToken',
-            'expiresIn' => $_token['expiresIn'],
-            'expiresAt' => $token['expiresAt'],
-            'expiresIn' => $token['expiresIn']
+            'expiresIn' => $token['expiresIn'],
         );
-        if (array_key_exists('accessToken',$_token)) {
-            $payload['accessToken'] = $_token['accessToken'];
-            $_token['accessToken'] = utils::encrypt($_token['accessToken']);
+        if (array_key_exists('accessToken',$token)) {
+            $payload['accessToken'] = $token['accessToken'];
+            $token['accessToken'] = utils::encrypt($token['accessToken']);
         }
-        if (array_key_exists('refreshToken',$_token)) {
-            $_token['refreshToken'] = utils::encrypt($_token['refreshToken']);
+        if (array_key_exists('refreshToken',$token)) {
+            $token['refreshToken'] = utils::encrypt($token['refreshToken']);
         }
-        if (! array_key_exists('expireAt',$_token)) {
-            $_token['expiresAt'] = time() + $_token['expiresIn'];
-            $payload['expiresAt'] = $_token['expiresAt'];
+        if (! array_key_exists('expireAt',$token)) {
+            $token['expiresAt'] = time() + $token['expiresIn'];
+            $payload['expiresAt'] = $token['expiresAt'];
         }
         $lifetime = 192800;
-        cache::set('EaseeAccount:'. $this->getId(), json_encode($_token,JSON_UNESCAPED_UNICODE), $lifetime);
+        cache::set('EaseeAccount:'. $this->getId(), json_encode($token,JSON_UNESCAPED_UNICODE), $lifetime);
         $this->send2daemon($payload);
         return $this;
     }
